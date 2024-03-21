@@ -1,0 +1,73 @@
+.container{
+  display: flex;
+  flex-direction: column;
+ 
+}
+
+.search-input-container{
+  margin-top: 2rem;
+  margin-left: 1.78rem;
+  width: 20dvw;
+}
+
+.top-buttons{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+.table-appointment{
+    background-color: #FFFFFF;
+    width: 76dvw;
+    
+    margin-left: 1.78rem;
+    border-radius: 4px;
+    box-shadow: 1px 2px 5px 2px rgba(0, 0, 0, 0.2);
+}
+
+th, td{
+    width: 16%;
+    text-align: center;
+    font-family: "Mulish", sans-serif;
+}
+
+th{
+    font-weight: bold;  
+}
+
+.history-icon{
+  cursor: pointer;
+}
+
+.history-icon:hover{
+  color: #85ff8d;
+}
+
+  .title{
+    font-size: 30px;
+  }
+
+  .angular-table{
+    height: 70dvh;
+  }
+
+  mat-paginator{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 1px 2px 5px 0px rgba(0, 0, 0, 0.2);
+  }
+
+  .register-button{
+    background-color: #ff7d13 !important;
+  }
+  
+  @media (max-width: 600px) {
+    .mat-column-name, .mat-column-history {
+      display: none;
+    }
+  }
+
+  

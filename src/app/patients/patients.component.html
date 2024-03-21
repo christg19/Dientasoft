@@ -1,0 +1,118 @@
+<!-- <div class="create-appointment">
+      <div class="container">
+        <div class="title">
+          <p>Registra un paciente</p>
+        </div>
+        <mat-form-field appearance="fill">
+            <mat-label>Nombre del paciente</mat-label>
+            <input matInput >
+          </mat-form-field>
+
+        <mat-form-field class="example-form-field">
+          <mat-label>Elige una fecha</mat-label>
+          <input matInput [matDatepicker]="datepicker">
+          <mat-hint></mat-hint>
+          <mat-datepicker-toggle matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
+          <mat-datepicker #datepicker>
+            <mat-datepicker-actions>
+              <button mat-button matDatepickerCancel>Cancel</button>
+              <button mat-raised-button color="primary" matDatepickerApply>Apply</button>
+            </mat-datepicker-actions>
+          </mat-datepicker>
+        </mat-form-field>
+  
+        <div class="patient">
+          <mat-form-field appearance="fill" class="patient-select">
+            <mat-label>Selecciona un paciente</mat-label>
+            <mat-select>
+              <mat-option value="option1">Opción 1</mat-option>
+              <mat-option value="option2">Opción 2</mat-option>
+              <mat-option value="option3">Opción 3</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-mini-fab color="primary" aria-label="Add" [value]="redirectToClient"
+            (click)="redirect(redirectToClient)">
+            <mat-icon>add</mat-icon>
+          </button>
+  
+        </div>
+        <div class="services">
+          <mat-form-field appearance="fill" class="services-select">
+            <mat-label>Selecciona servicios</mat-label>
+            <mat-select multiple formControlName="pacientesSeleccionados">
+              <mat-option value="option1">Opción 1</mat-option>
+              <mat-option value="option2">Opción 2</mat-option>
+              <mat-option value="option3">Opción 3</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-mini-fab color="primary" aria-label="Add" [value]="redirectToServices"
+            (click)="redirect(redirectToServices)">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        <div class="create">
+          <button mat-raised-button color="primary" class="create-button">Crear cita</button>
+        </div>
+      </div>
+    </div> -->
+<div class="container">
+<div class="top-buttons">
+  <mat-form-field appearance="outline" class="search-input-container">
+    <input type="text" (keyup)="applyFilter($event)" matInput placeholder="Busca un paciente..." class="search-input">
+  </mat-form-field>
+  <button mat-button class="register-button" (click)="redirect('/patients/createPatient')">Registrar paciente</button>
+
+</div>
+  <div class="table-appointment">
+    <div style="overflow-x: auto;">
+      <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Nombre</th>
+          <td mat-cell *matCellDef="let patient"> {{patient.name}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="history">
+          <th mat-header-cell *matHeaderCellDef>Historial dental</th>
+          <td mat-cell *matCellDef="let patient"> <mat-icon (click)="profile(patient.id)" class="history-icon">library_books</mat-icon> </td>
+        </ng-container>
+
+        <ng-container matColumnDef="age">
+          <th mat-header-cell *matHeaderCellDef>Edad</th>
+          <td mat-cell *matCellDef="let patient"> {{patient.age}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="procedure">
+          <th mat-header-cell *matHeaderCellDef>Ultimo procedimiento</th>
+          <td mat-cell *matCellDef="let patient">  </td>
+        </ng-container>
+
+        <ng-container matColumnDef="pending_appointment">
+          <th mat-header-cell *matHeaderCellDef>Cita programada</th>
+          <td mat-cell *matCellDef="let patient">  </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions" class="icons">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Acciones</th>
+          <td mat-cell *matCellDef="let row" class="icon-container">
+
+            <button mat-icon-button class="icon icon-edit" (click)="redirectToEdit(row.id)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="icon icon-delete">
+              <mat-icon>delete</mat-icon>
+            </button>
+
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Selecciona una página">
+      </mat-paginator>
+    </div>
+
+  </div>
+</div>
