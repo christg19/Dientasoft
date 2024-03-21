@@ -14,13 +14,15 @@ import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import { FormsModule } from '@angular/forms';
 import { PatientComponent } from './patient/patient.component';
-import { ReactiveFormsModule } from '@angular/forms'; // Importa ReactiveFormsModule
+import { ReactiveFormsModule } from '@angular/forms'; 
+import { LoadingComponent } from '../shared/components/loading/loading.component';
 
 
 @NgModule({
   declarations: [
     PatientsComponent,
-    PatientComponent
+    PatientComponent,
+    LoadingComponent
   ],
   imports: [
     CommonModule,
