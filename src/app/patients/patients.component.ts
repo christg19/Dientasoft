@@ -1,18 +1,11 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataSource } from '@angular/cdk/collections';
 import { PatientsService } from '../shared/services/patient.service';
+import { Patient } from '../shared/interfaces/patient.interface';
 
-export interface Patient {
-  id?:number;
-  name: string;
-  history: string;
-  age: number;
-  last_procedure: string;
-  pending_appointment: string;
-}
 
 @Component({
   selector: 'app-patients',
@@ -21,29 +14,32 @@ export interface Patient {
 })
 export class PatientsComponent implements AfterViewInit {
   displayedColumns: string[] = ['name', 'history', 'procedure', 'pending_appointment', 'actions'];
-  patientList:Patient[] = []
+  patientList: Patient[] = [];
+  loading: Boolean = false;
   dataSource = new MatTableDataSource<any>(this.patientList);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   redirectToClient = '/patients'
   redirectToServices = '/services'
-   
-  constructor(private router: Router, private paginators: MatPaginatorIntl,   private patientService:PatientsService,
-    private route: ActivatedRoute) {
-  
+
+  constructor(private router: Router, private paginators: MatPaginatorIntl, private patientService: PatientsService,
+    private route: ActivatedRoute, private cdr: ChangeDetectorRef) {
+
     this.paginators.itemsPerPageLabel = "Registros por página";
     this.paginators.nextPageLabel = "Siguiente página";
     this.paginators.previousPageLabel = "Página anterior";
     this.paginators.lastPageLabel = "Ultima página";
     this.paginators.firstPageLabel = "Primera página";
-    
+
     this.paginators.getRangeLabel = (page, pageSize, length) => {
       return this.spanishRangeLabel(page, pageSize, length);
     };
   }
 
   ngOnInit(): void {
+    this.loading = true;
     this.getAllPatients();
+    this.loading = false;
   }
 
   ngAfterViewInit() {
@@ -62,7 +58,7 @@ export class PatientsComponent implements AfterViewInit {
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    const filterResult = this.patientList.filter(propertie => 
+    const filterResult = this.patientList.filter(propertie =>
       propertie.name.toLowerCase().includes(filterValue)
     );
     this.dataSource.data = filterResult;
@@ -70,21 +66,33 @@ export class PatientsComponent implements AfterViewInit {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
-
   }
 
-  getAllPatients(){
+  deletePatient(id:string){
+    this.patientService.deletePatient(id).subscribe({
+      next: (response:any) => {
+        console.log('Paciente eliminado con exito:', response);
+        this.getAllPatients();
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    });
+  }
+
+  getAllPatients() {
     this.patientService.getPatients().subscribe({
-      next:(patients:any) =>{
+      next: (patients: any) => {
         this.patientList = patients;
-        this.dataSource.data = this.patientList; 
+        this.dataSource.data = this.patientList;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error(error)
       }
     })
   }
-
 
   redirect(url: string) {
     this.router.navigate([url])

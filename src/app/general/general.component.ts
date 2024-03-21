@@ -4,7 +4,7 @@ import { AppointmentService } from '../shared/services/appointment.service';
 import { PatientsService } from '../shared/services/patient.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { Patient } from '../patients/patients.component';
+import { Patient } from '../shared/interfaces/patient.interface';
 
 export interface Menu {
   title: string;

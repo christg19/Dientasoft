@@ -2,8 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input'; // Asegúrate de importar MatInputModule
-import { MatNativeDateModule } from '@angular/material/core'; // Importa MatNativeDateModule
+import { MatInputModule } from '@angular/material/input'; 
+import { MatNativeDateModule } from '@angular/material/core'; 
 import {NgxMaterialTimepickerModule} from 'ngx-material-timepicker';
 import {MatIconModule} from '@angular/material/icon';
 import { PatientsRoutingModule } from './patients-routing.module';
@@ -16,13 +16,13 @@ import { FormsModule } from '@angular/forms';
 import { PatientComponent } from './patient/patient.component';
 import { ReactiveFormsModule } from '@angular/forms'; 
 import { LoadingComponent } from '../shared/components/loading/loading.component';
+import { LoadingModule } from '../shared/components/loading/loading.module';
 
 
 @NgModule({
   declarations: [
     PatientsComponent,
     PatientComponent,
-    LoadingComponent
   ],
   imports: [
     CommonModule,
@@ -38,7 +38,8 @@ import { LoadingComponent } from '../shared/components/loading/loading.component
     MatTableModule,
     MatPaginatorModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    LoadingModule
   ]
 })
 export class PatientsModule { }

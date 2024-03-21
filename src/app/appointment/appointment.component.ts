@@ -6,7 +6,7 @@ import { Appointment } from '../shared/interfaces/appointment.interface';
 import { AppointmentService } from '../shared/services/appointment.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PatientsService } from '../shared/services/patient.service';
-import { Patient } from '../patients/patients.component';
+import { Patient } from '../shared/interfaces/patient.interface';
 import { ServicesService } from '../shared/services/services.service';
 import { Service } from '../shared/interfaces/services.interface';
 
@@ -147,12 +147,12 @@ export class AppointmentComponent implements AfterViewInit {
         if (ampm === 'PM' && hours < 12) hours += 12;
         if (ampm === 'AM' && hours === 12) hours = 0;
   
-        if (!isNaN(date.getTime())) { // Verifica que 'date' sea una fecha válida
+        if (!isNaN(date.getTime())) { 
           date.setHours(hours, minutes);
   
           const submission = {
             ...formValue,
-            appointmentDate: date.toISOString() // Usa la fecha y hora combinadas
+            appointmentDate: date.toISOString() 
           };
   
           this.appointmentService.createAppointment(submission).subscribe({
