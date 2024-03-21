@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Patient } from 'src/app/shared/interfaces/patient.interface';
@@ -10,16 +10,21 @@ import { PatientsService } from 'src/app/shared/services/patient.service';
   styleUrls: ['./patient.component.scss']
 })
 export class PatientComponent {
-  private patientId:string = '';
+  private patientId: string = '';
   patientForm!: FormGroup;
 
-  constructor(private fb: FormBuilder, private patientsService: PatientsService, private router: Router, private route:ActivatedRoute) {
+  constructor(private fb: FormBuilder, private patientsService: PatientsService, private router: Router, private route: ActivatedRoute, private cdr:ChangeDetectorRef) {
     this.patientForm = this.fb.group({
       name: ['', Validators.required],
       age: [0, Validators.required],
       address: ['', [Validators.required]],
-      tel: ['', Validators.required],
+      tel: [''],
     });
+  }
+
+  ngOnInit() {
+    this.getId();
+    this.getPatientDetails(this.patientId)
   }
 
   getId() {
@@ -32,7 +37,7 @@ export class PatientComponent {
     });
   }
 
-  private getPatientDetails(id:string){
+  private getPatientDetails(id: string) {
     this.patientsService.getPatientById(id).subscribe({
       next: (patient: any) => {
         this.fillFormDetails(patient);
@@ -43,7 +48,7 @@ export class PatientComponent {
     })
   }
 
-  private fillFormDetails(patient:Patient){
+  private fillFormDetails(patient: Patient) {
     this.patientForm.patchValue({
       name: patient.name || '',
       age: patient.age || 0,
@@ -52,21 +57,41 @@ export class PatientComponent {
     })
   }
 
+  updatePatient(patient: Patient, id: string) {
+    this.patientsService.updatePatient(patient, id).subscribe({
+      next: () => {
+        console.log('Updateado con exito');
+
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    });
+  }
+
+  createPatient(patient: Patient) {
+    this.patientsService.createPatient(patient).subscribe({
+      next: (response: any) => {
+        console.log('Paciente creado exitosamente:', response);
+        this.router.navigate(['/patients']);
+      },
+      error: (error: any) => {
+        console.error('Error al crear paciente:', error);
+      }
+    });
+  }
+
   submitForm() {
     if (this.patientForm.valid) {
       const formValue = this.patientForm.value;
 
-      this.patientsService.createPatient(formValue).subscribe({
-        next: (response: any) => {
-          console.log('Paciente creado exitosamente:', response);
-          this.router.navigate(['/patients']);
-        },
-        error: (error: any) => {
-          console.error('Error al crear paciente:', error);
-        }
-      });
+      if (this.patientId) {
+        this.updatePatient(formValue, this.patientId)
+        this.router.navigate(['/patients']);
+      } else {
+        this.createPatient(formValue);
+      }
+
     }
-
-
   }
 }

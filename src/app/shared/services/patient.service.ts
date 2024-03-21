@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Appointment } from '../interfaces/appointment.interface';
+import { Patient } from '../interfaces/patient.interface';
 
 
 @Injectable({
@@ -38,5 +39,15 @@ export class PatientsService {
     };
   
     return this.httpClient.post('http://localhost:3000/api/v1/clients/createPatient', formData);
+  }
+
+  updatePatient(patient:Patient, id:string){
+    return this.httpClient.put(`http://localhost:3000/api/v1/clients/updatePatient/${id}`, patient, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+    
   }
 }
