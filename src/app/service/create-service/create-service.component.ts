@@ -58,8 +58,8 @@ export class CreateServiceComponent {
 
   updateService(service: Service, id: string) {
     this.servicesService.updateService(service, id).subscribe({
-      next: () => {
-        console.log('Updateado con exito');
+      next: (response:any) => {
+        console.log('Updateado con exito:', response);
 
       },
       error: (error) => {

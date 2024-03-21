@@ -11,6 +11,10 @@ const routes: Routes = [
   {
     path: 'createService',
     component:CreateServiceComponent
+  },
+  {
+    path: 'editService/:id',
+    component:CreateServiceComponent
   }
 ];
 

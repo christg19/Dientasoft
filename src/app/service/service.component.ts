@@ -96,7 +96,7 @@ export class ServiceComponent {
   }
 
   redirectToEdit(id: string): void {
-    this.router.navigate(['/patients/updateService', id]);
+    this.router.navigate(['/services/editService', id]);
   }
 
 }
