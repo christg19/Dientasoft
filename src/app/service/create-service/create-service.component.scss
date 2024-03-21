@@ -1,0 +1,86 @@
+.form{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.main-container{
+    display: flex;
+    flex-direction: row;
+    margin-left: 0rem;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    font-family: "Mulish", sans-serif;
+    max-width: 500px;
+    padding-top: 3rem;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.create-appointment{
+    background-color: #FFFFFF;
+    width: 350px;
+    height: 650px;
+    margin-left: 1rem;
+    margin-top: 3rem;
+    border-radius: 4px;
+    box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.2);
+}
+
+
+
+.example-form-field{
+    border: 0px !important;
+    width: 230px;
+}
+
+input::placeholder {
+    padding-left: 1px;
+  }
+
+
+.default-time-example {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 2rem;
+    width: 230px;
+  }
+
+  .patient-button{
+    background-color: #4CAF50 !important;
+    width: 120px;
+    height: 45px;
+  }
+
+
+
+  .mat-select-arrow-wrapper {
+    display: none;
+  }
+
+  .create-button{
+    background-color: #9C27B0 !important;
+    width: 200px;
+  }
+
+  .create{
+    display: flex;
+    align-items: center;
+    justify-self: center;
+
+  }
+
+  .title{
+    font-size: 30px;
+
+  }
+
+

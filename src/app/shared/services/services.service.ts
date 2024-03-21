@@ -1,19 +1,56 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Service } from '../interfaces/services.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ServicesService {
   constructor(private httpClient: HttpClient) { }
+  private url = 'http://localhost:3000/api/v1/service';
 
   getServices() {
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJjZ296dW5hQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTY5NzA3ODQ3NSwiZXhwIjoxNjk3MTY0ODc1fQ.kQC5x_3O0RwVkLqCrnu4iakN61iXGrJ8AyLUOQ43mKY'
-      })
-    };
-  
-    return this.httpClient.get('http://localhost:3000/api/v1/service/getAllServices/', httpOptions);
+    return this.httpClient.get(`${this.url}/getAllServices`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+  }
+
+  getServiceById(id: string) {
+    return this.httpClient.get(`${this.url}/getOneService/${id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+  }
+
+  createService(formData: any) {
+    return this.httpClient.post(`${this.url}/createService`, formData, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+  }
+
+  updateService(service: Service, id: string) {
+    return this.httpClient.put(`${this.url}/updateService/${id}`, service, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+  }
+
+  deleteService(id: string) {
+    return this.httpClient.delete(`${this.url}/deleteService/${id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
   }
 }

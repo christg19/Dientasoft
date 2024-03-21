@@ -1,0 +1,24 @@
+<form [formGroup]="serviceForm" (ngSubmit)="submitForm()" class="form">
+    <div class="main-container">
+        <div class="create-appointment">
+            <div class="container">
+                <div class="title">
+                    <p>Crea un servicio</p>
+                </div>
+                <mat-form-field class="example-full-width">
+                    <mat-label>Nombre</mat-label>
+                    <input matInput formControlName="name">
+                  </mat-form-field>
+
+                  <mat-form-field class="example-full-width">
+                    <mat-label>Costo</mat-label>
+                    <input matInput formControlName="cost" type="number">
+                  </mat-form-field>
+
+                <div class="create">
+                    <button mat-raised-button color="primary" class="create-button" type="submit">Registrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
