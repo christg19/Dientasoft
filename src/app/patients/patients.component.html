@@ -36,6 +36,12 @@
             <th mat-header-cell *matHeaderCellDef>Ultimo procedimiento</th>
             <td mat-cell *matCellDef="let patient"> </td>
           </ng-container>
+          
+          <ng-container matColumnDef="pending-appointment">
+            <th mat-header-cell *matHeaderCellDef>Consultas pendientes</th>
+            <td mat-cell *matCellDef="let appointment"> <span class="pending-eye">0 <mat-icon (click)="redirect('')" style="cursor: pointer;">remove_red_eye</mat-icon></span>
+            </td>
+          </ng-container>
 
           <ng-container matColumnDef="pending_appointment">
             <th mat-header-cell *matHeaderCellDef>Cita programada</th>

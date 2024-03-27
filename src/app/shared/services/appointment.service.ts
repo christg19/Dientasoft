@@ -9,6 +9,7 @@ import { Appointment } from '../interfaces/appointment.interface';
 })
 export class AppointmentService {
   constructor(private httpClient: HttpClient) { }
+  private url = 'http://localhost:3000/api/v1/patient-appointments';
 
   getAppointments() {
     const httpOptions = {
@@ -17,7 +18,16 @@ export class AppointmentService {
       })
     };
   
-    return this.httpClient.get('http://localhost:3000/api/v1/patient-appointments/getAllAppointments/1/10', httpOptions);
+    return this.httpClient.get(`${this.url}/getAllAppointments/1/10`, httpOptions);
+  }
+
+  getAppointmentById(id: string) {
+    return this.httpClient.get(`${this.url}/getAppointmentById/${id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
   }
 
   createAppointment(formData: any) {

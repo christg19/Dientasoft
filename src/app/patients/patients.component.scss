@@ -53,6 +53,15 @@ th{
     height: 70dvh;
   }
 
+  .pending-eye{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    
+  }
+
   mat-paginator{
     display: flex;
     align-items: center;

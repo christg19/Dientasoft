@@ -12,7 +12,7 @@ export class AppComponent  {
   menu = [{ title: 'General', icon: 'speed', url:'/general' },
   { title: 'Citas', icon: 'date_range', url: '/appointment' },
   { title: 'Pacientes', icon: 'group', url: '/patients' },
-  { title: 'Inventario', icon: 'local_hospital', url: '' },
+  { title: 'Inventario', icon: 'local_hospital', url: '/inventory' },
   { title: 'Servicios', icon: 'medical_services', url: '/services' },
   { title: 'Trabajadores', icon: 'engineering', url: '' },
   { title: 'Gastos', icon: 'attach_money', url: '' },

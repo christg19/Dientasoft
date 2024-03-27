@@ -13,7 +13,7 @@ import { Patient } from '../shared/interfaces/patient.interface';
   styleUrls: ['./patients.component.scss']
 })
 export class PatientsComponent implements AfterViewInit {
-  displayedColumns: string[] = ['name', 'history', 'procedure', 'pending_appointment', 'actions'];
+  displayedColumns: string[] = ['name', 'history', 'procedure', 'pending-appointment','pending_appointment', 'actions'];
   patientList: Patient[] = [];
   loading: Boolean = false;
   dataSource = new MatTableDataSource<any>(this.patientList);
