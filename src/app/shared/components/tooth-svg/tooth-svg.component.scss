@@ -1,0 +1,28 @@
+path[id^="tooth-"]:hover {
+    fill: red; 
+  }
+
+  .img {
+    max-width: 53dvw;
+    max-height: 60dvh;
+    margin: 1rem;
+}
+
+.container{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: "Mulish", sans-serif;
+}
+
+.container h1 {
+  position:relative;
+  top:5vh;
+}
+
+svg{
+  width: 80dvw;
+  height: auto;
+ 
+}
