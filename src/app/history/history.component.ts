@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PatientsService } from '../shared/services/patient.service';
 import { Patient } from '../shared/interfaces/patient.interface';
 import { AppointmentService } from '../shared/services/appointment.service';
@@ -14,10 +14,12 @@ import { AppointmentService } from '../shared/services/appointment.service';
   styleUrls: ['./history.component.scss']
 })
 export class HistoryComponent {
+  public hoveredTooth: string | null = null;
+
   public patient!: Patient;
   public patientAppointmentPendient = [];
   public patientAppointment = [];
-  private patientId: string = "";
+  public patientId: string = "";
   dialogRef!: MatDialogRef<any>;
   displayedColumns: string[] = ['hour', 'procedure', 'cost'];
   displayedHistoricColums: string[] = ['hour', 'procedure', 'cost'];
@@ -27,7 +29,8 @@ export class HistoryComponent {
 
   constructor(public dialog: MatDialog, private route: ActivatedRoute,
     private patientsService: PatientsService,
-    private appointmentsService: AppointmentService) { }
+    private appointmentsService: AppointmentService,
+    private router: Router,) { }
 
   ngOnInit() {
     this.getId();
@@ -40,7 +43,9 @@ export class HistoryComponent {
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
+
   }
+
 
   getId() {
     this.route.paramMap.subscribe(params => {
@@ -62,6 +67,10 @@ export class HistoryComponent {
         console.error(error);
       }
     });
+  }
+
+  getToothInfo(){
+
   }
 
   getPatientPendingAppointments() {

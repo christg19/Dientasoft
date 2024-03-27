@@ -19,7 +19,7 @@
 .header {
     display: flex;
     flex-direction: row;
-    width: 100%;    
+    width: 100%;
     height: auto;
     gap: 1rem;
     flex-wrap: nowrap;
@@ -32,7 +32,7 @@
 
 }
 
-.visits{
+.visits {
     background-color: #FFFFFF;
     border-radius: 4px;
     border-bottom: 2px solid red;
@@ -58,7 +58,7 @@
     box-shadow: 5px 5px 5px 0 rgba(0, 0, 0, 0.2);
 }
 
-.plan{
+.plan {
     background-color: #FFFFFF;
     border-radius: 4px;
     border-bottom: 2px solid rgb(0, 255, 94);
@@ -88,7 +88,7 @@
     flex-direction: column;
 }
 
-div .info{
+div .info {
     width: 21dvw;
 }
 
@@ -99,6 +99,21 @@ div .info{
     background-color: #FFFFFF;
     border-radius: 4px;
     overflow-y: scroll;
+}
+
+.dental-history {
+    background-color: #FFFFFF;
+    border-radius: 3px;
+    margin: 1.78rem;
+    margin-left: 1rem;
+    width: 53dvw;
+    height: 73dvh;
+}
+
+.dientes {
+    width: 200px;
+    height: 100px;
+    visibility: visible;
 }
 
 .icons {
@@ -157,4 +172,18 @@ th {
     font-weight: bold;
 }
 
+.teeth {
+    display: flex;
+    flex-direction: row;
+    width: 53dvw;
+}
 
+
+
+.element-image {
+    cursor: pointer;
+}
+
+path[id^="tooth-"]:hover {
+    fill: red; 
+  }

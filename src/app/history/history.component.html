@@ -57,6 +57,7 @@
                 <button mat-button (click)="closeModal()">Cerrar</button>
             </div>
         </ng-template>
+       
         <div (click)="openModal(modalContent3)" class="plan header-title">
             <span>Plan de</span>
             <span>tratamiento</span>
@@ -78,6 +79,7 @@
                         <td mat-cell *matCellDef="let element"> {{element.servicesName.join(', ')}} </td>
                     </ng-container>
 
+
                     <ng-container matColumnDef="cost">
                         <th mat-header-cell *matHeaderCellDef>Monto total</th>
                         <td mat-cell *matCellDef="let element"> {{element.totalCost}} </td>
@@ -94,7 +96,17 @@
                 <mat-icon matTooltip="Recetas dentales">receipt_long</mat-icon>
             </div>
         </div>
+        <div class="dental-history">
+            <div class="teeth">
+                    <app-tooth-svg [patient]="patientId"/>
+                <div class="info-teeth">
 
+                </div>
+            </div>
+
+
+        </div>
     </div>
+
 
 </div>
