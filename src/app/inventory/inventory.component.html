@@ -1,0 +1,33 @@
+<div class="container">
+    <div class="buttons">
+        <button mat-flat-button color="accent" *ngFor="let names of buttonsNames" class="button">{{names}}</button>
+    </div>
+    <div class="table-inventory">
+      <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
+
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef>Hora</th>
+          <td mat-cell *matCellDef="let appointment"> {{appointment.appointmentDate |date:'shortTime':'GMT-0400'}} </td>
+        </ng-container>
+  
+        <ng-container matColumnDef="patientName">
+            <th mat-header-cell *matHeaderCellDef>Paciente</th>
+            <td mat-cell *matCellDef="let appointment"> {{appointment.patientName}} </td>
+          </ng-container>
+          
+          <ng-container matColumnDef="procedure">
+            <th mat-header-cell *matHeaderCellDef>Procedimiento</th>
+            <td mat-cell *matCellDef="let appointment"> {{appointment.servicesName.join(', ') }} </td>
+          </ng-container>
+          
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef>Monto</th>
+            <td mat-cell *matCellDef="let appointment"> {{appointment.totalCost}} </td>
+          </ng-container>
+  
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+      
+      </div>
+    </div>
