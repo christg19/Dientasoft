@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { InventoryRoutingModule } from './inventory-routing.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
+import {MatIconModule} from '@angular/material/icon';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -19,6 +20,7 @@ import { InventoryComponent } from './inventory.component';
     MatPaginatorModule,
     ReactiveFormsModule,
     FormsModule,
+    MatIconModule
 
 
   ]
