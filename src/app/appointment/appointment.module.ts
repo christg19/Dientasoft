@@ -14,11 +14,12 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import { FormsModule } from '@angular/forms';
+import { CreateAppointmentComponent } from './create-appointment/create-appointment.component';
 
 
 
 @NgModule({
-  declarations: [AppointmentComponent],
+  declarations: [AppointmentComponent, CreateAppointmentComponent],
   imports: [
     CommonModule,
     AppointmentRoutingModule,

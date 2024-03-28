@@ -1,58 +1,12 @@
-<form [formGroup]="appointmentForm" (ngSubmit)="submitForm()">
   <div class="main-container">
-    <div class="create-appointment">
-      <div class="container">
-        <div class="title">
-          <p>Registra una cita</p>
-        </div>
-        <mat-form-field class="example-form-field">
-          <mat-label>Elige una fecha</mat-label>
-          <input matInput [matDatepicker]="datepicker" formControlName="appointmentDate">
-          <mat-hint></mat-hint>
-          <mat-datepicker-toggle matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
-          <mat-datepicker #datepicker></mat-datepicker>
-        </mat-form-field>
+    <div class="top-buttons">
+      <!-- <mat-form-field appearance="outline" class="search-input-container">
+        <input type="text" (keyup)="applyFilter($event)" matInput placeholder="Busca un paciente..."
+          class="search-input">
+      </mat-form-field> -->
+      <button mat-flat-button color="accent" class="register-button" (click)="redirect('/appointment/createAppointment')">Agendar una cita</button>
 
-        <div class="default-time-example">
-          <input aria-label="default time" class="hour-input" formControlName="appointmentHour" placeholder="Selecciona una hora"
-            [ngxTimepicker]="defaultValue" readonly>
-          <mat-icon class="time-icon">access_time</mat-icon>
-          <ngx-material-timepicker #defaultValue></ngx-material-timepicker>
-        </div>
-
-        <div class="patient">
-          <mat-form-field appearance="fill" class="patient-select">
-            <mat-label>Selecciona un paciente</mat-label>
-            <mat-select formControlName="patientId">
-              <mat-option *ngFor="let option of patientList" [value]="option.id">{{ option.name }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <button mat-mini-fab color="primary" aria-label="Add" [value]="redirectToClient"
-            (click)="redirect(redirectToClient)">
-            <mat-icon>add</mat-icon>
-          </button>
-        </div>
-
-        <div class="services">
-          <mat-form-field appearance="fill" class="services-select">
-            <mat-label>Selecciona servicios</mat-label>
-            <mat-select multiple formControlName="serviceIds">
-              <mat-option *ngFor="let option of servicesList" [value]="option.id"> {{ option.name }} </mat-option>
-            </mat-select>
-          </mat-form-field>
-          <button mat-mini-fab color="primary" aria-label="Add" [value]="redirectToServices"
-            (click)="redirect(redirectToServices)">
-            <mat-icon>add</mat-icon>
-          </button>
-        </div>
-
-        <div class="create">
-          <button mat-raised-button color="primary" class="create-button" type="submit">Crear cita</button>
-        </div>
-      </div>
     </div>
-
-
     <div class="table-appointment">
       <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
 
@@ -85,4 +39,3 @@
 
     </div>
   </div>
-</form>
