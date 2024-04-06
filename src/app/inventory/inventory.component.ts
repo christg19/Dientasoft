@@ -1,41 +1,57 @@
-import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { Patient } from '../shared/interfaces/patient.interface';
+import { ProductService } from '../shared/services/product.service';
+import { Product } from '../shared/interfaces/product.interface';
+
+export interface TableOption {
+  buttonName: string;
+  active: boolean;
+  columns: string[];
+  products: Product[];
+  table: string[];
+}
 
 @Component({
   selector: 'app-inventory',
   templateUrl: './inventory.component.html',
   styleUrls: ['./inventory.component.scss']
 })
-export class InventoryComponent {
+export class InventoryComponent implements OnInit {
+  public actions:boolean = true;
+  public instrumentalQuantity: number = 0;
   public buttonsNames: string[] = ['Instrumentos', 'Quimicos', 'Desechables'];
-
-  public tableOptions = [
+  public productList: Product[] = [];
+  public tableOptions: TableOption[] = [
     {
-      buttonName: "Instrumentos",
+      buttonName: "INSTRUMENTAL",
       active: true,
-      columns: ['Item','Cantidad disponible','Fecha de compra','Notas', 'Esterilizado / Limpiado / Empaquetado']
+      columns: ['Item', 'Cantidad disponible', 'Fecha de compra', 'Notas', 'Esterilizado / Limpiado / Empaquetado'],
+      products: [],
+      table: ['items', 'status', 'date', 'notes','actions']
     },
     {
-      buttonName: "Quimicos",
+      buttonName: "CHEMICAL",
       active: false,
-      columns: ['Item','Cantidad disponible', 'Fecha de caducidad','Notas']
+      columns: ['Item', 'Cantidad disponible', 'Fecha de caducidad', 'Notas',],
+      products: [],
+      table: ['items', 'expiryDate', 'notes',  'actions']
     },
     {
-      buttonName: "Desechables",
+      buttonName: "DISPOSABLE",
       active: false,
-      columns: ['Item','Cantidad disponible','Fecha de caducidad','Notas']
+      columns: ['Item', 'Cantidad disponible', 'Fecha de caducidad', 'Notas' ],
+      products: [],
+      table: ['items', 'expiryDate', 'notes',  'actions']
     }
   ];
 
-  inventoryList: Patient[] = [];
-  displayedColumns: string[] = ['items', 'quantity', 'date', 'notes', 'actions'];
+  displayedColumns: string[] = [];
+  dataSource = new MatTableDataSource<any>();
 
-  dataSource = new MatTableDataSource<Patient>(this.inventoryList);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private paginators: MatPaginatorIntl, private changeDetectorRef: ChangeDetectorRef) {
+  constructor(private productService: ProductService, private paginators: MatPaginatorIntl) {
     this.paginators.itemsPerPageLabel = "Registros por página";
     this.paginators.nextPageLabel = "Siguiente página";
     this.paginators.previousPageLabel = "Página anterior";
@@ -45,6 +61,10 @@ export class InventoryComponent {
     this.paginators.getRangeLabel = (page, pageSize, length) => {
       return this.spanishRangeLabel(page, pageSize, length);
     };
+   }
+
+  ngOnInit() {
+    this.getProducts();
   }
 
   ngAfterViewInit() {
@@ -61,19 +81,72 @@ export class InventoryComponent {
     return `${startIndex + 1} - ${endIndex} de ${length}`;
   }
 
+  getColumns() {
+    const activeOption = this.tableOptions.find(option => option.active);
+    this.displayedColumns = activeOption ? activeOption.table : [];
+  }
+
+  getInstrumentalQuantity(productArray: Product[], category: string) {
+    const products = productArray.filter((product: Product) => product.categoryProduct === category);
+    return products.length;
+  }
+
   toggleActive(selectedOption: any) {
     this.tableOptions.forEach(option => option.active = false);
     selectedOption.active = true;
-    this.changeDetectorRef.detectChanges();
-
-  }
-  
-  getDisplayedColumns(): string[] {
-    const activeOption = this.tableOptions.find(option => option.active);
-    return activeOption ? activeOption.columns : [];
+    this.getColumns();
+    this.dataSource.data = this.getDataSourceProduct(selectedOption.buttonName);
   }
 
-  addItem(){
+
+  addItem() {
 
   }
+
+  getDataSourceProduct(productType: string): Product[] {
+    return this.productList.filter((product: Product) => product.categoryProduct === productType);
+  }
+
+  getProducts() {
+    this.productService.getProducts().subscribe({
+      next: (products: any) => {
+        this.productList = products;
+        const option = this.tableOptions.find((table: TableOption) => table.active);
+        const optionFilter = this.productList.filter((product: Product) => product.categoryProduct === option?.buttonName)
+        this.instrumentalQuantity = optionFilter.length;
+        this.dataSource.data = optionFilter;
+
+        this.getColumns();
+      },
+      error: (error) => {
+        console.log(error);
+      }
+    });
+  }
+
+  formatDate(date: string) {
+    const fecha = new Date(date);
+    const year = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dia = String(fecha.getDate()).padStart(2, '0');
+
+
+    const fechaFormateada = `${year}-${mes}-${dia}`;
+
+    return fechaFormateada;
+  }
+
+
+  selectProduct() {
+    let option!: string;
+
+    for (let i = 0; i < this.tableOptions.length; i++) {
+      if (this.tableOptions[i].active) {
+        option = this.tableOptions[i].buttonName
+      }
+    }
+
+    return this.getDataSourceProduct(option)
+  }
+
 }

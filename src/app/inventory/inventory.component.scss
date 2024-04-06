@@ -44,3 +44,10 @@ td {
     height: 30px;
     
 }
+
+mat-paginator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none;
+  }

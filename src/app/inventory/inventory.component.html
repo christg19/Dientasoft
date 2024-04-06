@@ -1,43 +1,82 @@
 <div class="container">
-    <div class="buttons">
-      <button mat-fab color="primary" (click)="addItem()" class="addItem">
-        <mat-icon>add</mat-icon>
-      </button>
-      <button mat-flat-button color="accent" *ngFor="let option of tableOptions" 
-      class="button" (click)="toggleActive(option)">
-{{ option.buttonName }}
-</button>
+  <div class="buttons">
+    <button mat-fab color="primary" (click)="addItem()" class="addItem">
+      <mat-icon>add</mat-icon>
+    </button>
+    <button mat-flat-button color="accent" *ngFor="let option of tableOptions" class="button"
+      (click)="toggleActive(option)">
+      {{ option.buttonName }}
+    </button>
 
-    </div>
-    <div class="table-inventory">
-      <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
-        <ng-container *ngFor="let option of tableOptions">
-          <ng-container *ngIf="option.active">
-            <ng-container *ngFor="let column of option.columns">
-              <ng-container [matColumnDef]="column">
-                <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
-                <td mat-cell *matCellDef="let item"> {{ item[column] }} </td>
-              </ng-container>
-            </ng-container>
-          </ng-container>
+  </div>
+  <div class="table-inventory">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
+
+      <ng-container *ngIf="tableOptions[0].active">
+        <ng-container matColumnDef="items">
+          <th mat-header-cell *matHeaderCellDef>Item</th>
+          <td mat-cell *matCellDef="let item"> {{ item.name }} </td>
         </ng-container>
-        <ng-container matColumnDef="actions" class="icons">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Acciones</th>
-          <td mat-cell *matCellDef="let row" class="icon-container">
-
-            <button mat-icon-button class="icon icon-edit">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button class="icon icon-delete">
-              <mat-icon>delete</mat-icon>
-            </button>
-
+        <!-- <ng-container matColumnDef="quantity">
+            <th mat-header-cell *matHeaderCellDef>Cantidad</th>
+            <td mat-cell *matCellDef="let item"> {{ item.quantity }} </td>
+          </ng-container> -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Esterilizado /<br/>Empaquetado </th>
+          <td mat-cell *matCellDef="let item">
+            <mat-checkbox class="example-margin"></mat-checkbox>
           </td>
         </ng-container>
-    
-        <tr mat-header-row *matHeaderRowDef="getDisplayedColumns()"></tr>
-        <tr mat-row *matRowDef="let row; columns: getDisplayedColumns();"></tr>
-      </table>
-    </div>
-    
-    </div>
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef>Fecha de compra</th>
+          <td mat-cell *matCellDef="let item"> {{ formatDate(item.unitDate) }} </td>
+        </ng-container>
+        <ng-container matColumnDef="notes">
+          <th mat-header-cell *matHeaderCellDef>Notas</th>
+          <td mat-cell *matCellDef="let item"> {{ item.notes }} </td>
+        </ng-container>
+      </ng-container>
+
+      <ng-container *ngIf="tableOptions[1].active || tableOptions[2].active">
+        <ng-container matColumnDef="items">
+          <th mat-header-cell *matHeaderCellDef>Item</th>
+          <td mat-cell *matCellDef="let item"> {{ item.name }} </td>
+        </ng-container>
+        <!-- <ng-container matColumnDef="quantity">
+            <th mat-header-cell *matHeaderCellDef>Cantidad</th>
+            <td mat-cell *matCellDef="let item"> {{ item.quantity }} </td>
+          </ng-container> -->
+        <ng-container matColumnDef="expiryDate">
+          <th mat-header-cell *matHeaderCellDef>Fecha de caducidad</th>
+          <td mat-cell *matCellDef="let item"> {{ formatDate(item.expiryDate) }} </td>
+        </ng-container>
+        <ng-container matColumnDef="notes">
+          <th mat-header-cell *matHeaderCellDef>Notas</th>
+          <td mat-cell *matCellDef="let item"> {{ item.notes }} </td>
+        </ng-container>
+      </ng-container>
+
+
+      <ng-container matColumnDef="actions" class="icons" *ngIf="actions">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Acciones</th>
+        <td mat-cell *matCellDef="let row" class="icon-container">
+          <button mat-icon-button class="icon icon-edit">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button class="icon icon-delete">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Select page of periodic elements">
+    </mat-paginator>
+
+  </div>
+
+</div>
