@@ -93,7 +93,7 @@ export class AppointmentComponent implements AfterViewInit {
       next: (appointment: any) => {
         this.appointmentList = appointment;
         this.dataSource.data = this.appointmentList;
-  
+
       },
       error: (error) => {
         console.error(error);
@@ -163,7 +163,7 @@ export class AppointmentComponent implements AfterViewInit {
     );
   }
 
-  
+
 
   deleteAppointment(id: string) {
     this.appointmentService.deleteAppointment(id).subscribe({
@@ -203,11 +203,18 @@ export class AppointmentComponent implements AfterViewInit {
   }
 
   openModal(templateRef: TemplateRef<any>, id?: string): void {
-    if (!this.updating) {
-      this.appointmentForm.reset();
+
+    if (!id) {
+      this.updating = false;
       this.appointmentId = '';
+      this.appointmentForm.reset();
+    } else {
+
+      this.updating = true;
+      this.appointmentId = id;
+      this.loadAppointmentDetails(id);
     }
-    
+
     this.dialogRef = this.dialog.open(templateRef, { width: '400px', height: '500px' });
 
     setTimeout(() => {
@@ -216,59 +223,58 @@ export class AppointmentComponent implements AfterViewInit {
   }
 
 
+
   closeModal(): void {
     this.dialogRef.close();
-    this.updating = false; // Asegúrate de restablecer el estado de actualización al cerrar el modal
+    this.updating = false; 
   }
 
   submitForm() {
     if (this.appointmentForm.valid) {
-        const formValue = this.appointmentForm.getRawValue(); // Asegúrate de obtener todos los valores del formulario
+      const formValue = this.appointmentForm.getRawValue();
 
-        if (formValue.appointmentDate && formValue.appointmentHour) {
-            // Construir la fecha y hora del appointment correctamente
-            const date = new Date(formValue.appointmentDate);
-            const [hours, minutes] = formValue.appointmentHour.split(':').map(Number);
-            date.setHours(hours, minutes);
+      if (formValue.appointmentDate && formValue.appointmentHour) {
+  
+        const date = new Date(formValue.appointmentDate);
+        const [hours, minutes] = formValue.appointmentHour.split(':').map(Number);
+        date.setHours(hours, minutes);
 
-            // Preparar el objeto submission sin la propiedad appointmentHour directamente
-            const submission = {
-                ...formValue,
-                appointmentDate: date.toISOString()
-            };
-            delete submission.appointmentHour; // Elimina la propiedad appointmentHour
+        const submission = {
+          ...formValue,
+          appointmentDate: date.toISOString()
+        };
+        delete submission.appointmentHour; 
 
-            if (this.updating) {
-                // Lógica para actualizar la cita, usando el ID almacenado
-                this.appointmentService.updateAppointment(submission, this.appointmentId).subscribe({
-                    next: (response: any) => {
-                        console.log('Cita actualizada exitosamente:', response);
-                        this.closeModal();
-                        this.getAllAppointments();
-                        this.updating = false;
-                        this.cdr.detectChanges();
-                    },
-                    error: (error: any) => console.error('Error al actualizar la cita:', error)
-                });
-            } else {
-             
-                this.appointmentService.createAppointment(submission).subscribe({
-                    next: (response: any) => {
-                        console.log('Cita creada exitosamente:', response);
-                        this.closeModal();
-                        this.getAllAppointments();
-                        this.cdr.detectChanges();
-                    },
-                    error: (error: any) => console.error('Error al crear la cita:', error)
-                });
-            }
+        if (this.updating) {
+          this.appointmentService.updateAppointment(submission, this.appointmentId).subscribe({
+            next: (response: any) => {
+              console.log('Cita actualizada exitosamente:', response);
+              this.closeModal();
+              this.getAllAppointments();
+              this.updating = false;
+              this.cdr.detectChanges();
+            },
+            error: (error: any) => console.error('Error al actualizar la cita:', error)
+          });
         } else {
-            console.error('La fecha y/o la hora no están definidas.');
+
+          this.appointmentService.createAppointment(submission).subscribe({
+            next: (response: any) => {
+              console.log('Cita creada exitosamente:', response);
+              this.closeModal();
+              this.getAllAppointments();
+              this.cdr.detectChanges();
+            },
+            error: (error: any) => console.error('Error al crear la cita:', error)
+          });
         }
+      } else {
+        console.error('La fecha y/o la hora no están definidas.');
+      }
     } else {
-        console.log('El formulario no es válido. Detalles de los errores:');
+      console.log('El formulario no es válido. Detalles de los errores:');
     }
-}
+  }
 
 
 
