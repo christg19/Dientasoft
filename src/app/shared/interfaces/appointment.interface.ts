@@ -1,5 +1,6 @@
 export interface Appointment {
-    appointmentDate: Date;
+    id?:string;
+    appointmentDate: string;
     notes?: string;
     servicesName: string[];
     patientId: number;
