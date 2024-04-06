@@ -5,26 +5,29 @@
   }
   
   .search-input-container{
-    margin-top: 2rem;
-    margin-left: 1.78rem;
-    width: 20dvw;
-  }
-  
-  .top-buttons{
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
     gap: 1rem;
+  }
+  
+  .top-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 2rem;
+    margin-bottom: 1rem;
   }
   
   .table-appointment{
       background-color: #FFFFFF;
-      width: 76dvw;
-      
-      margin-left: 1.78rem;
+      width: 75dvw;
+      height: 10dvh;
+      margin-left: 2.5rem;
       border-radius: 4px;
-      box-shadow: 1px 2px 5px 2px rgba(0, 0, 0, 0.2);
+      box-shadow: none;
   }
   
   th, td{
@@ -50,18 +53,14 @@
     }
   
     .angular-table{
-      height: 70dvh;
+      height: 10dvh;
     }
   
     mat-paginator{
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 1px 2px 5px 0px rgba(0, 0, 0, 0.2);
-    }
-  
-    .register-button{
-      background-color: #ff7d13 !important;
+      box-shadow: none;
     }
     
     @media (max-width: 600px) {
