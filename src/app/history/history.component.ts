@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -27,12 +27,28 @@ export class HistoryComponent {
   dataSourceHistoric = new MatTableDataSource<any>(this.patientAppointment)
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
+  @ViewChild('modalContent1') modalContent1!: TemplateRef<any>;
+  @ViewChild('modalContent2') modalContent2!: TemplateRef<any>;
+  @ViewChild('modalContent3') modalContent3!: TemplateRef<any>;
+  public headerItems: { title: string, subTitle: string, modalContent: any }[] = [];
+
+ 
+  
+
   constructor(public dialog: MatDialog, private route: ActivatedRoute,
     private patientsService: PatientsService,
     private appointmentsService: AppointmentService,
     private router: Router,) { }
 
   ngOnInit() {
+
+    this.headerItems = [
+      { title: 'Historico de', subTitle: 'visitas', modalContent: this.modalContent1},
+      { title: 'Historial de', subTitle: 'pago', modalContent: this.modalContent2 },
+      { title: 'Plan de', subTitle: 'tratamiento', modalContent: this.modalContent3 }
+    ];
+
+    
     this.getId();
     this.getPatientById(this.patientId);
     if (this.patient) {
@@ -115,11 +131,8 @@ export class HistoryComponent {
   }
 
 
-  openModal(templateRef: any) {
-    this.dialogRef = this.dialog.open(templateRef, {
-      width: '80%',
-      height: 'auto',
-    });
+  openModal(templateRef: TemplateRef<any>) {
+    this.dialog.open(templateRef);
   }
 
   closeModal() {

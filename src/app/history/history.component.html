@@ -1,68 +1,15 @@
 <div class="main-container">
     <div class="header">
         <div *ngIf="patient" class="info header-title">
-            <p>{{patient.name}}</p>
+          <p>{{ patient.name }}</p>
         </div>
-        <ng-template #modalContent1>
-            <div>
-                <h2></h2>
-                <div class="modal-appointment">
-                    <table mat-table [dataSource]="dataSourceHistoric" class="mat-elevation-z8">
-
-                        <ng-container matColumnDef="hour">
-                            <th mat-header-cell *matHeaderCellDef>Fecha</th>
-                            <td mat-cell *matCellDef="let appointment"> {{formatDate(appointment.appointmentDate)}}
-                            </td>
-                        </ng-container>
-
-
-                        <ng-container matColumnDef="procedure">
-                            <th mat-header-cell *matHeaderCellDef>Procedimientos</th>
-                            <td mat-cell *matCellDef="let appointment"> {{appointment.servicesName.join(', ')}} </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="cost">
-                            <th mat-header-cell *matHeaderCellDef>Monto total</th>
-                            <td mat-cell *matCellDef="let appointment"> {{appointment.totalCost}} </td>
-                        </ng-container>
-
-                        <tr mat-header-row *matHeaderRowDef="displayedHistoricColums"></tr>
-                        <tr mat-row *matRowDef="let row; columns: displayedHistoricColums;"></tr>
-                    </table>
-                </div>
-                <!-- <button mat-button (click)="closeModal()">Cerrar</button> -->
-            </div>
-        </ng-template>
-        <div (click)="openModal(modalContent1)" class="visits header-title">
-            <span>Historico de </span>
-            <span>visitas</span>
+      
+        <div *ngFor="let item of headerItems" (click)="openModal(item.modalContent)" class="header-title">
+            <span>{{ item.title }}</span>
+            <span>{{ item.subTitle }}</span>
         </div>
-
-        <ng-template #modalContent2>
-            <div>
-                <h2>Título del Modal</h2>
-                <p>Este es el contenido del modal.</p>
-                <button mat-button (click)="closeModal()">Cerrar</button>
-            </div>
-        </ng-template>
-        <div (click)="openModal(modalContent2)" class="history header-title">
-            <span>Historial de</span>
-            <span>pago</span>
-        </div>
-
-        <ng-template #modalContent3>
-            <div>
-                <h2>Título del Modal</h2>
-                <p>Este es el contenido del modal.</p>
-                <button mat-button (click)="closeModal()">Cerrar</button>
-            </div>
-        </ng-template>
-       
-        <div (click)="openModal(modalContent3)" class="plan header-title">
-            <span>Plan de</span>
-            <span>tratamiento</span>
-        </div>
-    </div>
+      </div>
+      
     <div class="main-appointment">
         <div class="appointments-container">
             <div class="appointments">
@@ -110,3 +57,50 @@
 
 
 </div>
+
+<ng-template #modalContent1>
+    <div>
+        <h2></h2>
+        <div class="modal-appointment">
+            <table mat-table [dataSource]="dataSourceHistoric" class="mat-elevation-z8">
+
+                <ng-container matColumnDef="hour">
+                    <th mat-header-cell *matHeaderCellDef>Fecha</th>
+                    <td mat-cell *matCellDef="let appointment"> {{formatDate(appointment.appointmentDate)}}
+                    </td>
+                </ng-container>
+
+
+                <ng-container matColumnDef="procedure">
+                    <th mat-header-cell *matHeaderCellDef>Procedimientos</th>
+                    <td mat-cell *matCellDef="let appointment"> {{appointment.servicesName.join(', ')}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="cost">
+                    <th mat-header-cell *matHeaderCellDef>Monto total</th>
+                    <td mat-cell *matCellDef="let appointment"> {{appointment.totalCost}} </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedHistoricColums"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedHistoricColums;"></tr>
+            </table>
+        </div>
+        <!-- <button mat-button (click)="closeModal()">Cerrar</button> -->
+    </div>
+</ng-template>
+
+<ng-template #modalContent2>
+    <div>
+        <h2>Título del Modal</h2>
+        <p>Este es el contenido del modal.</p>
+        <button mat-button (click)="closeModal()">Cerrar</button>
+    </div>
+</ng-template>
+
+<ng-template #modalContent3>
+    <div>
+        <h2>Título del Modal</h2>
+        <p>Este es el contenido del modal.</p>
+        <button mat-button (click)="closeModal()">Cerrar</button>
+    </div>
+</ng-template>
