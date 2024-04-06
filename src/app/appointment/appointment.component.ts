@@ -91,6 +91,7 @@ export class AppointmentComponent implements AfterViewInit {
   getAllAppointments() {
     this.appointmentService.getAppointments().subscribe({
       next: (appointment: any) => {
+        console.log(appointment)
         this.appointmentList = appointment;
         this.dataSource.data = this.appointmentList;
 
@@ -138,31 +139,41 @@ export class AppointmentComponent implements AfterViewInit {
 
   loadAppointmentDetails(id: string) {
     this.updating = true;
-    console.log(id)
+    console.log(id);
     this.appointmentService.getAppointmentById(id).subscribe(
       (appointment: any) => {
         const appointmentData: Appointment = appointment;
         const appointmentDateTime = new Date(appointmentData.appointmentDate);
-
+  
         const appointmentDate = appointmentDateTime.toISOString().substring(0, 10);
-
         const hours = appointmentDateTime.getHours().toString().padStart(2, '0');
         const minutes = appointmentDateTime.getMinutes().toString().padStart(2, '0');
         const appointmentHour = `${hours}:${minutes}`;
-
+  
+       if(appointmentData.service){
+        const selectedServiceIds:Service[] = appointmentData.service.map(service => service.id);
+       
         this.appointmentForm.patchValue({
           appointmentDate: appointmentDate,
           appointmentHour: appointmentHour,
           notes: appointmentData.notes,
-          servicesName: appointmentData.servicesName,
+          serviceIds: selectedServiceIds, 
           patientId: appointmentData.patientId,
           patientName: appointmentData.patientName,
         });
+        console.log("IDs de servicios seleccionados:", selectedServiceIds);
+      }
+      
+        this.cdr.detectChanges();
+        
+  
+        console.log("Lista de citas:", this.appointmentList);
+        console.log("serviceIds en el formulario:", this.appointmentForm.value.serviceIds);
       },
       error => console.error(error)
     );
   }
-
+  
 
 
   deleteAppointment(id: string) {
@@ -226,7 +237,7 @@ export class AppointmentComponent implements AfterViewInit {
 
   closeModal(): void {
     this.dialogRef.close();
-    this.updating = false; 
+    this.updating = false;
   }
 
   submitForm() {
@@ -234,7 +245,7 @@ export class AppointmentComponent implements AfterViewInit {
       const formValue = this.appointmentForm.getRawValue();
 
       if (formValue.appointmentDate && formValue.appointmentHour) {
-  
+
         const date = new Date(formValue.appointmentDate);
         const [hours, minutes] = formValue.appointmentHour.split(':').map(Number);
         date.setHours(hours, minutes);
@@ -243,7 +254,7 @@ export class AppointmentComponent implements AfterViewInit {
           ...formValue,
           appointmentDate: date.toISOString()
         };
-        delete submission.appointmentHour; 
+        delete submission.appointmentHour;
 
         if (this.updating) {
           this.appointmentService.updateAppointment(submission, this.appointmentId).subscribe({

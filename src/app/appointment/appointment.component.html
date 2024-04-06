@@ -93,11 +93,12 @@
       <div class="services">
         <mat-form-field appearance="fill" class="services-select">
           <mat-label>Selecciona servicios</mat-label>
-          <mat-select multiple formControlName="serviceIds">
-            <mat-option *ngFor="let option of servicesList" [value]="option.id"> {{ option.name }}
-            </mat-option>
+          <mat-select formControlName="serviceIds" multiple>
+            <mat-option *ngFor="let service of servicesList" [value]="service.id">{{service.name}}</mat-option>
           </mat-select>
         </mat-form-field>
+            
+        
         <button mat-mini-fab color="primary" aria-label="Add" [value]="redirectToServices"
           (click)="redirect(redirectToServices)">
           <mat-icon>add</mat-icon>

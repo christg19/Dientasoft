@@ -3,6 +3,8 @@ export interface Appointment {
     appointmentDate: string;
     notes?: string;
     servicesName: string[];
+    serviceIds?:number[];
+    service?:any[];
     patientId: number;
     patientName: string;
 }
