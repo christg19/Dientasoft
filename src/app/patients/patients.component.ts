@@ -1,10 +1,12 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, TemplateRef, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataSource } from '@angular/cdk/collections';
 import { PatientsService } from '../shared/services/patient.service';
 import { Patient } from '../shared/interfaces/patient.interface';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 
 @Component({
@@ -15,14 +17,19 @@ import { Patient } from '../shared/interfaces/patient.interface';
 export class PatientsComponent implements AfterViewInit {
   displayedColumns: string[] = ['name', 'history', 'procedure', 'pending-appointment','pending_appointment', 'actions'];
   patientList: Patient[] = [];
+  patientForm!: FormGroup;
+  private patientId: string = '';
+  dialogRef!: MatDialogRef<any>;
+
   loading: Boolean = false;
   dataSource = new MatTableDataSource<any>(this.patientList);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild('modalContent') modalContent!: TemplateRef<any>;
 
   redirectToClient = '/patients'
   redirectToServices = '/services'
 
-  constructor(private router: Router, private paginators: MatPaginatorIntl, private patientService: PatientsService,
+  constructor(public dialog: MatDialog, private patientsService:PatientsService, private fb: FormBuilder,private router: Router, private paginators: MatPaginatorIntl, private patientService: PatientsService,
     private route: ActivatedRoute, private cdr: ChangeDetectorRef) {
 
     this.paginators.itemsPerPageLabel = "Registros por página";
@@ -34,6 +41,13 @@ export class PatientsComponent implements AfterViewInit {
     this.paginators.getRangeLabel = (page, pageSize, length) => {
       return this.spanishRangeLabel(page, pageSize, length);
     };
+    
+    this.patientForm = this.fb.group({
+      name: ['', Validators.required],
+      age: [, Validators.required],
+      address: ['', [Validators.required]],
+      tel: [''],
+    });
   }
 
   ngOnInit(): void {
@@ -106,5 +120,58 @@ export class PatientsComponent implements AfterViewInit {
     this.router.navigate(['/patients/updatePatient', id]);
   }
 
+  
+
+  createPatient(patient: Patient) {
+    this.patientsService.createPatient(patient).subscribe({
+      next: (response: any) => {
+        console.log('Paciente creado exitosamente:', response);
+        this.closeModal();
+        this.getAllPatients();
+      },
+      error: (error: any) => {
+        console.error('Error al crear paciente:', error);
+      }
+    });
+  }
+
+  openModal(templateRef: TemplateRef<any>) {
+    this.dialogRef = this.dialog.open(templateRef, { width: '400px', height: '500px' });
+    setTimeout(() => {
+      this.cdr.detectChanges();
+    }, 0);
+  }
+
+
+  closeModal() {
+    this.dialogRef.close();
+  }
+
+  updatePatient(patient: Patient, id: string) {
+    this.patientsService.updatePatient(patient, id).subscribe({
+      next: () => {
+        console.log('Actualizado con éxito');
+        this.closeModal();
+        this.getAllPatients(); 
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    });
+  }
+
+  submitForm() {
+    if (this.patientForm.valid) {
+      const formValue = this.patientForm.value;
+  
+      if (this.patientId) {
+        this.updatePatient(formValue, this.patientId);
+        window.location.reload();
+      } else {
+        this.createPatient(formValue);
+      }
+    }
+    window.location.reload()
+  }
 
 }

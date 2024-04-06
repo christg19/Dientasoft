@@ -65,10 +65,52 @@ th, td{
     box-shadow: none;
   }
 
-  .register-button{
-    width: 200px;
-    height: 30px;
+  .mat-dialog-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px; 
+    width: 100%;
+    z-index: 1000 !important;
+  
   }
+  
+  .modal-top{
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  justify-content: center;
+  background-color:#ff9c9c;
+  height: 5dvh;
+  width: 100%;
+  }
+  
+  .close-icon{
+    margin-right: 1rem;
+    color: #FFFFFF;
+    cursor: pointer;
+  }
+  
+  .content-modal{
+    margin-top: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .create{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .register-button{
+    width: 15dvw;
+  }
+  
   
   @media (max-width: 600px) {
     .mat-column-name, .mat-column-history {

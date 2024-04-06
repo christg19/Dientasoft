@@ -8,7 +8,7 @@
         <input type="text" (keyup)="applyFilter($event)" matInput placeholder="Busca un paciente..."
           class="search-input">
       </mat-form-field>
-      <button mat-flat-button color="accent" class="register-button" (click)="redirect('/patients/createPatient')">Registrar
+      <button mat-flat-button color="accent" (click)="openModal(modalContent)">Registrar
         paciente</button>
 
     </div>
@@ -36,10 +36,11 @@
             <th mat-header-cell *matHeaderCellDef>Ultimo procedimiento</th>
             <td mat-cell *matCellDef="let patient"> </td>
           </ng-container>
-          
+
           <ng-container matColumnDef="pending-appointment">
             <th mat-header-cell *matHeaderCellDef>Consultas pendientes</th>
-            <td mat-cell *matCellDef="let appointment"> <span class="pending-eye">0 <mat-icon (click)="redirect('')" style="cursor: pointer;">remove_red_eye</mat-icon></span>
+            <td mat-cell *matCellDef="let appointment"> <span class="pending-eye">0 <mat-icon (click)="redirect('')"
+                  style="cursor: pointer;">remove_red_eye</mat-icon></span>
             </td>
           </ng-container>
 
@@ -72,4 +73,42 @@
 
     </div>
   </div>
+</ng-template>
+
+<ng-template #modalContent>
+  <form [formGroup]="patientForm" (ngSubmit)="submitForm()" class="form">
+    <div class="mat-dialog-container">
+
+      <div class="modal-top">
+        <mat-icon class="close-icon" (click)="closeModal()">close</mat-icon>
+      </div>
+
+      <div class="content-modal">
+        <mat-form-field class="example-full-width">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="name">
+        </mat-form-field>
+
+        <mat-form-field class="example-full-width">
+          <mat-label>Edad</mat-label>
+          <input matInput formControlName="age" type="number">
+        </mat-form-field>
+
+        <mat-form-field class="example-full-width">
+          <mat-label>Dirección</mat-label>
+          <input matInput formControlName="address">
+        </mat-form-field>
+
+        <mat-form-field class="example-full-width">
+          <mat-label>Teléfono</mat-label>
+          <input matInput formControlName="tel">
+        </mat-form-field>
+
+        <div class="create">
+          <button mat-raised-button color="primary" class="register-button" type="submit">Registrar paciente</button>
+        </div>
+      </div>
+    </div>
+
+  </form>
 </ng-template>
