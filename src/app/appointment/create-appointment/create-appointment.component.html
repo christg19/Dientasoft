@@ -1,8 +1,8 @@
-<form [formGroup]="appointmentForm" (ngSubmit)="submitForm()">
+<form [formGroup]="appointmentForm" (ngSubmit)="submitForm()" >
     <div class="create-appointment">
         <div class="container">
             <div class="title">
-                <p>Registra una cita</p>
+               
             </div>
             <mat-form-field class="example-form-field">
                 <mat-label>Elige una fecha</mat-label>
@@ -48,8 +48,9 @@
             </div>
 
             <div class="create">
-                <button mat-raised-button color="primary" class="create-button" type="submit">Crear cita</button>
+                <button mat-flat-button color="accent" class="register-button" type="submit">Registrar cita</button>
             </div>
         </div>
     </div>
 </form>
+

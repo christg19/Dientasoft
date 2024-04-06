@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Patient } from 'src/app/shared/interfaces/patient.interface';
 import { Service } from 'src/app/shared/interfaces/services.interface';
 import { AppointmentService } from 'src/app/shared/services/appointment.service';
+import { PatientsService } from 'src/app/shared/services/patient.service';
 import { ServicesService } from 'src/app/shared/services/services.service';
 
 @Component({
@@ -20,28 +21,42 @@ export class CreateAppointmentComponent {
   appointmentForm!: FormGroup;
   patientList: Patient[] = [];
   constructor(
+    private patientService: PatientsService,
     private fb: FormBuilder,
     private appointmentService: AppointmentService,
     private servicesService: ServicesService,
     private router: Router,
-  ){
+    
+  ) {
     this.appointmentForm = this.fb.group({
       appointmentDate: [Date, Validators.required],
-      appointmentHour:['', Validators.required],
+      appointmentHour: ['', Validators.required],
       serviceIds: [[], [Validators.required]],
       patientId: ['', Validators.required],
     });
-   }
+  }
 
-   ngOnInit():void{
+  ngOnInit(): void {
     this.getAllServices();
-   }
+    this.getAllPatients();
+  }
 
-   redirect(url: string) {
+  redirect(url: string) {
     this.router.navigate([url])
   }
 
-   getAllServices() {
+  getAllPatients() {
+    this.patientService.getPatients().subscribe({
+      next: (patients: any) => {
+        this.patientList = patients;
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    });
+  }
+
+  getAllServices() {
     this.servicesService.getServices().subscribe({
       next: (services: any) => {
         this.servicesList = services;
@@ -54,26 +69,26 @@ export class CreateAppointmentComponent {
   submitForm() {
     if (this.appointmentForm.valid) {
       const formValue = this.appointmentForm.value;
-  
+
       if (formValue.appointmentDate && formValue.appointmentHour) {
         const date = new Date(formValue.appointmentDate);
         const timeParts = formValue.appointmentHour.match(/(\d+):(\d+) (\w+)/);
         let hours = parseInt(timeParts[1], 10);
         const minutes = parseInt(timeParts[2], 10);
         const ampm = timeParts[3];
-  
+
         // Convierte a formato de 24 horas
         if (ampm === 'PM' && hours < 12) hours += 12;
         if (ampm === 'AM' && hours === 12) hours = 0;
-  
-        if (!isNaN(date.getTime())) { 
+
+        if (!isNaN(date.getTime())) {
           date.setHours(hours, minutes);
-  
+
           const submission = {
             ...formValue,
-            appointmentDate: date.toISOString() 
+            appointmentDate: date.toISOString()
           };
-  
+
           this.appointmentService.createAppointment(submission).subscribe({
             next: (response: any) => {
               console.log('Cita creada exitosamente:', response);

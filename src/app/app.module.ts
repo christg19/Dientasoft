@@ -7,6 +7,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { InventoryComponent } from './inventory/inventory.component';
+import { ModalContent1Component } from './shared/components/modal-content1/modal-content1.component';
 
 
 
@@ -14,6 +15,7 @@ import { InventoryComponent } from './inventory/inventory.component';
 @NgModule({
   declarations: [
     AppComponent,
+    ModalContent1Component,
 
 
   ],

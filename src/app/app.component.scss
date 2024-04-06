@@ -27,6 +27,8 @@ body {
     padding-top: 2rem;
     cursor: pointer;
     transition: color 0.5s ease; 
+    user-select: none;
+    text-decoration: none;
 }
 
 .options:hover{
