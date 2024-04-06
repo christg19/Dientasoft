@@ -164,3 +164,34 @@ td {
 .responsive-text {
     font-size: calc(1vw + 1vh + 0.5vmin);
 }
+
+.stats {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.stats > div {
+    flex: 1 1 auto; 
+    max-width: 227px; 
+    padding: 10px; 
+    margin: 10px; 
+    box-sizing: border-box; 
+    overflow: hidden;
+}
+
+.stats p {
+    margin: 0; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+}
+
+@media screen and (max-width: 1000px) {
+    .stats {
+        flex-direction: column;
+    }
+
+    .stats p {
+        white-space:pre-wrap;
+    }
+  }
