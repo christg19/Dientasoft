@@ -1,7 +1,5 @@
-<ng-container *ngIf="loading; else content">
-  <app-loading></app-loading>
-</ng-container>
-<ng-template #content>
+
+
   <div class="container">
     <div class="top-buttons">
       <mat-form-field appearance="outline" class="search-input-container">
@@ -13,8 +11,11 @@
 
     </div>
     <div class="table-appointment">
-      <div style="overflow-x: auto;">
-        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
+      <div class="spinner-container" *ngIf="loading">
+        <mat-spinner class="spinner"></mat-spinner>
+      </div>
+      <div style="overflow-x: auto;" *ngIf="!loading">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table" >
 
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>Nombre</th>
@@ -73,7 +74,7 @@
 
     </div>
   </div>
-</ng-template>
+
 
 <ng-template #modalContent>
   <form [formGroup]="patientForm" (ngSubmit)="submitForm()" class="form">

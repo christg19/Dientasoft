@@ -53,7 +53,9 @@ export class PatientsComponent implements AfterViewInit {
   ngOnInit(): void {
     this.loading = true;
     this.getAllPatients();
-    this.loading = false;
+    setTimeout(()=>{
+      this.loading = false;
+    }, 200)
   }
 
   ngAfterViewInit() {

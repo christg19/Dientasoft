@@ -8,6 +8,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { InventoryComponent } from './inventory/inventory.component';
 import { ModalContent1Component } from './shared/components/modal-content1/modal-content1.component';
+import { LoadingComponent } from './shared/components/loading/loading.component';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 
 
@@ -16,7 +18,7 @@ import { ModalContent1Component } from './shared/components/modal-content1/modal
   declarations: [
     AppComponent,
     ModalContent1Component,
-
+    LoadingComponent
 
   ],
   imports: [
@@ -25,7 +27,8 @@ import { ModalContent1Component } from './shared/components/modal-content1/modal
     MatIconModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    MatDialogModule
+    MatDialogModule,
+    MatProgressSpinnerModule
   ],
   providers: [],
   bootstrap: [AppComponent]

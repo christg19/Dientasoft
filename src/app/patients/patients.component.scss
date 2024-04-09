@@ -111,6 +111,19 @@ th, td{
     width: 15dvw;
   }
   
+  .spinner-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 40vh;
+    width: 70dvw;
+  }
+  
+  .spinner{
+    max-height: 100px;
+    max-width: 100px;
+  }
   
   @media (max-width: 600px) {
     .mat-column-name, .mat-column-history {

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Appointment } from '../interfaces/appointment.interface';
+import { Instrument } from '../interfaces/instrument.interface';
 
 
 @Injectable({
@@ -37,7 +38,24 @@ export class ProductService {
       })
     };
 
-    // Envía los datos del formulario como el cuerpo de la solicitud
     return this.httpClient.post(`${this.url}/createProduct/`, formData, httpOptions);
+  }
+
+  updateProduct(product: Instrument, id: string) {
+    return this.httpClient.put(`${this.url}/updateProduct/${id}`, product, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+  }
+
+  deleteProduct(id: string) {
+    return this.httpClient.delete(`${this.url}/deleteProduct/${id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
   }
 }

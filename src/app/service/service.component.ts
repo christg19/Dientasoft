@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, TemplateRef, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,6 +6,11 @@ import { DataSource } from '@angular/cdk/collections';
 import { PatientsService } from '../shared/services/patient.service';
 import { Patient } from '../shared/interfaces/patient.interface';
 import { ServicesService } from '../shared/services/services.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Service } from '../shared/interfaces/services.interface';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Instrument } from '../shared/interfaces/instrument.interface';
+import { ProductService } from '../shared/services/product.service';
 
 @Component({
   selector: 'app-service',
@@ -13,13 +18,18 @@ import { ServicesService } from '../shared/services/services.service';
   styleUrls: ['./service.component.scss']
 })
 export class ServiceComponent {
-  displayedColumns: string[] = ['name', 'cost', 'actions'];
+  displayedColumns: string[] = ['name', 'cost','materials', 'actions'];
+  private serviceId: string = '';
   serviceList: Patient[] = [];
   loading: Boolean = false;
+  instrumentList:Instrument[] = [];
+  updating: boolean = false;
+  dialogRef!: MatDialogRef<any>;
   dataSource = new MatTableDataSource<any>(this.serviceList);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-
-  constructor(private router: Router, private paginators: MatPaginatorIntl, private servicesService: ServicesService,
+  @ViewChild('modalContent') modalContent!: TemplateRef<any>;
+  serviceForm!: FormGroup;
+  constructor(private productService:ProductService,public dialog: MatDialog, private fb: FormBuilder, private router: Router, private paginators: MatPaginatorIntl, private servicesService: ServicesService,
     private route: ActivatedRoute, private cdr: ChangeDetectorRef) {
 
     this.paginators.itemsPerPageLabel = "Registros por página";
@@ -31,12 +41,21 @@ export class ServiceComponent {
     this.paginators.getRangeLabel = (page, pageSize, length) => {
       return this.spanishRangeLabel(page, pageSize, length);
     };
+
+    this.serviceForm = this.fb.group({
+      name: ['', Validators.required],
+      cost: [, Validators.required],
+      products: [[], Validators.required]
+    });
   }
 
   ngOnInit(): void {
     this.loading = true;
     this.getAllServices();
-    this.loading = false;
+    this.getProducts();
+    setTimeout(()=>{
+      this.loading = false;
+    }, 200)
   }
 
   ngAfterViewInit() {
@@ -91,12 +110,118 @@ export class ServiceComponent {
     })
   }
 
+  getProducts(){
+    this.productService.getProducts().subscribe({
+      next: (product:any) => {
+        this.instrumentList = product;
+      },
+      error: (error) =>{
+        console.log(error);
+      }
+    });
+  }
+
+  gettingId(id: string): void {
+    this.serviceId = id;
+  }
+
+  gettingIdAndOpenModal(id: string): void {
+    console.log(id, 'gettingIdAndOpenModal');
+    this.updating = true;
+    this.serviceId = id;
+    this.openModal(this.modalContent, id);
+  }
+
+  loadServicesDetails(id: string) {
+    this.updating = true;
+    this.servicesService.getServiceById(id).subscribe(
+      (service: any) => {
+        const servicePatch: Service = service;
+        this.serviceForm.patchValue({
+          name: servicePatch.name,
+          cost: servicePatch.cost
+        });
+
+        this.cdr.detectChanges();
+      },
+      error => console.error(error)
+    );
+  }
+
+
+  openModal(templateRef: TemplateRef<any>, id?: string): void {
+
+    if (!id) {
+      this.updating = false;
+      this.serviceId = '';
+      this.serviceForm.reset();
+      console.log('Creando nuevo servicio');
+    } else {
+      this.updating = true;
+      this.serviceId = id;
+      this.loadServicesDetails(id);
+      console.log('Editando servicio existente');
+    }
+
+    this.dialogRef = this.dialog.open(templateRef, { width: '400px', height: '500px' });
+
+    setTimeout(() => {
+      this.cdr.detectChanges();
+
+    }, 0);
+  }
+
+
+
+  closeModal(): void {
+    this.dialogRef.close();
+    this.updating = false;
+  }
+
   redirect(url: string) {
     this.router.navigate([url])
   }
 
   redirectToEdit(id: string): void {
     this.router.navigate(['/services/editService', id]);
+  }
+
+  updateService(service: Service, id: string) {
+    this.servicesService.updateService(service, id).subscribe({
+      next: (response: any) => {
+        console.log('Updateado con exito:', response);
+
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    });
+  }
+
+  createService(service: Service) {
+    this.servicesService.createService(service).subscribe({
+      next: (response: any) => {
+        console.log('Servicio creado exitosamente:', response);
+        this.router.navigate(['/patients']);
+      },
+      error: (error: any) => {
+        console.error('Error al crear el servicio:', error);
+      }
+    });
+  }
+
+  submitForm() {
+    if (this.serviceForm.valid) {
+      const formValue = this.serviceForm.value;
+
+      if (this.serviceId) {
+        this.updateService(formValue, this.serviceId)
+        this.router.navigate(['/services']);
+      } else {
+        this.createService(formValue);
+      }
+
+    }
   }
 
 }

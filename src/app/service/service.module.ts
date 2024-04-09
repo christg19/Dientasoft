@@ -7,11 +7,13 @@ import { FormsModule } from '@angular/forms';
 import { ServiceRoutingModule } from './service-routing.module';
 import {MatTableModule} from '@angular/material/table';
 import {MatIconModule} from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import { ServiceComponent } from './service.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CreateServiceComponent } from './create-service/create-service.component'; 
 import { LoadingModule } from '../shared/components/loading/loading.module';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 
 @NgModule({
@@ -30,7 +32,8 @@ import { LoadingModule } from '../shared/components/loading/loading.module';
     MatTableModule,
     MatIconModule,
     MatPaginatorModule,
-    LoadingModule
+    MatSelectModule,
+    MatProgressSpinnerModule
   ]
 })
 export class ServiceModule { }

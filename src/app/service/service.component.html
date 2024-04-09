@@ -1,53 +1,95 @@
-<ng-container *ngIf="loading; else content">
-    <app-loading></app-loading>
-  </ng-container>
-  <ng-template #content>
-    <div class="container">
-      <div class="top-buttons">
-        <mat-form-field appearance="outline" class="search-input-container">
-          <input type="text" (keyup)="applyFilter($event)" matInput placeholder="Busca un servicio..."
-            class="search-input">
-        </mat-form-field>
-          <button mat-flat-button color="accent" class="register-button" (click)="redirect('/services/createService')">Agregar un servicio</button>
-  
+
+
+  <div class="container">
+    <div class="top-buttons">
+      <mat-form-field appearance="outline" class="search-input-container">
+        <input type="text" (keyup)="applyFilter($event)" matInput placeholder="Busca un servicio..."
+          class="search-input">
+      </mat-form-field>
+      <button mat-flat-button color="accent" (click)="openModal(modalContent)">Agregar un
+        servicio</button>
+
+    </div>
+    <div class="table-appointment">
+      <div class="spinner-container" *ngIf="loading">
+        <mat-spinner class="spinner"></mat-spinner>
       </div>
-      <div class="table-appointment">
-        <div style="overflow-x: auto;">
-          <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
-  
-            <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef>Nombre</th>
-              <td mat-cell *matCellDef="let service"> {{service.name}} </td>
-            </ng-container>
-  
-            <ng-container matColumnDef="cost">
-              <th mat-header-cell *matHeaderCellDef>Costo</th>
-              <td mat-cell *matCellDef="let service"> {{service.cost}} </td>
-            </ng-container>
-  
-  
-            <ng-container matColumnDef="actions" class="icons">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>Acciones</th>
-              <td mat-cell *matCellDef="let row" class="icon-container">
-  
-                <button mat-icon-button class="icon icon-edit" (click)="redirectToEdit(row.id)">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button class="icon icon-delete" (click)="deleteService(row.id)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-  
-              </td>
-            </ng-container>
-  
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-          </table>
-  
-          <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Selecciona una página">
-          </mat-paginator>
+      <div style="overflow-x: auto;" *ngIf="!loading">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
+
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+            <td mat-cell *matCellDef="let service"> {{service.name}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="cost">
+            <th mat-header-cell *matHeaderCellDef>Costo</th>
+            <td mat-cell *matCellDef="let service"> {{service.cost}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="materials">
+            <th mat-header-cell *matHeaderCellDef>Materiales</th>
+            <td mat-cell *matCellDef="let service">  </td>
+          </ng-container>
+
+
+
+          <ng-container matColumnDef="actions" class="icons">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Acciones</th>
+            <td mat-cell *matCellDef="let row" class="icon-container">
+
+              <button mat-icon-button class="icon icon-edit" (click)="gettingIdAndOpenModal(row.id)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button class="icon icon-delete" (click)="deleteService(row.id)">
+                <mat-icon>delete</mat-icon>
+              </button>
+
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Selecciona una página">
+        </mat-paginator>
+      </div>
+
+    </div>
+  </div>
+
+
+<ng-template #modalContent>
+  <form [formGroup]="serviceForm" (ngSubmit)="submitForm()" class="form">
+    <div class="mat-dialog-container">
+
+      <div class="modal-top">
+        <mat-icon class="close-icon" (click)="closeModal()">close</mat-icon>
+      </div>
+      <div class="content-modal">
+        <mat-form-field class="example-form-field">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="name">
+        </mat-form-field>
+
+        <mat-form-field class="example-form-field">
+          <mat-label>Costo</mat-label>
+          <input matInput formControlName="cost" type="number">
+        </mat-form-field>
+        <!-- [compareWith]="compareFn" -->
+        <mat-form-field appearance="fill" class="services-select">
+          <mat-label>Selecciona materiales</mat-label>
+          <mat-select formControlName="products" multiple >
+            <mat-option *ngFor="let instrument of instrumentList" [value]="">{{instrument.name}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="create">
+          <button mat-raised-button color="primary" class="create-button" type="submit">Registrar</button>
         </div>
-  
+
       </div>
     </div>
-  </ng-template>
+  </form>
+</ng-template>

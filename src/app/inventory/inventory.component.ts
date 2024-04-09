@@ -1,8 +1,13 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../shared/services/product.service';
-import { Product } from '../shared/interfaces/product.interface';
+import { Categories, Product } from '../shared/interfaces/product.interface';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Instrument } from '../shared/interfaces/instrument.interface';
+
 
 export interface TableOption {
   buttonName: string;
@@ -18,8 +23,16 @@ export interface TableOption {
   styleUrls: ['./inventory.component.scss']
 })
 export class InventoryComponent implements OnInit {
-  public actions:boolean = true;
+  public actions: boolean = true;
+  public loading: boolean = false;
   public instrumentalQuantity: number = 0;
+  public inventoryId: string = '';
+  updating: boolean = false;
+  public categoriesForProduct = Object.entries(Categories).map(([key, value]) => ({ key, value }));
+  dialogRef!: MatDialogRef<any>;
+  inventoryForm!: FormGroup;
+  @ViewChild('modalContent') modalContent!: TemplateRef<any>;
+
   public buttonsNames: string[] = ['Instrumentos', 'Quimicos', 'Desechables'];
   public productList: Product[] = [];
   public tableOptions: TableOption[] = [
@@ -28,21 +41,21 @@ export class InventoryComponent implements OnInit {
       active: true,
       columns: ['Item', 'Cantidad disponible', 'Fecha de compra', 'Notas', 'Esterilizado / Limpiado / Empaquetado'],
       products: [],
-      table: ['items', 'status', 'date', 'notes','actions']
+      table: ['items', 'status', 'date', 'notes', 'actions']
     },
     {
       buttonName: "CHEMICAL",
       active: false,
       columns: ['Item', 'Cantidad disponible', 'Fecha de caducidad', 'Notas',],
       products: [],
-      table: ['items', 'expiryDate', 'notes',  'actions']
+      table: ['items', 'expiryDate', 'notes', 'actions']
     },
     {
       buttonName: "DISPOSABLE",
       active: false,
-      columns: ['Item', 'Cantidad disponible', 'Fecha de caducidad', 'Notas' ],
+      columns: ['Item', 'Cantidad disponible', 'Fecha de caducidad', 'Notas'],
       products: [],
-      table: ['items', 'expiryDate', 'notes',  'actions']
+      table: ['items', 'expiryDate', 'notes', 'actions']
     }
   ];
 
@@ -51,7 +64,7 @@ export class InventoryComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private productService: ProductService, private paginators: MatPaginatorIntl) {
+  constructor(private route: ActivatedRoute, private router: Router, private cdr: ChangeDetectorRef, private productService: ProductService, private paginators: MatPaginatorIntl, private fb: FormBuilder, public dialog: MatDialog,) {
     this.paginators.itemsPerPageLabel = "Registros por página";
     this.paginators.nextPageLabel = "Siguiente página";
     this.paginators.previousPageLabel = "Página anterior";
@@ -61,10 +74,22 @@ export class InventoryComponent implements OnInit {
     this.paginators.getRangeLabel = (page, pageSize, length) => {
       return this.spanishRangeLabel(page, pageSize, length);
     };
-   }
+
+    this.inventoryForm = this.fb.group({
+      name: ['', Validators.required],
+      unitDate: [Date, Validators.required],
+      expiryDate: [Date, Validators.required],
+      categoryProduct: ['', Validators.required]
+
+    });
+  }
 
   ngOnInit() {
+    this.loading = true;
     this.getProducts();
+    setTimeout(()=>{
+      this.loading = false;
+    }, 200)
   }
 
   ngAfterViewInit() {
@@ -79,6 +104,39 @@ export class InventoryComponent implements OnInit {
     const startIndex = page * pageSize;
     const endIndex = startIndex < length ? Math.min(startIndex + pageSize, length) : startIndex + pageSize;
     return `${startIndex + 1} - ${endIndex} de ${length}`;
+  }
+
+  loadInventoryDetails(id: string) {
+    this.updating = true;
+    this.productService.getProductById(id).subscribe(
+      (instrument: any) => {
+        const instrumentPatch: Instrument = instrument;
+        this.inventoryForm.patchValue({
+          name: instrumentPatch.name,
+          unitDate: instrumentPatch.unitDate,
+          notes: instrumentPatch.notes,
+          expiryDate: instrumentPatch.expiryDate,
+          instrumentalState: instrumentPatch.instrumentalState,
+          categoryProduct: instrumentPatch.categoryProduct
+        });
+
+
+      },
+      error => console.error(error)
+    );
+  }
+
+  deleteProduct(id: string) {
+    this.productService.deleteProduct(id).subscribe({
+      next: (response: any) => {
+
+        this.getProducts();
+
+      },
+      error: (error: Error) => {
+        console.log(error)
+      }
+    })
   }
 
   getColumns() {
@@ -98,10 +156,66 @@ export class InventoryComponent implements OnInit {
     this.dataSource.data = this.getDataSourceProduct(selectedOption.buttonName);
   }
 
-
-  addItem() {
-
+  gettingId(id: string): void {
+    this.inventoryId = id;
   }
+
+  gettingIdAndOpenModal(id: string): void {
+    console.log(id, 'gettingIdAndOpenModal');
+    this.updating = true;
+    this.inventoryId = id;
+    this.openModal(this.modalContent, id);
+  }
+
+  loadServicesDetails(id: string) {
+    this.updating = true;
+    this.productService.getProductById(id).subscribe(
+      (service: any) => {
+        const productPatch: Product = service;
+        this.inventoryForm.patchValue({
+          name: productPatch.name,
+          unitDate: productPatch.unitDate,
+          expiryDate: productPatch.expiryDate,
+          instrumentalState: productPatch.instrumentalState,
+          notes: productPatch.notes,
+        });
+
+
+      },
+      error => console.error(error)
+    );
+  }
+
+
+  openModal(templateRef: TemplateRef<any>, id?: string): void {
+
+    if (!id) {
+      this.updating = false;
+      this.inventoryId = '';
+      this.inventoryForm.reset();
+
+    } else {
+      this.updating = true;
+      this.inventoryId = id;
+      this.loadInventoryDetails(id);
+
+    }
+
+    this.dialogRef = this.dialog.open(templateRef, { width: '400px', height: '500px' });
+
+    setTimeout(() => {
+      this.cdr.detectChanges();
+
+    }, 0);
+  }
+
+
+
+  closeModal(): void {
+    this.dialogRef.close();
+    this.updating = false;
+  }
+
 
   getDataSourceProduct(productType: string): Product[] {
     return this.productList.filter((product: Product) => product.categoryProduct === productType);
@@ -147,6 +261,39 @@ export class InventoryComponent implements OnInit {
     }
 
     return this.getDataSourceProduct(option)
+  }
+
+  createInstrument(instrument: Instrument) {
+    this.productService.createProduct(instrument).subscribe({
+      next: (response: any) => {
+        this.getProducts();
+      }
+    })
+  }
+
+  updateInstrument(instrument: Instrument, id: string) {
+    this.productService.updateProduct(instrument, id).subscribe({
+      next: (response: any) => {
+        this.getProducts();
+      },
+      error: (error: any) => {
+        console.error(error);
+      }
+    })
+  }
+
+  submitForm() {
+    if (this.inventoryForm.valid) {
+      const formValue = this.inventoryForm.value;
+
+      if (this.inventoryId) {
+        this.updateInstrument(formValue, this.inventoryId)
+        this.router.navigate(['/inventory']);
+      } else {
+        this.createInstrument(formValue);
+      }
+
+    }
   }
 
 }

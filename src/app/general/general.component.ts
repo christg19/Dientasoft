@@ -19,6 +19,7 @@ export interface Menu {
   styleUrls: ['./general.component.scss']
 })
 export class GeneralComponent implements OnInit, AfterViewInit {
+  public loading:Boolean = false;
   public appointmentWeekNumber: number = 0;
   public totalPatientNumber: number = 0;
   notesText: string = '';
@@ -64,9 +65,12 @@ export class GeneralComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
+    this.loading = true;
     this.getAllAppointments();
     this.getAllPatients();
-
+    setTimeout(()=>{
+      this.loading = false;
+    }, 200)
   }
 
   onContentChange(event: Event) {

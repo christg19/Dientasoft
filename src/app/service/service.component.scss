@@ -1,72 +1,210 @@
-.container{
-    display: flex;
-    flex-direction: column;
-   
-  }
-  
-  .search-input-container{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 1rem;
-  }
-  
-  .top-buttons {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
+.container {
+  display: flex;
+  flex-direction: column;
 
-    margin-top: 2rem;
-    margin-bottom: 1rem;
+}
+
+.search-input-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+
+.top-buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.table-appointment {
+  background-color: #FFFFFF;
+  width: 75dvw;
+  height: 10dvh;
+  margin-left: 2.5rem;
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+th,
+td {
+  width: 16%;
+  text-align: center;
+  font-family: "Mulish", sans-serif;
+}
+
+th {
+  font-weight: bold;
+}
+
+.history-icon {
+  cursor: pointer;
+}
+
+.history-icon:hover {
+  color: #85ff8d;
+}
+
+.title {
+  font-size: 30px;
+}
+
+.angular-table {
+  height: 10dvh;
+}
+
+.mat-dialog-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px; 
+  width: 100%;
+  z-index: 1000 !important;
+}
+
+.modal-top {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  justify-content: center;
+  background-color: #ff9c9c;
+  height: 5dvh;
+  width: 100%;
+}
+
+.close-icon{
+  margin-right: 1rem;
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+mat-paginator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+}
+
+.register-button{
+  width: 15dvw;
+  background-color: #ff9c9c !important;
+}
+
+.example-form-field {
+  border: 0px !important;
+  width: 400px;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.top-buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content:center;
+  gap: 1rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.table-appointment {
+  background-color: #FFFFFF;
+  width: 75dvw;
+
+  margin-left: 2.5rem;
+}
+
+th,
+td {
+  width: 16%;
+  text-align: center;
+  font-family: "Mulish", sans-serif;
+  box-shadow: none;
+}
+
+.angular-table {
+
+  box-shadow: none;
+  height: 10dvh;
+}
+
+mat-paginator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+}
+
+.mat-dialog-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px; 
+  width: 100%;
+}
+
+.modal-top{
+display: flex;
+flex-direction: column;
+align-items: end;
+justify-content: center;
+background-color:#ff9c9c;
+height: 5dvh;
+width: 100%;
+}
+
+.close-icon{
+  margin-right: 1rem;
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+.services-select {
+  width: 235px;
+  margin-left: 0.3rem;
+}
+
+.content-modal{
+  margin-top: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.example-form-field {
+  border: 0px !important;
+  width: 230px;
+}
+
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 15vh;
+  width: 70dvw;
+}
+
+.spinner{
+  max-height: 80px;
+  max-width: 80px;
+}
+
+@media (max-width: 600px) {
+  .mat-column-name,
+  .mat-column-history {
+    display: none;
   }
-  
-  .table-appointment{
-      background-color: #FFFFFF;
-      width: 75dvw;
-      height: 10dvh;
-      margin-left: 2.5rem;
-      border-radius: 4px;
-      box-shadow: none;
-  }
-  
-  th, td{
-      width: 16%;
-      text-align: center;
-      font-family: "Mulish", sans-serif;
-  }
-  
-  th{
-      font-weight: bold;  
-  }
-  
-  .history-icon{
-    cursor: pointer;
-  }
-  
-  .history-icon:hover{
-    color: #85ff8d;
-  }
-  
-    .title{
-      font-size: 30px;
-    }
-  
-    .angular-table{
-      height: 10dvh;
-    }
-  
-    mat-paginator{
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: none;
-    }
-    
-    @media (max-width: 600px) {
-      .mat-column-name, .mat-column-history {
-        display: none;
-      }
-    }
-  
-    
+}

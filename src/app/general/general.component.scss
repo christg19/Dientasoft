@@ -186,6 +186,15 @@ td {
     text-overflow: ellipsis; 
 }
 
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 80dvw;
+  }
+  
+
 @media screen and (max-width: 1000px) {
     .stats {
         flex-direction: column;

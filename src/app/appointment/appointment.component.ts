@@ -21,11 +21,14 @@ export class AppointmentComponent implements AfterViewInit {
 
   appointmentList: Appointment[] = []
   appointment?: Appointment;
-  private updating: boolean = false;
+  buttonAppointment: string[] = ['Registrar cita', 'Actualizar Cita']
+  public updating: boolean = false;
   appointmentId: string = '';
   displayedColumns: string[] = ['date', 'patientName', 'procedure', 'amount', 'actions'];
   dataSource = new MatTableDataSource<Appointment>(this.appointmentList);
   patientList: Patient[] = [];
+  loading:Boolean = false;
+  appointmentServicesName: string[] = [];
   dialogRef!: MatDialogRef<any>;
   appointmentForm!: FormGroup;
   redirectToClient = '/patients';
@@ -54,14 +57,18 @@ export class AppointmentComponent implements AfterViewInit {
       appointmentHour: ['', Validators.required],
       serviceIds: [[], [Validators.required]],
       patientId: ['', Validators.required],
+      notes: ['']
     });
   }
 
   ngOnInit(): void {
+    this.loading = true;
     this.getAllAppointments();
     this.getAllPatients();
     this.getAllServices();
-    this.cdr.detectChanges();
+    setTimeout(()=>{
+      this.loading = false;
+    }, 200)
   }
 
   ngAfterViewInit() {
@@ -130,50 +137,52 @@ export class AppointmentComponent implements AfterViewInit {
   }
 
   gettingIdAndOpenModal(id: string): void {
+    console.log(id, 'gettingIdAndOpenModal');
     this.updating = true;
     this.appointmentId = id;
-    this.loadAppointmentDetails(id);
-    this.openModal(this.modalContent);
+    this.openModal(this.modalContent, id);
   }
 
 
   loadAppointmentDetails(id: string) {
     this.updating = true;
-    console.log(id);
     this.appointmentService.getAppointmentById(id).subscribe(
       (appointment: any) => {
         const appointmentData: Appointment = appointment;
         const appointmentDateTime = new Date(appointmentData.appointmentDate);
-  
+
         const appointmentDate = appointmentDateTime.toISOString().substring(0, 10);
         const hours = appointmentDateTime.getHours().toString().padStart(2, '0');
         const minutes = appointmentDateTime.getMinutes().toString().padStart(2, '0');
         const appointmentHour = `${hours}:${minutes}`;
-  
-       if(appointmentData.service){
-        const selectedServiceIds:Service[] = appointmentData.service.map(service => service.id);
-       
+
+
         this.appointmentForm.patchValue({
           appointmentDate: appointmentDate,
           appointmentHour: appointmentHour,
-          notes: appointmentData.notes,
-          serviceIds: selectedServiceIds, 
+          serviceIds: appointmentData.serviceIds,
           patientId: appointmentData.patientId,
           patientName: appointmentData.patientName,
         });
-        console.log("IDs de servicios seleccionados:", selectedServiceIds);
-      }
-      
+
+
         this.cdr.detectChanges();
-        
-  
-        console.log("Lista de citas:", this.appointmentList);
-        console.log("serviceIds en el formulario:", this.appointmentForm.value.serviceIds);
       },
       error => console.error(error)
     );
   }
-  
+
+  getAppointmentService(ids: string[]) {
+    let servicesNames: string[] = [];
+
+    const matchedServices = this.servicesList.filter(service => ids.includes(service.id));
+
+    matchedServices.forEach((service: Service) => {
+      servicesNames.push(service.name)
+    })
+
+    return servicesNames.join(', ');
+  }
 
 
   deleteAppointment(id: string) {
@@ -182,7 +191,6 @@ export class AppointmentComponent implements AfterViewInit {
         console.log('Cita eliminada con éxito:', response);
         this.getAllAppointments();
         this.cdr.detectChanges();
-        window.location.reload()
       },
       error: (error) => {
         console.error('Error al eliminar la cita:', error);
@@ -219,17 +227,19 @@ export class AppointmentComponent implements AfterViewInit {
       this.updating = false;
       this.appointmentId = '';
       this.appointmentForm.reset();
+      console.log('Creando nueva cita');
     } else {
-
       this.updating = true;
       this.appointmentId = id;
       this.loadAppointmentDetails(id);
+      console.log('Editando cita existente');
     }
 
     this.dialogRef = this.dialog.open(templateRef, { width: '400px', height: '500px' });
 
     setTimeout(() => {
       this.cdr.detectChanges();
+
     }, 0);
   }
 
@@ -242,6 +252,7 @@ export class AppointmentComponent implements AfterViewInit {
 
   submitForm() {
     if (this.appointmentForm.valid) {
+      console.log(this.updating)
       const formValue = this.appointmentForm.getRawValue();
 
       if (formValue.appointmentDate && formValue.appointmentHour) {
@@ -257,9 +268,11 @@ export class AppointmentComponent implements AfterViewInit {
         delete submission.appointmentHour;
 
         if (this.updating) {
+          console.log('Actualizando')
           this.appointmentService.updateAppointment(submission, this.appointmentId).subscribe({
             next: (response: any) => {
               console.log('Cita actualizada exitosamente:', response);
+
               this.closeModal();
               this.getAllAppointments();
               this.updating = false;
@@ -268,7 +281,7 @@ export class AppointmentComponent implements AfterViewInit {
             error: (error: any) => console.error('Error al actualizar la cita:', error)
           });
         } else {
-
+          console.log('Creando')
           this.appointmentService.createAppointment(submission).subscribe({
             next: (response: any) => {
               console.log('Cita creada exitosamente:', response);
@@ -287,6 +300,9 @@ export class AppointmentComponent implements AfterViewInit {
     }
   }
 
+  compareFn(a: any, b: any): boolean {
+    return a === b;
+  }
 
 
 }

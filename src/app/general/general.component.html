@@ -1,4 +1,9 @@
-<div class="container">
+<div class="spinner-container" *ngIf="loading">
+    <mat-spinner class="spinner"></mat-spinner>
+  </div>
+  
+
+<div class="container" *ngIf="!loading">
     <div class="stats">
         <div class="pendient-patients" [ngStyle]="{'border-color':optionMenu[0].color, 'font-weight':optionMenu[0].bold}">
             <p class="title" [innerHTML]="optionMenu[0].title"></p>

@@ -173,4 +173,18 @@ input::placeholder {
 
 .register-button{
   width: 15dvw;
+  background-color: #ff9c9c !important;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 10vh;
+  width: 70dvw;
+}
+
+.spinner{
+  max-height: 50px;
+  max-width: 50px;
 }

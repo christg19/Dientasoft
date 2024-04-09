@@ -17,6 +17,7 @@ import { PatientComponent } from './patient/patient.component';
 import { ReactiveFormsModule } from '@angular/forms'; 
 import { LoadingComponent } from '../shared/components/loading/loading.component';
 import { LoadingModule } from '../shared/components/loading/loading.module';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 
 @NgModule({
@@ -39,7 +40,7 @@ import { LoadingModule } from '../shared/components/loading/loading.module';
     MatPaginatorModule,
     FormsModule,
     ReactiveFormsModule,
-    LoadingModule
+    MatProgressSpinnerModule
   ]
 })
 export class PatientsModule { }

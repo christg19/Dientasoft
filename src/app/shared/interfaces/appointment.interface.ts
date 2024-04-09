@@ -1,10 +1,10 @@
+import { Service } from "./services.interface";
+
 export interface Appointment {
-    id?:string;
+    id:string;
     appointmentDate: string;
     notes?: string;
-    servicesName: string[];
-    serviceIds?:number[];
-    service?:any[];
+    serviceIds:number[];
     patientId: number;
     patientName: string;
 }
