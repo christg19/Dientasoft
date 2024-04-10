@@ -78,7 +78,7 @@ export class InventoryComponent implements OnInit {
     this.inventoryForm = this.fb.group({
       name: ['', Validators.required],
       unitDate: [Date, Validators.required],
-      expiryDate: [Date, Validators.required],
+      expiryDate: [Date],
       categoryProduct: ['', Validators.required]
 
     });
@@ -290,9 +290,20 @@ export class InventoryComponent implements OnInit {
         this.updateInstrument(formValue, this.inventoryId)
         this.router.navigate(['/inventory']);
       } else {
+        console.log(formValue)
         this.createInstrument(formValue);
       }
 
+    } else {
+      console.error('El formulario es inválido', this.inventoryForm.errors);
+      Object.keys(this.inventoryForm.controls).forEach(key => {
+        const controlErrors = this.inventoryForm.get(key)!.errors;
+        if (controlErrors != null) {
+            Object.keys(controlErrors).forEach(keyError => {
+                console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
+            });
+        }
+      });
     }
   }
 

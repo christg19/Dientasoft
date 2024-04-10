@@ -27,12 +27,15 @@
             <td mat-cell *matCellDef="let service"> {{service.cost}} </td>
           </ng-container>
 
+          <ng-container matColumnDef="duesQuantity">
+            <th mat-header-cell *matHeaderCellDef>Cantidad de cuotas</th>
+            <td mat-cell *matCellDef="let service"> {{service.duesQuantity}} </td>
+          </ng-container>
+
           <ng-container matColumnDef="materials">
             <th mat-header-cell *matHeaderCellDef>Materiales</th>
             <td mat-cell *matCellDef="let service">  </td>
           </ng-container>
-
-
 
           <ng-container matColumnDef="actions" class="icons">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Acciones</th>
@@ -77,10 +80,16 @@
           <mat-label>Costo</mat-label>
           <input matInput formControlName="cost" type="number">
         </mat-form-field>
+
+        <mat-form-field class="example-form-field">
+          <mat-label>Cantidad de cuotas</mat-label>
+          <input matInput formControlName="duesQuantity" type="number">
+        </mat-form-field>
+
         <!-- [compareWith]="compareFn" -->
         <mat-form-field appearance="fill" class="services-select">
           <mat-label>Selecciona materiales</mat-label>
-          <mat-select formControlName="products" multiple >
+          <mat-select formControlName="productIds" multiple >
             <mat-option *ngFor="let instrument of instrumentList" [value]="">{{instrument.name}}</mat-option>
           </mat-select>
         </mat-form-field>

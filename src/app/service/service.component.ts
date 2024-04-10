@@ -18,7 +18,7 @@ import { ProductService } from '../shared/services/product.service';
   styleUrls: ['./service.component.scss']
 })
 export class ServiceComponent {
-  displayedColumns: string[] = ['name', 'cost','materials', 'actions'];
+  displayedColumns: string[] = ['name', 'cost','materials','duesQuantity', 'actions'];
   private serviceId: string = '';
   serviceList: Patient[] = [];
   loading: Boolean = false;
@@ -45,7 +45,8 @@ export class ServiceComponent {
     this.serviceForm = this.fb.group({
       name: ['', Validators.required],
       cost: [, Validators.required],
-      products: [[], Validators.required]
+      duesQuantity: [1, Validators.required],
+      productIds: [[], Validators.required]
     });
   }
 
@@ -102,7 +103,6 @@ export class ServiceComponent {
       next: (services: any) => {
         this.serviceList = services;
         this.dataSource.data = this.serviceList;
-        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error(error)
@@ -139,7 +139,9 @@ export class ServiceComponent {
         const servicePatch: Service = service;
         this.serviceForm.patchValue({
           name: servicePatch.name,
-          cost: servicePatch.cost
+          cost: servicePatch.cost,
+          duesQuantity: servicePatch.duesQuantity,
+          productIds: servicePatch.productIds
         });
 
         this.cdr.detectChanges();
@@ -221,6 +223,16 @@ export class ServiceComponent {
         this.createService(formValue);
       }
 
+    } else {
+      console.error('El formulario es inválido', this.serviceForm.errors);
+      Object.keys(this.serviceForm.controls).forEach(key => {
+        const controlErrors = this.serviceForm.get(key)!.errors;
+        if (controlErrors != null) {
+            Object.keys(controlErrors).forEach(keyError => {
+                console.log('Key control: ' + key + ', keyError: ' + keyError + ', err value: ', controlErrors[keyError]);
+            });
+        }
+      });
     }
   }
 

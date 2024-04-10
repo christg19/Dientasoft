@@ -1,0 +1,122 @@
+<div class="container">
+  <div class="top-buttons">
+    <mat-form-field appearance="outline" class="search-input-container">
+      <input type="text" (keyup)="applyFilter($event)" matInput placeholder="Busca una cuota..." class="search-input">
+    </mat-form-field>
+    <button mat-flat-button color="accent" (click)="openModal(modalContent)">Agregar cuota a un servicio</button>
+
+  </div>
+  <div class="table-appointment">
+    <!-- <div class="spinner-container">
+      <mat-spinner class="spinner"></mat-spinner>
+    </div> -->
+    <div style="overflow-x: auto;">
+      <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
+
+        <ng-container matColumnDef="patient">
+          <th mat-header-cell *matHeaderCellDef>Paciente</th>
+          <td mat-cell *matCellDef="let due"> {{getPatientById(due.patientId)}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="service">
+          <th mat-header-cell *matHeaderCellDef>Servicio</th>
+          <td mat-cell *matCellDef="let due"> {{getServiceById(due.serviceId)}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="due">
+          <th mat-header-cell *matHeaderCellDef>Cuotas Pendientes</th>
+          <td mat-cell *matCellDef="let due">{{ due.dueQuantity }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="cost"   >
+          <th mat-header-cell *matHeaderCellDef>Costo Pendiente</th>
+          <td mat-cell *matCellDef="let due">{{ due.totalCost }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions" class="icons">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Acciones</th>
+          <td mat-cell *matCellDef="let row" class="icon-container">
+
+            <button mat-icon-button class="icon icon-edit" (click)="gettingIdAndOpenModal(row.id)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="icon icon-delete" (click)="deleteDue(row.id)">
+              <mat-icon>delete</mat-icon>
+            </button>
+
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Selecciona una página">
+      </mat-paginator>
+    </div>
+
+  </div>
+</div>
+
+<ng-template #modalContent>
+  <form [formGroup]="dueForm" (ngSubmit)="submitForm()" class="form">
+    <div class="mat-dialog-container">
+
+      <div class="modal-top">
+        <mat-icon class="close-icon" (click)="closeModal()">close</mat-icon>
+      </div>
+      <div class="content-modal">
+
+        <div class="patient">
+          <mat-form-field appearance="fill" class="patient-select">
+            <mat-label>Selecciona un paciente</mat-label>
+            <mat-select formControlName="patientId">
+              <mat-option *ngFor="let option of patientList" [value]="option.id">{{ option.name
+                }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-mini-fab color="primary" aria-label="Add" [value]="redirectToClient"
+            (click)="redirect(redirectToClient)">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+
+        <div class="services">
+          <mat-form-field appearance="fill" class="services-select">
+            <mat-label>Selecciona servicios</mat-label>
+            <mat-select formControlName="serviceId" [compareWith]="compareFn" (selectionChange)="calculatePendingCost(dueForm.get('serviceId')?.value)">
+              <mat-option *ngFor="let service of serviceList" [value]="service.id">{{service.name}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-mini-fab class="serviceButton" color="primary" aria-label="Add" [value]="redirectToServices"
+            (click)="redirect(redirectToServices)">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        <div class="dues">
+          <mat-form-field class="example-form-field">
+            <mat-label>Cuotas</mat-label>
+            <input matInput formControlName="dueQuantity" type="number">
+          </mat-form-field>
+        </div>
+
+        <div class="cost">
+          <mat-form-field class="example-form-field">
+            <mat-label>Costo total</mat-label>
+            <input matInput formControlName="totalCost" type="number">
+          </mat-form-field>
+        </div>
+
+
+
+
+        <div class="create">
+          <button mat-raised-button color="primary" class="create-button" type="submit">Registrar Cuota</button>
+        </div>
+
+      </div>
+
+    </div>
+  </form>
+</ng-template>
