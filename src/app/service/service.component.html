@@ -34,7 +34,7 @@
 
           <ng-container matColumnDef="materials">
             <th mat-header-cell *matHeaderCellDef>Materiales</th>
-            <td mat-cell *matCellDef="let service">  </td>
+            <td mat-cell *matCellDef="let service"> {{service.productIds}}  </td>
           </ng-container>
 
           <ng-container matColumnDef="actions" class="icons">
@@ -86,13 +86,19 @@
           <input matInput formControlName="duesQuantity" type="number">
         </mat-form-field>
 
-        <!-- [compareWith]="compareFn" -->
         <mat-form-field appearance="fill" class="services-select">
           <mat-label>Selecciona materiales</mat-label>
-          <mat-select formControlName="productIds" multiple >
-            <mat-option *ngFor="let instrument of instrumentList" [value]="">{{instrument.name}}</mat-option>
+          <mat-select formControlName="productIds" multiple>
+            <mat-option *ngFor="let instrument of instrumentList" [value]="instrument.id.toString()">
+              {{ instrument.name }}
+            </mat-option>
           </mat-select>
+          
+          
+          
+          
         </mat-form-field>
+        
 
         <div class="create">
           <button mat-raised-button color="primary" class="create-button" type="submit">Registrar</button>

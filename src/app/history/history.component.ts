@@ -19,9 +19,10 @@ export class HistoryComponent {
   public patient!: Patient;
   public patientAppointmentPendient = [];
   public patientAppointment = [];
-  public patientId: string = "";
+  public patientId!:number;
   dialogRef!: MatDialogRef<any>;
   displayedColumns: string[] = ['hour', 'procedure', 'cost'];
+  teethColums: string[] = ['name', 'procedure', 'pendingProcedure']
   displayedHistoricColums: string[] = ['hour', 'procedure', 'cost'];
   dataSource = new MatTableDataSource<any>(this.patientAppointmentPendient);
   dataSourceHistoric = new MatTableDataSource<any>(this.patientAppointment)
@@ -67,12 +68,12 @@ export class HistoryComponent {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
-        this.patientId = id;
+        this.patientId = +id;
       }
     });
   }
 
-  getPatientById(id: string) {
+  getPatientById(id: number) {
     this.patientsService.getPatientById(id).subscribe({
       next: (patient: any) => {
         this.patient = patient;

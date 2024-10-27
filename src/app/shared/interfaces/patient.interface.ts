@@ -1,8 +1,11 @@
+import { Dues } from "./dues.interface";
+
 export interface Patient {
-    id?:string;
+    id?:number;
     name:string;
     age:number;
     address?:string;
     tel?:string;
     email?:string;
+    dues?:Dues[];
 }

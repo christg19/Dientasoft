@@ -13,7 +13,7 @@ import { ServicesService } from 'src/app/shared/services/services.service';
   styleUrls: ['./create-service.component.scss']
 })
 export class CreateServiceComponent {
-  private serviceId: string = '';
+  private serviceId!:number;
   serviceForm!: FormGroup;
 
   constructor(private fb: FormBuilder, private servicesService: ServicesService, private router: Router, private route: ActivatedRoute, private cdr:ChangeDetectorRef) {
@@ -32,13 +32,13 @@ export class CreateServiceComponent {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
-        this.serviceId = id;
+        this.serviceId = +id;
         this.getServiceDetails(this.serviceId);
       }
     });
   }
 
-  private getServiceDetails(id: string) {
+  private getServiceDetails(id: number) {
     this.servicesService.getServiceById(id).subscribe({
       next: (service: any) => {
         this.fillFormDetails(service);
@@ -56,7 +56,7 @@ export class CreateServiceComponent {
     })
   }
 
-  updateService(service: Service, id: string) {
+  updateService(service: Service, id: number) {
     this.servicesService.updateService(service, id).subscribe({
       next: (response:any) => {
         console.log('Updateado con exito:', response);

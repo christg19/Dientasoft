@@ -15,12 +15,12 @@
 
         <ng-container matColumnDef="patient">
           <th mat-header-cell *matHeaderCellDef>Paciente</th>
-          <td mat-cell *matCellDef="let due"> {{getPatientById(due.patientId)}} </td>
+          <td mat-cell *matCellDef="let due"> {{due.patientId}} </td>
         </ng-container>
 
         <ng-container matColumnDef="service">
           <th mat-header-cell *matHeaderCellDef>Servicio</th>
-          <td mat-cell *matCellDef="let due"> {{getServiceById(due.serviceId)}} </td>
+          <td mat-cell *matCellDef="let due"> {{due.serviceId}} </td>
         </ng-container>
 
         <ng-container matColumnDef="due">

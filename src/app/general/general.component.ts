@@ -5,6 +5,9 @@ import { PatientsService } from '../shared/services/patient.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Patient } from '../shared/interfaces/patient.interface';
+import { ServicesService } from '../shared/services/services.service';
+import { Service } from '../shared/interfaces/services.interface';
+import { firstValueFrom } from 'rxjs';
 
 export interface Menu {
   title: string;
@@ -19,10 +22,11 @@ export interface Menu {
   styleUrls: ['./general.component.scss']
 })
 export class GeneralComponent implements OnInit, AfterViewInit {
-  public loading:Boolean = false;
+  public loading: Boolean = false;
   public appointmentWeekNumber: number = 0;
   public totalPatientNumber: number = 0;
   notesText: string = '';
+  serviceList!: Service[];
   public appointments: Appointment[] = [];
   displayedColumns: string[] = ['date', 'patientName', 'procedure', 'amount'];
   dataSource = new MatTableDataSource<any>(this.appointments);
@@ -61,14 +65,16 @@ export class GeneralComponent implements OnInit, AfterViewInit {
   ]
   constructor(
     private appointmentService: AppointmentService,
-    private patientService: PatientsService
+    private patientService: PatientsService,
+    private servicesService: ServicesService,
   ) { }
 
   ngOnInit(): void {
     this.loading = true;
+    this.getServices();
     this.getAllAppointments();
     this.getAllPatients();
-    setTimeout(()=>{
+    setTimeout(() => {
       this.loading = false;
     }, 200)
   }
@@ -79,19 +85,23 @@ export class GeneralComponent implements OnInit, AfterViewInit {
     console.log(this.notesText)
   }
 
-  getAllAppointments() {
-    this.appointmentService.getAppointments().subscribe({
-      next: (appointments: any) => {
-        this.appointments = appointments;
-        this.dataSource.data = this.appointments;
-        this.generalFilter();
-        this.appointmentWeek();
-      },
-      error: (error) => {
-        console.error(error);
-      }
+  async getAllAppointments() {
+    this.appointmentService.getAppointments().subscribe(async (appointment: any) => {
+      const appointmentPromise = appointment.map(async (appointment: any) => {
+        const proceduresName = await this.getProceduresByIds(appointment.serviceIds);
+        return {
+          ...appointment,
+          serviceIds: proceduresName.join(', ')
+        }
+      });
+      this.appointments = await Promise.all(appointmentPromise);
+      this.dataSource.data = this.appointments;
+      console.log(this.appointments)
+      this.generalFilter();
+      this.appointmentWeek();
     });
   }
+
 
   generalFilter() {
     let today = new Date();
@@ -103,6 +113,7 @@ export class GeneralComponent implements OnInit, AfterViewInit {
     });
 
     this.dataSource.data = appointmentOfToday;
+    console.log(this.dataSource.data)
   }
 
   appointmentWeek() {
@@ -126,11 +137,39 @@ export class GeneralComponent implements OnInit, AfterViewInit {
       next: (patients: any) => {
         console.log(patients)
         this.totalPatientNumber = patients.length;
-        console.log(this.totalPatientNumber)
       }
     })
   }
 
+  getServices(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.servicesService.getServices().subscribe({
+        next: (services: any) => {
+          this.serviceList = services;
+          resolve();
+        },
+        error: (error) => {
+          console.error(error);
+          reject();
+        }
+      });
+    });
+  }
+
+  getProceduresByIds(ids: number[]): Promise<string[]> {
+    if (!this.serviceList) {
+      console.warn('serviceList is not loaded yet.');
+      return Promise.resolve([]);
+    }
   
+    const names = this.serviceList
+    .filter(service => ids.includes(service.id)) 
+    .map(service => service.name);
+    console.log("servicios: ", this.serviceList)
+    console.log(names)
+    return Promise.resolve(names);
+  }
+
+
 
 }

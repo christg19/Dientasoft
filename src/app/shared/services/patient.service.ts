@@ -13,7 +13,7 @@ export class PatientsService {
   private url = 'http://localhost:3000/api/v1';
 
   getPatients() {
-    return this.httpClient.get(`${this.url}/clients/getPatients/1/10`, {
+    return this.httpClient.get(`${this.url}/clients/getPatients`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -21,7 +21,7 @@ export class PatientsService {
     });
   }
 
-  getPatientById(id: string) {
+  getPatientById(id: number) {
     return this.httpClient.get(`${this.url}/clients/getPatientById/${id}`, {
       headers: {
         'Content-Type': 'application/json',
@@ -39,7 +39,7 @@ export class PatientsService {
     });
   }
 
-  updatePatient(patient: Patient, id: string) {
+  updatePatient(patient: Patient, id: number) {
     return this.httpClient.put(`${this.url}/clients/updatePatient/${id}`, patient, {
       headers: {
         'Content-Type': 'application/json',

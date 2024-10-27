@@ -10,7 +10,7 @@ import { Appointment } from '../../interfaces/appointment.interface';
 })
 export class ToothSVGComponent {
   @ViewChild('toothContent') toothContent!: TemplateRef<any>;
-  @Input() patient!: string;
+  @Input() patient!: number;
 
   dialogRef!: MatDialogRef<any>;
   public patientAppointmentList!: Appointment[];
@@ -31,6 +31,7 @@ export class ToothSVGComponent {
   }
 
   ngAfterViewInit() {
+
     for (let i = 1; i <= 32; i++) {
       let toothPath = document.querySelector(`path#tooth-${i}`);
       if (toothPath) {

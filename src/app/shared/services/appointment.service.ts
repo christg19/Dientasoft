@@ -30,7 +30,7 @@ export class AppointmentService {
     });
   }
 
-  createAppointment(formData: any) {
+  createAppointment(formData: Appointment) {
     const httpOptions = {
       headers: new HttpHeaders({
         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJjZ296dW5hQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTY5NzA3ODQ3NSwiZXhwIjoxNjk3MTY0ODc1fQ.kQC5x_3O0RwVkLqCrnu4iakN61iXGrJ8AyLUOQ43mKY'

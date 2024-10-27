@@ -26,7 +26,7 @@ export class InventoryComponent implements OnInit {
   public actions: boolean = true;
   public loading: boolean = false;
   public instrumentalQuantity: number = 0;
-  public inventoryId: string = '';
+  public inventoryId!:number;
   updating: boolean = false;
   public categoriesForProduct = Object.entries(Categories).map(([key, value]) => ({ key, value }));
   dialogRef!: MatDialogRef<any>;
@@ -79,8 +79,8 @@ export class InventoryComponent implements OnInit {
       name: ['', Validators.required],
       unitDate: [Date, Validators.required],
       expiryDate: [Date],
-      categoryProduct: ['', Validators.required]
-
+      categoryProduct: ['', Validators.required],
+      instrumentalState: [true]
     });
   }
 
@@ -106,11 +106,12 @@ export class InventoryComponent implements OnInit {
     return `${startIndex + 1} - ${endIndex} de ${length}`;
   }
 
-  loadInventoryDetails(id: string) {
+  loadInventoryDetails(id: number) {
     this.updating = true;
     this.productService.getProductById(id).subscribe(
       (instrument: any) => {
         const instrumentPatch: Instrument = instrument;
+        console.log(instrumentPatch)
         this.inventoryForm.patchValue({
           name: instrumentPatch.name,
           unitDate: instrumentPatch.unitDate,
@@ -125,6 +126,22 @@ export class InventoryComponent implements OnInit {
       error => console.error(error)
     );
   }
+
+  onInstrumentalStateChange(item: Instrument, isChecked: boolean, id: number) {
+
+    item.instrumentalState = isChecked;
+  
+    const partialUpdate: Partial<Instrument> = {
+      instrumentalState: isChecked
+    };
+  
+    this.productService.patchProduct(id, partialUpdate).subscribe({
+      next: response => console.log('Update successful', response),
+      error: error => console.error('Update failed', error)
+    });
+  }
+  
+
 
   deleteProduct(id: string) {
     this.productService.deleteProduct(id).subscribe({
@@ -156,18 +173,18 @@ export class InventoryComponent implements OnInit {
     this.dataSource.data = this.getDataSourceProduct(selectedOption.buttonName);
   }
 
-  gettingId(id: string): void {
+  gettingId(id: number): void {
     this.inventoryId = id;
   }
 
-  gettingIdAndOpenModal(id: string): void {
+  gettingIdAndOpenModal(id: number): void {
     console.log(id, 'gettingIdAndOpenModal');
     this.updating = true;
     this.inventoryId = id;
     this.openModal(this.modalContent, id);
   }
 
-  loadServicesDetails(id: string) {
+  loadServicesDetails(id: number) {
     this.updating = true;
     this.productService.getProductById(id).subscribe(
       (service: any) => {
@@ -187,11 +204,11 @@ export class InventoryComponent implements OnInit {
   }
 
 
-  openModal(templateRef: TemplateRef<any>, id?: string): void {
+  openModal(templateRef: TemplateRef<any>, id?: number): void {
 
     if (!id) {
       this.updating = false;
-      this.inventoryId = '';
+      this.inventoryId = 0;
       this.inventoryForm.reset();
 
     } else {
@@ -271,7 +288,7 @@ export class InventoryComponent implements OnInit {
     })
   }
 
-  updateInstrument(instrument: Instrument, id: string) {
+  updateInstrument(instrument: Instrument, id: number) {
     this.productService.updateProduct(instrument, id).subscribe({
       next: (response: any) => {
         this.getProducts();
@@ -288,10 +305,11 @@ export class InventoryComponent implements OnInit {
 
       if (this.inventoryId) {
         this.updateInstrument(formValue, this.inventoryId)
-        this.router.navigate(['/inventory']);
+          this.closeModal();
       } else {
         console.log(formValue)
         this.createInstrument(formValue);
+        this.closeModal();
       }
 
     } else {

@@ -15,10 +15,10 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
   styleUrls: ['./patients.component.scss']
 })
 export class PatientsComponent implements AfterViewInit {
-  displayedColumns: string[] = ['name', 'history', 'procedure', 'pending-appointment','pending_appointment', 'actions'];
+  displayedColumns: string[] = ['name', 'history', 'pending-appointment','pending_appointment', 'actions'];
   patientList: Patient[] = [];
   patientForm!: FormGroup;
-  private patientId: string = '';
+  private patientId!: number;
   dialogRef!: MatDialogRef<any>;
 
   loading: Boolean = false;
@@ -102,7 +102,7 @@ export class PatientsComponent implements AfterViewInit {
       next: (patients: any) => {
         this.patientList = patients;
         this.dataSource.data = this.patientList;
-        this.cdr.detectChanges();
+        console.log(this.patientList)
       },
       error: (error) => {
         console.error(error)
@@ -149,7 +149,7 @@ export class PatientsComponent implements AfterViewInit {
     this.dialogRef.close();
   }
 
-  updatePatient(patient: Patient, id: string) {
+  updatePatient(patient: Patient, id: number) {
     this.patientsService.updatePatient(patient, id).subscribe({
       next: () => {
         console.log('Actualizado con éxito');

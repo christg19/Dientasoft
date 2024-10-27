@@ -22,7 +22,7 @@ export class ProductService {
     return this.httpClient.get(`${this.url}/getProducts`, httpOptions);
   }
 
-  getProductById(id: string) {
+  getProductById(id: number) {
     return this.httpClient.get(`${this.url}/getProductById/${id}`, {
       headers: {
         'Content-Type': 'application/json',
@@ -41,7 +41,7 @@ export class ProductService {
     return this.httpClient.post(`${this.url}/createProduct/`, formData, httpOptions);
   }
 
-  updateProduct(product: Instrument, id: string) {
+  updateProduct(product: Instrument, id: number) {
     return this.httpClient.put(`${this.url}/updateProduct/${id}`, product, {
       headers: {
         'Content-Type': 'application/json',
@@ -56,6 +56,15 @@ export class ProductService {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },
+    });
+  }
+
+  patchProduct(id: number, partialUpdate: Partial<Instrument>) {
+    return this.httpClient.patch(`${this.url}/patchProduct/${id}`, partialUpdate, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      })
     });
   }
 }

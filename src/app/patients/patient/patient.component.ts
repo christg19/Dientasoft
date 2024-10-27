@@ -10,7 +10,7 @@ import { PatientsService } from 'src/app/shared/services/patient.service';
   styleUrls: ['./patient.component.scss']
 })
 export class PatientComponent {
-  private patientId: string = '';
+  private patientId!: number;
   patientForm!: FormGroup;
 
   constructor(private fb: FormBuilder, private patientsService: PatientsService, private router: Router, private route: ActivatedRoute, private cdr:ChangeDetectorRef) {
@@ -31,13 +31,13 @@ export class PatientComponent {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
-        this.patientId = id;
+        this.patientId = +id;
         this.getPatientDetails(this.patientId);
       }
     });
   }
 
-  private getPatientDetails(id: string) {
+  private getPatientDetails(id: number) {
     this.patientsService.getPatientById(id).subscribe({
       next: (patient: any) => {
         this.fillFormDetails(patient);
@@ -57,7 +57,7 @@ export class PatientComponent {
     })
   }
 
-  updatePatient(patient: Patient, id: string) {
+  updatePatient(patient: Patient, id: number) {
     this.patientsService.updatePatient(patient, id).subscribe({
       next: () => {
         console.log('Updateado con exito');

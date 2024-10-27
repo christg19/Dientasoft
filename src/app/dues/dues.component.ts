@@ -11,6 +11,7 @@ import { ServicesService } from '../shared/services/services.service';
 import { PatientsService } from '../shared/services/patient.service';
 import { Patient } from '../shared/interfaces/patient.interface';
 
+
 @Component({
   selector: 'app-dues',
   templateUrl: './dues.component.html',
@@ -19,18 +20,21 @@ import { Patient } from '../shared/interfaces/patient.interface';
 })
 export class DuesComponent {
   displayedColumns: string[] = ['patient', 'service', 'due', 'cost', 'actions'];
-  private dueId: string = '';
+  private dueId!:number;
   serviceList: Service[] = [];
   dueValue = 0;
   dueQuantityValue = 0;
   patientList!: Patient[];
   loading: Boolean = false;
+  dataTable: Dues[] = [];
+  public patientNames!: { [key: string]: string };
   dueList: Dues[] = [];
   updating: boolean = false;
   dialogRef!: MatDialogRef<any>;
   redirectToClient = '/patients';
   redirectToServices = '/services';
-  serviceId = '';
+  serviceName!:string;
+  serviceId!:number;
   dataSource = new MatTableDataSource<any>(this.dueList);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild('modalContent') modalContent!: TemplateRef<any>;
@@ -50,10 +54,14 @@ export class DuesComponent {
 
     this.dueForm = this.fb.group({
       patientId: ['', Validators.required],
-      serviceId: ['', Validators.required],
+      name:['', Validators.required],
+      serviceId: [this.serviceName, Validators.required],
       dueQuantity: [this.dueQuantityValue, Validators.required],
       totalCost: [this.dueValue, Validators.required]
     });
+  }
+
+  ngOnChanges(): void {
   }
 
   ngOnInit(): void {
@@ -93,17 +101,19 @@ export class DuesComponent {
     }
   }
 
-  async calculatePendingCost(id: string) {
+  async calculatePendingCost(id: number) {
     this.servicesService.getServiceById(id).subscribe({
       next: (service: any) => {
 
         this.dueValue = service.cost;
         this.dueQuantityValue = service.duesQuantity;
         this.serviceId = id;
+        this.serviceName = service.name;
 
         this.dueForm.patchValue({
           totalCost: this.dueValue,
-          dueQuantity: this.dueQuantityValue
+          dueQuantity: this.dueQuantityValue,
+          name: `Cuotas de ${this.serviceName} `
         });
       },
       error: (error: any) => {
@@ -112,45 +122,25 @@ export class DuesComponent {
     });
   }
 
-
-  getPatientById(id: string) {
-    this.patientsService.getPatientById(id).subscribe({
-      next: (patient: any) => {
-        return patient.name;
-      },
-      error: (error: any) => {
-        console.log(error)
-      }
-    })
+  getPatientName(id: string): string {
+    return this.patientNames[id] || 'Desconocido';
   }
 
   getAllPatients() {
     this.patientsService.getPatients().subscribe({
       next: (patients: any) => {
-        this.patientList = patients
+        this.patientList = patients;
       },
       error: (error: any) => {
-        console.log(error)
+        console.log(error);
       }
     });
-  }
 
-  getServiceById(id: string) {
-    this.servicesService.getServiceById(id).subscribe({
-      next: (service: any) => {
-        return service.name;
-      },
-      error: (error: any) => {
-        console.log(error)
-      }
-    })
   }
-
+ 
   compareFn(a: any, b: any): boolean {
     return a === b;
   }
-
-
 
   deleteDue(id: string) {
     this.duesService.deleteDue(id).subscribe({
@@ -176,44 +166,75 @@ export class DuesComponent {
     })
   }
 
-  getAllDues() {
-    this.duesService.getDues().subscribe({
-      next: (due: any) => {
-        console.log('Updating dataSource', due);
-        console.log(due)
 
-        this.dueList = due;
-        this.dataSource.data = this.dueList;
-
-      },
-      error: (error) => {
-        console.log(error);
-      }
+async getAllDues() {
+  this.duesService.getDues().subscribe(async (dues: any) => {
+    const duePromises = dues.map(async (due:any) => {
+      const patientName = await this.getPatientNameById(due.patientId);
+      const serviceName = await this.getServiceById(due.serviceId);
+      return {
+        ...due,
+        patientId: patientName, 
+        serviceId: serviceName
+      };
     });
-    
+
+    this.dueList = await Promise.all(duePromises);
+    this.dataSource.data = this.dueList;
+
+  });
+}
+
+  getPatientNameById(id:number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.patientsService.getPatientById(id).subscribe({
+        next: (patient: any) => {
+          resolve(patient.name); 
+        },
+        error: (error) => {
+          reject(error); 
+        }
+      });
+    });
   }
 
-  gettingId(id: string): void {
+  getServiceById(id:number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.servicesService.getServiceById(id).subscribe({
+        next: (service: any) => {
+          resolve(service.name); 
+        },
+        error: (error) => {
+          reject(error); 
+        }
+      });
+    });
+  }
+  
+
+  gettingId(id: number): void {
     this.dueId = id;
   }
 
-  gettingIdAndOpenModal(id: string): void {
+  gettingIdAndOpenModal(id: number): void {
 
     this.updating = true;
     this.dueId = id;
     this.openModal(this.modalContent, id);
   }
 
-  loadDuesDetails(id: string) {
+  loadDuesDetails(id: number) {
     this.updating = true;
     this.duesService.getDueById(id).subscribe(
       (due: any) => {
         const duePatch: Dues = due;
+        const dueQuantity = this.getServiceById(due.serviceId);
+        const duePatient = this.getPatientNameById(due.serviceId);
         this.dueForm.patchValue({
           patientId: duePatch.patientId,
           serviceId: duePatch.serviceId,
-          dueQuantity: this.dueQuantityValue,
-          totalCost: this.dueValue
+          dueQuantity: duePatch.dueQuantity,
+          totalCost: duePatch.totalCost
         });
 
         this.cdr.detectChanges();
@@ -222,12 +243,14 @@ export class DuesComponent {
     );
   }
 
+  
 
-  openModal(templateRef: TemplateRef<any>, id?: string): void {
+
+  openModal(templateRef: TemplateRef<any>, id?: number): void {
 
     if (!id) {
       this.updating = false;
-      this.dueId = '';
+      this.dueId = 0;
       this.dueForm.reset();
     } else {
       this.updating = true;
@@ -252,13 +275,15 @@ export class DuesComponent {
 
   redirect(url: string) {
     this.router.navigate([url])
+    this.closeModal();
   }
 
   redirectToEdit(id: string): void {
     this.router.navigate(['/services/editService', id]);
+    this.closeModal();
   }
 
-  updateDue(due: Dues, id: string) {
+  updateDue(due: Dues, id: number) {
     this.duesService.updateDue(due, id).subscribe({
       next: (response: any) => {
         console.log('Updateado con exito:', response);
@@ -288,9 +313,10 @@ export class DuesComponent {
 
       if (this.dueId) {
         this.updateDue(formValue, this.dueId)
-        this.router.navigate(['/services']);
+        this.closeModal();
       } else {
         this.createDue(formValue);
+        this.closeModal();
       }
 
     } else {

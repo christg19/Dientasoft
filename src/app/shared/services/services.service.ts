@@ -18,7 +18,7 @@ export class ServicesService {
     });
   }
 
-  getServiceById(id: string) {
+  getServiceById(id: number) {
     return this.httpClient.get(`${this.url}/getOneService/${id}`, {
       headers: {
         'Content-Type': 'application/json',
@@ -36,7 +36,7 @@ export class ServicesService {
     });
   }
 
-  updateService(service: Service, id: string) {
+  updateService(service: Service, id: number) {
     return this.httpClient.put(`${this.url}/updateService/${id}`, service, {
       headers: {
         'Content-Type': 'application/json',

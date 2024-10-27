@@ -56,7 +56,7 @@
               
               <ng-container matColumnDef="procedure">
                 <th mat-header-cell *matHeaderCellDef>Procedimiento</th>
-                <td mat-cell *matCellDef="let appointment"> {{appointment.servicesName.join(', ') }} </td>
+                <td mat-cell *matCellDef="let appointment"> {{appointment.serviceIds }} </td>
               </ng-container>
               
               <ng-container matColumnDef="amount">

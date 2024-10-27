@@ -10,6 +10,10 @@ import { Patient } from '../shared/interfaces/patient.interface';
 import { ServicesService } from '../shared/services/services.service';
 import { Service } from '../shared/interfaces/services.interface';
 import { MatDialog, MatDialogRef, MatDialogState } from '@angular/material/dialog';
+import { Dues, SelectableObject, ServiceOrDue } from '../shared/interfaces/dues.interface';
+import { lastValueFrom } from 'rxjs';
+import { MatSelectChange } from '@angular/material/select';
+import { DuesService } from '../shared/services/dues.service';
 
 @Component({
   selector: 'app-appointment',
@@ -27,13 +31,22 @@ export class AppointmentComponent implements AfterViewInit {
   displayedColumns: string[] = ['date', 'patientName', 'procedure', 'amount', 'actions'];
   dataSource = new MatTableDataSource<Appointment>(this.appointmentList);
   patientList: Patient[] = [];
-  loading:Boolean = false;
+  loading: Boolean = false;
   appointmentServicesName: string[] = [];
   dialogRef!: MatDialogRef<any>;
   appointmentForm!: FormGroup;
   redirectToClient = '/patients';
   redirectToServices = '/services';
   servicesList: Service[] = [];
+  duesList!: Dues[];
+  selectedDue!: Dues;
+  combinedList: (Service | (Dues & { itemType: 'service' | 'due' }))[] = [];
+  totalDues!: number;
+  public componentDueCost: number = 0;
+  public reduceCost: number = 0;
+  selectedDues!: Dues[];
+  isDataValid: boolean = false;
+  selectedServices!: ServiceOrDue[]
 
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -41,7 +54,7 @@ export class AppointmentComponent implements AfterViewInit {
 
   constructor(
     private fb: FormBuilder,
-    private router: Router, public dialog: MatDialog, private cdr: ChangeDetectorRef, private servicesService: ServicesService, private paginators: MatPaginatorIntl, private appointmentService: AppointmentService, private patientService: PatientsService,) {
+    private router: Router, public dialog: MatDialog, private cdr: ChangeDetectorRef, private servicesService: ServicesService, private paginators: MatPaginatorIntl, private appointmentService: AppointmentService, private patientService: PatientsService, private duesService: DuesService) {
     this.paginators.itemsPerPageLabel = "Registros por página";
     this.paginators.nextPageLabel = "Siguiente página";
     this.paginators.previousPageLabel = "Página anterior";
@@ -57,8 +70,9 @@ export class AppointmentComponent implements AfterViewInit {
       appointmentHour: ['', Validators.required],
       serviceIds: [[], [Validators.required]],
       patientId: ['', Validators.required],
-      notes: ['']
+      notes: [''],
     });
+    
   }
 
   ngOnInit(): void {
@@ -66,7 +80,8 @@ export class AppointmentComponent implements AfterViewInit {
     this.getAllAppointments();
     this.getAllPatients();
     this.getAllServices();
-    setTimeout(()=>{
+
+    setTimeout(() => {
       this.loading = false;
     }, 200)
   }
@@ -74,6 +89,16 @@ export class AppointmentComponent implements AfterViewInit {
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
   }
+
+
+  combineLists(duesList: Dues[], serviceList: Service[]) {
+    this.combinedList = [
+      ...serviceList.map(item => ({ ...item, itemType: 'service' as 'service' })),
+      ...duesList.filter(due => due.dueQuantity > 0)
+        .map(due => ({ ...due, itemType: 'due' as 'due' }))
+    ];
+  }
+
 
   spanishRangeLabel(page: number, pageSize: number, length: number): string {
     if (length == 0 || pageSize == 0) {
@@ -95,10 +120,41 @@ export class AppointmentComponent implements AfterViewInit {
     this.router.navigate([url])
   }
 
+
+
+  addingDues(id: number) {
+    if (id === null || id === undefined) {
+      console.error('No encontrado');
+      return;
+    }
+  
+    this.patientService.getPatientById(id).subscribe(async (patient: any) => {
+      this.duesList = patient && patient.dues ? patient.dues : [];
+      this.combineLists(this.duesList, this.servicesList);
+    }, error => {
+      console.error('Error fetching patient with id:', id, error);
+    });
+  }
+  
+
+
+
+  onSelectionChange(event: MatSelectChange) {
+    const selectedItems = event.value;
+    console.log(selectedItems);
+    this.selectedDues = selectedItems.filter((item: SelectableObject) => item.itemType === 'due');
+  
+    this.selectedServices = selectedItems.filter((item: SelectableObject) => item.itemType === 'service');
+  }
+  
+
+
+
+
+
   getAllAppointments() {
     this.appointmentService.getAppointments().subscribe({
       next: (appointment: any) => {
-        console.log(appointment)
         this.appointmentList = appointment;
         this.dataSource.data = this.appointmentList;
 
@@ -108,6 +164,7 @@ export class AppointmentComponent implements AfterViewInit {
       }
     })
   }
+
 
   formatDate(date: string) {
     const fecha = new Date(date);
@@ -172,7 +229,7 @@ export class AppointmentComponent implements AfterViewInit {
     );
   }
 
-  getAppointmentService(ids: string[]) {
+  getAppointmentService(ids: number[]) {
     let servicesNames: string[] = [];
 
     const matchedServices = this.servicesList.filter(service => ids.includes(service.id));
@@ -203,6 +260,7 @@ export class AppointmentComponent implements AfterViewInit {
     this.servicesService.getServices().subscribe({
       next: (services: any) => {
         this.servicesList = services;
+        console.log(services)
       },
       error: (error) => {
         console.error(error);
@@ -250,60 +308,140 @@ export class AppointmentComponent implements AfterViewInit {
     this.updating = false;
   }
 
-  submitForm() {
-    if (this.appointmentForm.valid) {
-      console.log(this.updating)
-      const formValue = this.appointmentForm.getRawValue();
-
-      if (formValue.appointmentDate && formValue.appointmentHour) {
-
-        const date = new Date(formValue.appointmentDate);
-        const [hours, minutes] = formValue.appointmentHour.split(':').map(Number);
-        date.setHours(hours, minutes);
-
-        const submission = {
-          ...formValue,
-          appointmentDate: date.toISOString()
-        };
-        delete submission.appointmentHour;
-
-        if (this.updating) {
-          console.log('Actualizando')
-          this.appointmentService.updateAppointment(submission, this.appointmentId).subscribe({
-            next: (response: any) => {
-              console.log('Cita actualizada exitosamente:', response);
-
-              this.closeModal();
-              this.getAllAppointments();
-              this.updating = false;
-              this.cdr.detectChanges();
-            },
-            error: (error: any) => console.error('Error al actualizar la cita:', error)
-          });
-        } else {
-          console.log('Creando')
-          this.appointmentService.createAppointment(submission).subscribe({
-            next: (response: any) => {
-              console.log('Cita creada exitosamente:', response);
-              this.closeModal();
-              this.getAllAppointments();
-              this.cdr.detectChanges();
-            },
-            error: (error: any) => console.error('Error al crear la cita:', error)
-          });
-        }
-      } else {
-        console.error('La fecha y/o la hora no están definidas.');
+  updateDue(due: Dues, id: number) {
+    this.duesService.updateDue(due, id).subscribe({
+      next: (response: any) => {
+        console.log('Updateado, ', response)
       }
-    } else {
-      console.log('El formulario no es válido. Detalles de los errores:');
+    })
+  }
+
+  filterServices(list: ServiceOrDue[]): (number | string)[] {
+    return list.map(item => {
+      if (item.itemType === 'service') {
+        return item.id;
+      } else if (item.itemType === 'due') {
+        return item.serviceId;
+      }
+      return undefined;
+    }).filter(id => id !== undefined) as (number | string)[];
+  }
+
+  async filterServiceCost(): Promise<number> {
+    if (!this.selectedServices || this.selectedServices.length === 0) {
+      return 0; // Retorna 0 si no hay servicios seleccionados
+    }
+
+    // Filtrar solo aquellos elementos que son servicios y sumar sus costos
+    return this.selectedServices
+      .filter(item => item.itemType === 'service') // Asegurarse que solo se toman los servicios
+      .reduce((acc, service) => {
+        if ('cost' in service) {  // Comprobar que el servicio tenga la propiedad 'cost'
+          return acc + service.cost;
+        }
+        return acc;
+      }, 0);
+  }
+
+
+
+
+  async updateDueQuantities(dues: Dues[]): Promise<void> {
+    const updatePromises = dues.map(due => {
+      if (due.dueQuantity > 0 && due.id !== undefined) {
+        const decrement = due.totalCost / due.dueQuantity;
+        return this.duesService.patchDue(due.id, {
+          dueQuantity: due.dueQuantity - 1,
+          totalCost: due.totalCost - decrement
+        }).toPromise();
+      } else {
+        console.error('Intento de actualizar un Due sin ID válido o con dueQuantity no positiva.');
+        return Promise.reject('ID inválido o dueQuantity no positiva');
+      }
+    });
+  
+    try {
+      await Promise.all(updatePromises);
+      console.log("Todos los Dues han sido actualizados correctamente.");
+    } catch (error) {
+      console.error('Hubo un error al actualizar los Dues:', error);
+      throw error;
     }
   }
+  
 
-  compareFn(a: any, b: any): boolean {
-    return a === b;
+  async dueCost(selectedDues: Dues[]): Promise<number> {
+    let totalDueCost = 0;
+    for (const due of selectedDues) {
+      if (due.itemType === 'due') {
+        totalDueCost += due.totalCost / due.dueQuantity;
+      }
+    }
+    this.componentDueCost = totalDueCost;
+    return totalDueCost;
   }
 
+
+  async submitForm() {
+    if (!this.appointmentForm.valid) {
+      console.error('El formulario no es válido. Detalles de los errores:');
+      return;
+    }
+  
+    const formValue = this.appointmentForm.getRawValue();
+  
+    try {
+      let dueCost = 0;
+  
+      // Solo actualizar Dues si hay Dues seleccionados
+      if (this.selectedDues && this.selectedDues.length > 0) {
+        await this.updateDueQuantities(this.selectedDues);
+        dueCost = await this.dueCost(this.selectedDues);
+      }
+  
+      const serviceTotalCost = await this.filterServiceCost();
+  
+      const date = new Date(formValue.appointmentDate);
+      const [hours, minutes] = formValue.appointmentHour.split(':').map(Number);
+      date.setHours(hours, minutes);
+  
+      const totalCost = dueCost + serviceTotalCost;
+  
+      const submission = {
+        ...formValue,
+        serviceIds: this.filterServices(formValue.serviceIds),
+        duesCost: dueCost,
+        totalCost: totalCost,
+        appointmentDate: date.toISOString()
+      };
+  
+      delete submission.appointmentHour;
+  
+      if (this.updating) {
+        console.log('Actualizando cita');
+        await lastValueFrom(this.appointmentService.updateAppointment(submission, this.appointmentId));
+      } else {
+        console.log('Creando nueva cita');
+        console.log(submission);
+        await lastValueFrom(this.appointmentService.createAppointment(submission));
+      }
+  
+      this.closeModal();
+      this.getAllAppointments();
+      this.updating = false;
+  
+    } catch (error) {
+      console.error('Error al procesar la cita o actualizar los Dues:', error);
+    }
+  }
+  
+
+  compareFn(o1: any, o2: any): boolean {
+    if (!o1 || !o2) {
+      return false;
+    }
+    return o1.id === o2.id;
+  }
 
 }
 

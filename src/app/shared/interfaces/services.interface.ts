@@ -1,7 +1,8 @@
 export interface Service {
-    id:string;
+    id:number;
     name: string;
     cost: number;
     duesQuantity:number;
     productIds:string[]
+    itemType:'service';
 }

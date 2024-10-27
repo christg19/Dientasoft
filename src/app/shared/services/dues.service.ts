@@ -22,7 +22,7 @@ export class DuesService {
     });
   }
 
-  getDueById(id: string) {
+  getDueById(id: number) {
     return this.httpClient.get(`${this.url}/getDueById/${id}`, {
       headers: {
         'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ export class DuesService {
     });
   }
 
-  updateDue(due: Dues, id: string) {
+  updateDue(due: Dues, id: number) {
     return this.httpClient.put(`${this.url}/updateDue/${id}`, due, {
       headers: {
         'Content-Type': 'application/json',
@@ -55,6 +55,15 @@ export class DuesService {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },
+    });
+  }
+
+  patchDue(id: number, partialUpdate: Partial<Dues>) {
+    return this.httpClient.patch(`${this.url}/patchDue/${id}`, partialUpdate, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      })
     });
   }
 }

@@ -11,6 +11,7 @@ import { Service } from '../shared/interfaces/services.interface';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Instrument } from '../shared/interfaces/instrument.interface';
 import { ProductService } from '../shared/services/product.service';
+import { Product } from '../shared/interfaces/product.interface';
 
 @Component({
   selector: 'app-service',
@@ -19,7 +20,7 @@ import { ProductService } from '../shared/services/product.service';
 })
 export class ServiceComponent {
   displayedColumns: string[] = ['name', 'cost','materials','duesQuantity', 'actions'];
-  private serviceId: string = '';
+  private serviceId!: number;
   serviceList: Patient[] = [];
   loading: Boolean = false;
   instrumentList:Instrument[] = [];
@@ -52,7 +53,6 @@ export class ServiceComponent {
 
   ngOnInit(): void {
     this.loading = true;
-    this.getAllServices();
     this.getProducts();
     setTimeout(()=>{
       this.loading = false;
@@ -88,7 +88,6 @@ export class ServiceComponent {
   deleteService(id: string) {
     this.servicesService.deleteService(id).subscribe({
       next: (response: any) => {
-        console.log('Servicio eliminado con exito:', response);
         this.getAllServices();
         this.cdr.detectChanges();
       },
@@ -98,41 +97,57 @@ export class ServiceComponent {
     });
   }
 
-  getAllServices() {
-    this.servicesService.getServices().subscribe({
-      next: (services: any) => {
-        this.serviceList = services;
-        this.dataSource.data = this.serviceList;
-      },
-      error: (error) => {
-        console.error(error)
-      }
+ async getAllServices() {
+    this.servicesService.getServices().subscribe(async (service:any) => {
+      const servicePromises = service.map(async (service:any) => {
+        const materialNames = await this.getMaterialsByIds(service.productIds);
+        return {
+          ...service,
+          productIds: materialNames.join(', ')
+        }
+      });
+      this.serviceList = await Promise.all(servicePromises);
+      this.dataSource.data = this.serviceList;
     })
   }
 
-  getProducts(){
+  getMaterialsByIds(ids: string[]): Promise<string[]> {
+
+    const names = this.instrumentList
+      .filter(product => ids.includes(product.id.toString()))
+      .map(product => product.name);
+    
+    return Promise.resolve(names);
+  }
+  
+  
+
+  getProducts() {
     this.productService.getProducts().subscribe({
-      next: (product:any) => {
-        this.instrumentList = product;
+      next: (products: any) => {
+        this.instrumentList = products;
+        console.log('Instrument list loaded:', this.instrumentList);
+        this.getAllServices(); 
       },
-      error: (error) =>{
-        console.log(error);
+      error: (error) => {
+        console.error(error);
       }
     });
   }
 
-  gettingId(id: string): void {
+  gettingId(id: number): void {
     this.serviceId = id;
   }
 
-  gettingIdAndOpenModal(id: string): void {
+  gettingIdAndOpenModal(id: number): void {
     console.log(id, 'gettingIdAndOpenModal');
+    console.log('Current instrument list:', this.instrumentList); 
     this.updating = true;
     this.serviceId = id;
     this.openModal(this.modalContent, id);
   }
 
-  loadServicesDetails(id: string) {
+  loadServicesDetails(id: number) {
     this.updating = true;
     this.servicesService.getServiceById(id).subscribe(
       (service: any) => {
@@ -142,20 +157,21 @@ export class ServiceComponent {
           cost: servicePatch.cost,
           duesQuantity: servicePatch.duesQuantity,
           productIds: servicePatch.productIds
+          
         });
-
-        this.cdr.detectChanges();
+        console.log(service)
+        
       },
       error => console.error(error)
     );
   }
 
 
-  openModal(templateRef: TemplateRef<any>, id?: string): void {
+  openModal(templateRef: TemplateRef<any>, id?: number): void {
 
     if (!id) {
       this.updating = false;
-      this.serviceId = '';
+      this.serviceId = 0;
       this.serviceForm.reset();
       console.log('Creando nuevo servicio');
     } else {
@@ -169,11 +185,12 @@ export class ServiceComponent {
 
     setTimeout(() => {
       this.cdr.detectChanges();
-
     }, 0);
   }
 
-
+  compareFn(a: any, b: any): boolean {
+    return a === b;
+  }  
 
   closeModal(): void {
     this.dialogRef.close();
@@ -188,11 +205,10 @@ export class ServiceComponent {
     this.router.navigate(['/services/editService', id]);
   }
 
-  updateService(service: Service, id: string) {
+  updateService(service: Service, id: number) {
     this.servicesService.updateService(service, id).subscribe({
       next: (response: any) => {
-        console.log('Updateado con exito:', response);
-
+        this.getAllServices();
       },
       error: (error) => {
         console.error(error);
@@ -204,7 +220,7 @@ export class ServiceComponent {
     this.servicesService.createService(service).subscribe({
       next: (response: any) => {
         console.log('Servicio creado exitosamente:', response);
-        this.router.navigate(['/patients']);
+        this.getAllServices();
       },
       error: (error: any) => {
         console.error('Error al crear el servicio:', error);
@@ -215,12 +231,13 @@ export class ServiceComponent {
   submitForm() {
     if (this.serviceForm.valid) {
       const formValue = this.serviceForm.value;
-
+   
       if (this.serviceId) {
         this.updateService(formValue, this.serviceId)
-        this.router.navigate(['/services']);
+        this.closeModal();
       } else {
         this.createService(formValue);
+        this.closeModal();
       }
 
     } else {
