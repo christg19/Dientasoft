@@ -98,7 +98,6 @@ export class GeneralComponent implements OnInit, AfterViewInit {
     });
   }
 
-
   generalFilter() {
     let today = new Date();
     const appointmentOfToday = this.appointments.filter((appointment) => {

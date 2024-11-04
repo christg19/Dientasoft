@@ -19,7 +19,8 @@ export class AppComponent  {
   { title: 'Ventas', icon: 'point_of_sale', url: '' },
   { title: 'Mi Cuenta', icon: 'account_circle', url: '' },
   { title: 'Ajustes', icon: 'settings', url: '' },
-  { title: 'Cerrar sesion', icon: 'logout', url: '' }]
+  // { title: 'Cerrar sesion', icon: 'logout', url: '' }
+]
 
   constructor (
 private router: Router

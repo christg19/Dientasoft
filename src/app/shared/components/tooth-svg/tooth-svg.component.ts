@@ -58,6 +58,7 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
   @Input() componentTitle!:string;
   @Input() appointment!:boolean;
   colorOn:boolean = true;
+  selectedTeeth: { [key: string]: boolean } = {};
 
   public toothList:Tooth[] = [];
 
@@ -204,16 +205,22 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
   
           this.renderer.listen(toothElement, 'click', () => {
             const newColor = '#e8d061'; 
-            if(this.colorOn){
-              this.renderer.setStyle(toothElement, 'fill', newColor);
-             
-              this.colorOn = false;
+  
+            // Verifica si el diente ya está seleccionado
+            if (this.selectedTeeth[toothId]) {
+              // Si está seleccionado, remuévelo de la lista y elimina el color
+              this.renderer.removeStyle(toothElement, 'fill');
+              this.toothList = this.toothList.filter((tooth) => tooth !== toothIdMap[toothId]);
+              console.log(this.toothList);
+              this.selectedTeeth[toothId] = false;
             } else {
-              this.renderer.removeStyle(toothElement, 'fill')
-         
-              this.colorOn = true;
+              // Si no está seleccionado, agrégalo a la lista y cambia el color
+              this.renderer.setStyle(toothElement, 'fill', newColor);
+              this.toothList.push(toothIdMap[toothId]);
+              console.log(this.toothList);
+              this.selectedTeeth[toothId] = true;
             }
-           
+  
             this.getTooth(toothIdMap[toothId]); 
           });
         } else {
@@ -223,7 +230,6 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
   
     }, 100);
   }
-
   openModal(templateRef: any, id: any): void {
     console.log(id);
     this.dialogRef = this.dialog.open(templateRef, {

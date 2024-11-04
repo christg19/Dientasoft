@@ -10,7 +10,7 @@ export class OdontogramService {
   constructor(private httpClient: HttpClient) { }
   private url = 'http://localhost:3000/api/v1/odontogram';
 
-  getDues() {
+  getOdontograms() {
     return this.httpClient.get(`http://localhost:3000/api/v1/odontogram/all`, {
       headers: {
         'Content-Type': 'application/json',
