@@ -1,11 +1,14 @@
 <div class="container">
     <div class="form-appointment">
         <form [formGroup]="appointmentForm" (ngSubmit)="submitForm()" >
+          
             <div class="mat-dialog-container">
-              <div class="modal-top">
-                <mat-icon class="close-icon" (click)="closeModal()">close</mat-icon>
-              </div>
+              <div class="header-container">
+                <h3 class="title">Detalles de Cita</h3>
+                <div class="line"></div>
+            </div>
               <div class="content-modal">
+                
                 <mat-form-field class="example-form-field">
                   <mat-label>Elige una fecha</mat-label>
                   <input matInput [matDatepicker]="datepicker" formControlName="appointmentDate">
@@ -66,6 +69,7 @@
             </form>
     </div>
     <div class="odont">
-        <app-tooth-svg [patient]="patientId" [componentTitle]="'Selección de dientes'" [unableCreateTooths]="true" [appointment]="true" (actualToothId)="applyFilter($event)"></app-tooth-svg>
+        <app-tooth-svg [patient]="patientId" [componentTitle]="'Selección de dientes'" [unableCreateTooths]="true" [appointment]="true" (actualToothId)="applyFilter($event)">
+        </app-tooth-svg>
     </div>
 </div>

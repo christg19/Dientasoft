@@ -206,13 +206,14 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
             const newColor = '#e8d061'; 
             if(this.colorOn){
               this.renderer.setStyle(toothElement, 'fill', newColor);
+             
               this.colorOn = false;
             } else {
               this.renderer.removeStyle(toothElement, 'fill')
+         
               this.colorOn = true;
             }
-            this.renderer.addClass(toothElement, 'click-animate'); 
-            
+           
             this.getTooth(toothIdMap[toothId]); 
           });
         } else {
