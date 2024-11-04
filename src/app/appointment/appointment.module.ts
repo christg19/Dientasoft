@@ -17,6 +17,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 import { FormsModule } from '@angular/forms';
 import { CreateAppointmentComponent } from './create-appointment/create-appointment.component';
+import { ToothSVGComponent } from '../shared/components/tooth-svg/tooth-svg.component';
+import { SharedModule } from '../shared/modules/tooth-svg-shared.module';
 
 
 
@@ -37,7 +39,8 @@ import { CreateAppointmentComponent } from './create-appointment/create-appointm
     MatTableModule,
     MatPaginatorModule,
     FormsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    SharedModule
   ],
 })
 export class AppointmentModule {}

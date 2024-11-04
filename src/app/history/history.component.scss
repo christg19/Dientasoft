@@ -1,8 +1,9 @@
 .main-container {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
     margin-left: 1.78rem;
-    margin-top: 1.78rem;
 
 }
 
@@ -58,9 +59,8 @@
 }
 
 .appointments {
-    width: 21dvw;
-    height: 60dvh;
-    margin-top: 1.78rem;
+    width: 45dvw;
+    height: 70dvh;
     background-color: #FFFFFF;
     border-radius: 4px;
     overflow-y: scroll;
@@ -76,12 +76,11 @@
 }
 
 .odont{
-    height: 73dvh;
+    height: 83dvh;
     width: 60dvh;
-    margin-top: 1.78rem;
     background-color: #FFFFFF;
     border-radius: 5px;
-    box-shadow: 1px 1px 1px 0 rgba(0, 0, 0, 0.2);
+
 }
 
 .dental-history .teeth {
@@ -129,10 +128,10 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 4rem;
+    gap: 10rem;
     background-color: #FFFFFF;
     margin-top: 1.1rem;
-    width: 21dvw;
+    width: 44.4dvw;
     padding: 1rem;
     border-radius: 4px;
 }
@@ -167,14 +166,16 @@ mat-icon {
 }
 
 .angular-table {
+     table-layout: fixed;
     width: 100%;
-    height: 100%;
+    height: 85%;
     box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.2);
 
 }
 
 th,
 td {
+ 
     width: 9%;
     text-align: center;
     font-family: "Mulish", sans-serif;
@@ -183,6 +184,13 @@ td {
 th {
     font-weight: bold;
 }
+
+mat-paginator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none;
+  }
 
 .teeth {
     display: flex;
@@ -221,4 +229,18 @@ path[id^="tooth-"]:hover {
     min-width: 100dvw;
     height: auto;
   
+  }
+
+  .search-input-container{
+    margin-top: 1.5rem;
+    width: 20dvw;
+  
+  }
+  
+  .top-buttons{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
   }

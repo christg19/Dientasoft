@@ -45,6 +45,13 @@
             </td>
           </ng-container>
 
+          <ng-container matColumnDef="background">
+            <th mat-header-cell *matHeaderCellDef>Antecedentes</th>
+            <td mat-cell *matCellDef="let appointment"> <span class="pending-eye"> <mat-icon (click)="redirect('')"
+                  style="cursor: pointer;">medical_services</mat-icon></span>
+            </td>
+          </ng-container>
+
           <ng-container matColumnDef="pending_appointment">
             <th mat-header-cell *matHeaderCellDef>Cita programada</th>
             <td mat-cell *matCellDef="let patient"> <mat-icon class="bookmark">bookmark</mat-icon> </td>

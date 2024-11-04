@@ -1,9 +1,14 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialogRef } from '@angular/material/dialog';
+import { MatSelectChange } from '@angular/material/select';
 import { Router } from '@angular/router';
+import { Appointment } from 'src/app/shared/interfaces/appointment.interface';
+import { Dues, SelectableObject, ServiceOrDue } from 'src/app/shared/interfaces/dues.interface';
 import { Patient } from 'src/app/shared/interfaces/patient.interface';
 import { Service } from 'src/app/shared/interfaces/services.interface';
 import { AppointmentService } from 'src/app/shared/services/appointment.service';
+import { DuesService } from 'src/app/shared/services/dues.service';
 import { PatientsService } from 'src/app/shared/services/patient.service';
 import { ServicesService } from 'src/app/shared/services/services.service';
 
@@ -15,17 +20,38 @@ import { ServicesService } from 'src/app/shared/services/services.service';
 export class CreateAppointmentComponent {
   appointmentData = undefined;
   appointmentHour = undefined;
+  patientId!:number;
   redirectToClient = '/patients'
   redirectToServices = '/services'
   servicesList: Service[] = []
   appointmentForm!: FormGroup;
   patientList: Patient[] = [];
+  appointmentList: Appointment[] = []
+  appointment?: Appointment;
+  buttonAppointment: string[] = ['Registrar cita', 'Actualizar Cita']
+  public updating: boolean = false;
+  appointmentId: string = '';
+  displayedColumns: string[] = ['date', 'patientName', 'procedure', 'amount', 'actions'];
+  loading: Boolean = false;
+  appointmentServicesName: string[] = [];
+  dialogRef!: MatDialogRef<any>;
+ 
+  duesList!: Dues[];
+  selectedDue!: Dues;
+  combinedList: (Service | (Dues & { itemType: 'service' | 'due' }))[] = [];
+  totalDues!: number;
+  public componentDueCost: number = 0;
+  public reduceCost: number = 0;
+  selectedDues!: Dues[];
+  isDataValid: boolean = false;
+  selectedServices!: ServiceOrDue[]
   constructor(
     private patientService: PatientsService,
     private fb: FormBuilder,
     private appointmentService: AppointmentService,
     private servicesService: ServicesService,
     private router: Router,
+    private duesService:DuesService
     
   ) {
     this.appointmentForm = this.fb.group({
@@ -56,6 +82,13 @@ export class CreateAppointmentComponent {
     });
   }
 
+  compareFn(o1: any, o2: any): boolean {
+    if (!o1 || !o2) {
+      return false;
+    }
+    return o1.id === o2.id;
+  }
+
   getAllServices() {
     this.servicesService.getServices().subscribe({
       next: (services: any) => {
@@ -66,6 +99,55 @@ export class CreateAppointmentComponent {
       }
     });
   }
+
+  applyFilter(event:number){
+
+  }
+
+  closeModal() {
+
+  }
+
+  addingDues(e:any){
+
+  }
+
+  async dueCost(selectedDues: Dues[]): Promise<number> {
+    let totalDueCost = 0;
+    for (const due of selectedDues) {
+      if (due.itemType === 'due') {
+        totalDueCost += due.totalCost / due.dueQuantity;
+      }
+    }
+    this.componentDueCost = totalDueCost;
+    return totalDueCost;
+  }
+
+  updateDue(due: Dues, id: number) {
+    this.duesService.updateDue(due, id).subscribe({
+      next: (response: any) => {
+        console.log('Updateado, ', response)
+      }
+    })
+  }
+
+  combineLists(duesList: Dues[], serviceList: Service[]) {
+    this.combinedList = [
+      ...serviceList.map(item => ({ ...item, itemType: 'service' as 'service' })),
+      ...duesList.filter(due => due.dueQuantity > 0)
+        .map(due => ({ ...due, itemType: 'due' as 'due' }))
+    ];
+  }
+
+
+  onSelectionChange(event: MatSelectChange) {
+    const selectedItems = event.value;
+    console.log(selectedItems);
+    this.selectedDues = selectedItems.filter((item: SelectableObject) => item.itemType === 'due');
+  
+    this.selectedServices = selectedItems.filter((item: SelectableObject) => item.itemType === 'service');
+  }
+
   submitForm() {
     if (this.appointmentForm.valid) {
       const formValue = this.appointmentForm.value;
@@ -77,7 +159,6 @@ export class CreateAppointmentComponent {
         const minutes = parseInt(timeParts[2], 10);
         const ampm = timeParts[3];
 
-        // Convierte a formato de 24 horas
         if (ampm === 'PM' && hours < 12) hours += 12;
         if (ampm === 'AM' && hours === 12) hours = 0;
 

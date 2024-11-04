@@ -15,7 +15,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
   styleUrls: ['./patients.component.scss']
 })
 export class PatientsComponent implements AfterViewInit {
-  displayedColumns: string[] = ['name', 'history', 'pending-appointment','pending_appointment', 'actions'];
+  displayedColumns: string[] = ['name', 'history', 'pending-appointment','background','pending_appointment', 'actions'];
   patientList: Patient[] = [];
   patientForm!: FormGroup;
   private patientId!: number;

@@ -1,5 +1,5 @@
 <div class="main-container">
-    <div class="header">
+    <!-- <div class="header">
         <div *ngIf="patient" class="info header-title">
           <p>{{ patient.name }}</p>
         </div>
@@ -8,35 +8,43 @@
             <span>{{ item.title }}</span>
             <span>{{ item.subTitle }}</span>
         </div>
+      </div> -->
+      <div class="top-buttons">
+        <mat-form-field appearance="outline" class="search-input-container">
+          <input type="text" (keyup)="applyFilter($event)" matInput placeholder="Filtra por procedimiento o diente..."
+            class="search-input">
+        </mat-form-field>
+        <button mat-flat-button color="accent">Registrar
+          procedimientos</button>
+  
       </div>
-      
-    <div class="main-appointment">
+      <div class="main-appointment">
         <div class="appointments-container">
             <div class="appointments">
                 <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
-
-                    <ng-container matColumnDef="hour">
-                        <th mat-header-cell *matHeaderCellDef>Fecha</th>
-                        <td mat-cell *matCellDef="let element"> {{formatDate(element.appointmentDate)}} </td>
+              
+                    <ng-container matColumnDef="tooth">
+                        <th mat-header-cell *matHeaderCellDef>Diente</th>
+                        <td mat-cell *matCellDef="let element"> {{element.tooth}} </td>
                     </ng-container>
-
-
+                    <ng-container matColumnDef="position">
+                        <th mat-header-cell *matHeaderCellDef>Posición</th>
+                        <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+                    </ng-container>
                     <ng-container matColumnDef="procedure">
                         <th mat-header-cell *matHeaderCellDef>Procedimientos</th>
-                        <td mat-cell *matCellDef="let element"> {{element.servicesName.join(', ')}} </td>
+                        <td mat-cell *matCellDef="let element"> {{element.procedure}} </td>
                     </ng-container>
-
-
-                    <ng-container matColumnDef="cost">
-                        <th mat-header-cell *matHeaderCellDef>Monto total</th>
-                        <td mat-cell *matCellDef="let element"> {{element.totalCost}} </td>
+                    <ng-container matColumnDef="status">
+                        <th mat-header-cell *matHeaderCellDef>Estado</th>
+                        <td mat-cell *matCellDef="let element"> {{element.status}} </td>
                     </ng-container>
-
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                 </table>
+                <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Select page of periodic elements">
+                </mat-paginator>
             </div>
-
             <div class="icons">
                 <mat-icon matTooltip="Agenda una cita">calendar_today</mat-icon>
                 <mat-icon matTooltip="Detalles de pago" class="icon">payment</mat-icon>
@@ -44,35 +52,8 @@
             </div>
         </div>
         
-        <div class="dental-history">
-            <div class="table-teeth">
-                <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
-
-                    <ng-container matColumnDef="name">
-                        <th mat-header-cell *matHeaderCellDef>Diente</th>
-                        <td mat-cell *matCellDef="let element">  </td>
-                    </ng-container>
-
-
-                    <ng-container matColumnDef="procedure">
-                        <th mat-header-cell *matHeaderCellDef>Procedimientos</th>
-                        <td mat-cell *matCellDef="let element">  </td>
-                    </ng-container>
-
-
-                    <ng-container matColumnDef="pendingProcedure">
-                        <th mat-header-cell *matHeaderCellDef>Procedimientos Pendientes</th>
-                        <td mat-cell *matCellDef="let element">  </td>
-                    </ng-container>
-
-                    <tr mat-header-row *matHeaderRowDef="teethColums"></tr>
-                    <tr mat-row *matRowDef="let row; columns: teethColums;"></tr>
-                </table>
-            </div>
-        </div>
-
         <div class="odont">
-            <app-tooth-svg [patient]="patientId"/>
+            <app-tooth-svg [patient]="patientId" [componentTitle]="'Odontograma'" (actualToothId)="applyFilter($event)"></app-tooth-svg>
         </div>
           
 
