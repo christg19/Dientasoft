@@ -6,11 +6,13 @@ import { GeneralComponent } from './general.component';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { StatCardComponent } from '../stat-card/stat-card.component';
 
 
 @NgModule({
   declarations: [
-    GeneralComponent
+    GeneralComponent,
+    StatCardComponent,
   ],
   imports: [
     CommonModule,
@@ -18,8 +20,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     HttpClientModule,
     MatTableModule,
     MatPaginatorModule,
-    MatProgressSpinnerModule
-
+    MatProgressSpinnerModule,
   ]
 })
 export class GeneralModule { }

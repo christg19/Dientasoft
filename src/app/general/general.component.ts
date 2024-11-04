@@ -19,7 +19,7 @@ export interface Menu {
 @Component({
   selector: 'app-general',
   templateUrl: './general.component.html',
-  styleUrls: ['./general.component.scss']
+  styleUrls: ['./general.component.scss'],
 })
 export class GeneralComponent implements OnInit, AfterViewInit {
   public loading: Boolean = false;
@@ -36,38 +36,34 @@ export class GeneralComponent implements OnInit, AfterViewInit {
     this.dataSource.paginator = this.paginator;
   }
 
-
   optionMenu = [
     {
       title: "Citas pendientes<br>en la semana",
-      quantity: this.appointmentWeekNumber,
+      value: '43',
       color: "#1950DD",
-      bold: '500'
     },
     {
       title: "Cantidad de pacientes",
-      quantity: this.totalPatientNumber,
+      value: '34',
       color: "#DDB219",
-      bold: '500'
     },
     {
       title: "Gastos este mes",
-      quantity: "- RD $ 9400",
+      value: "- RD $ 9400",
       color: "#DD1919",
-      bold: '500'
     },
     {
       title: "Ventas realizadas<br>este mes",
-      quantity: 37,
+      value: '37',
       color: "#87DD19",
-      bold: '500'
     },
   ]
   constructor(
     private appointmentService: AppointmentService,
     private patientService: PatientsService,
     private servicesService: ServicesService,
-  ) { }
+  ) { 
+  }
 
   ngOnInit(): void {
     this.loading = true;

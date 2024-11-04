@@ -10,6 +10,7 @@ import { InventoryComponent } from './inventory/inventory.component';
 import { ModalContent1Component } from './shared/components/modal-content1/modal-content1.component';
 import { LoadingComponent } from './shared/components/loading/loading.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { StatCardComponent } from './stat-card/stat-card.component';
 
 
 
@@ -18,8 +19,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
   declarations: [
     AppComponent,
     ModalContent1Component,
-    LoadingComponent
-
+    LoadingComponent,
   ],
   imports: [
     BrowserModule,
