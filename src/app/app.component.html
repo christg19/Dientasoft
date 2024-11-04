@@ -1,13 +1,13 @@
-<div class="container" style="min-height: 100dvh;">
-    <div class="menu" style="padding-right: 1rem;">
-
-      <div class="options" *ngFor="let option of menu" (click)="redirect(option.title)">
-        <mat-icon>{{option.icon}}</mat-icon> 
+<div class="layout">
+  <div class="menu">
+    <div class="options" *ngFor="let option of menu" (click)="redirect(option.title)">
+      <mat-icon>{{option.icon}}</mat-icon>
+      <p class="option-title">
         {{option.title}}
-      </div>
-    </div>
-    <div class="component">
-      <router-outlet></router-outlet>
+      </p>
     </div>
   </div>
-  
+  <div class="container">
+    <router-outlet></router-outlet>
+  </div>
+</div>

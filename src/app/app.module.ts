@@ -11,6 +11,7 @@ import { ModalContent1Component } from './shared/components/modal-content1/modal
 import { LoadingComponent } from './shared/components/loading/loading.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { LoadingComponentComponent } from './loading-component/loading-component.component';
+import { StatCardComponent } from './stat-card/stat-card.component';
 
 
 
@@ -19,6 +20,7 @@ import { LoadingComponentComponent } from './loading-component/loading-component
   declarations: [
     AppComponent,
     ModalContent1Component,
+    LoadingComponent,
     LoadingComponent,
     LoadingComponentComponent
 
