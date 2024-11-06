@@ -25,7 +25,7 @@ import { Tooth } from 'src/app/shared/interfaces/tooth.interface';
 export class CreateAppointmentComponent {
   appointmentData = undefined;
   appointmentHour = undefined;
-  patientId!:number;
+  patientId!: number;
   redirectToClient = '/patients'
   redirectToServices = '/services'
   servicesList: Service[] = []
@@ -40,8 +40,8 @@ export class CreateAppointmentComponent {
   loading: Boolean = false;
   appointmentServicesName: string[] = [];
   dialogRef!: MatDialogRef<any>;
-  patientOdontogram!:Odontogram;
-  toothPositionArray:Tooth[] = [];
+  patientOdontogram!: Odontogram;
+  toothPositionArray: number[] = [];
   duesList!: Dues[];
   selectedDue!: Dues;
   combinedList: (Service | (Dues & { itemType: 'service' | 'due' }))[] = [];
@@ -55,13 +55,13 @@ export class CreateAppointmentComponent {
     private patientService: PatientsService,
     private fb: FormBuilder,
     private appointmentService: AppointmentService,
-    private toothService:ToothService,
-    private odontogramService:OdontogramService,
+    private toothService: ToothService,
+    private odontogramService: OdontogramService,
     private servicesService: ServicesService,
     private router: Router,
-    private duesService:DuesService,
-    private cdr:ChangeDetectorRef
-    
+    private duesService: DuesService,
+    private cdr: ChangeDetectorRef
+
   ) {
     this.appointmentForm = this.fb.group({
       appointmentDate: [Date, Validators.required],
@@ -117,7 +117,9 @@ export class CreateAppointmentComponent {
       console.error('No encontrado');
       return;
     }
-  
+
+    this.patientId = id;
+
     this.patientService.getPatientById(id).subscribe(async (patient: any) => {
       this.duesList = patient && patient.dues ? patient.dues : [];
       this.combineLists(this.duesList, this.servicesList);
@@ -125,15 +127,15 @@ export class CreateAppointmentComponent {
       console.error('Error fetching patient with id:', id, error);
     });
   }
-  
+
   onSelectionChange(event: MatSelectChange) {
     const selectedItems = event.value;
     console.log(selectedItems);
     this.selectedDues = selectedItems.filter((item: SelectableObject) => item.itemType === 'due');
-  
+
     this.selectedServices = selectedItems.filter((item: SelectableObject) => item.itemType === 'service');
   }
-  
+
 
   formatDate(date: string) {
     const fecha = new Date(date);
@@ -205,33 +207,54 @@ export class CreateAppointmentComponent {
     return servicesNames.join(', ');
   }
 
-  getOdontogramByPatientId(id:number){
-    this.odontogramService.getOdontogram(id).subscribe({
-      next: (data:any) => {
-        this.patientOdontogram = data;
-      }, 
-      error: (error) =>{
-        console.error(error);
-      }
-    })
+  async getOdontogramByPatientId(id: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.odontogramService.getOdontogram(id).subscribe({
+        next: (data: any) => {
+          this.patientOdontogram = data;
+          resolve();
+        },
+        error: (error) => {
+          console.error(error);
+          reject(error);
+        }
+      });
+    });
+  }
+
+
+  saveToothList(array: number[]) {
+    this.toothPositionArray = array;
+    console.log(`Posiciones: ${this.toothPositionArray}`);
   }
 
   assignServicesToTooths(serviceIds: number[], odontogramId: number) {
-    this.toothPositionArray.forEach((position: any) => {
+    this.toothPositionArray.forEach((toothPosition: number) => {
       const existingTooth = this.patientOdontogram.tooth.find(
-        (tooth: Tooth) => tooth.position === position
+        (tooth: Tooth) => tooth.toothPosition === toothPosition
       );
   
       if (existingTooth) {
+        // Agrega los servicios si el diente ya existe
         existingTooth.serviceIds = [...(existingTooth.serviceIds || []), ...serviceIds];
       } else {
+        // Aquí puedes ver qué datos se enviarán al crear un nuevo diente
+        console.log('Datos para crear un nuevo diente:', {
+          toothPosition,
+          odontogramId,
+          serviceIds,
+          status: null
+        });
+  
+        // Crea el diente si no existe
         this.toothService.createTooth({
-          position: position,
+          toothPosition: toothPosition,
           odontogramId: odontogramId,
           serviceIds: serviceIds,
-          status: null 
+          status: null
         }).subscribe({
           next: (newTooth) => {
+            console.log('Diente creado exitosamente:', newTooth);
             this.patientOdontogram.tooth.push(newTooth);
           },
           error: (error) => {
@@ -241,9 +264,19 @@ export class CreateAppointmentComponent {
       }
     });
   
-    // Finalmente, actualizar el odontograma en el backend si tiene un ID
+    const odontogramToUpdate = {
+      patientId: this.patientOdontogram.id,
+      tooth: this.patientOdontogram.tooth.map(({ toothPosition, serviceIds }) => ({
+        toothPosition,
+        serviceIds
+      }))
+    };
+  
+    // También podemos ver qué datos se están enviando al actualizar el odontograma
+    console.log('Datos para actualizar el odontograma:', odontogramToUpdate);
+  
     if (this.patientOdontogram.id) {
-      this.odontogramService.updateOdontogram(this.patientOdontogram, this.patientOdontogram.id)
+      this.odontogramService.updateOdontogram(odontogramToUpdate, this.patientOdontogram.id)
         .subscribe({
           next: () => console.log('Odontograma actualizado correctamente'),
           error: (error) => console.error('Error al actualizar el odontograma:', error)
@@ -251,10 +284,6 @@ export class CreateAppointmentComponent {
     }
   }
   
-  
-  
-  
-
 
   deleteAppointment(id: string) {
     this.appointmentService.deleteAppointment(id).subscribe({
@@ -318,13 +347,13 @@ export class CreateAppointmentComponent {
 
   async filterServiceCost(): Promise<number> {
     if (!this.selectedServices || this.selectedServices.length === 0) {
-      return 0; 
+      return 0;
     }
 
     return this.selectedServices
-      .filter(item => item.itemType === 'service') 
+      .filter(item => item.itemType === 'service')
       .reduce((acc, service) => {
-        if ('cost' in service) { 
+        if ('cost' in service) {
           return acc + service.cost;
         }
         return acc;
@@ -344,7 +373,7 @@ export class CreateAppointmentComponent {
         return Promise.reject('ID inválido o dueQuantity no positiva');
       }
     });
-  
+
     try {
       await Promise.all(updatePromises);
       console.log("Todos los Dues han sido actualizados correctamente.");
@@ -370,25 +399,25 @@ export class CreateAppointmentComponent {
       console.error('El formulario no es válido. Detalles de los errores:');
       return;
     }
-  
+
     const formValue = this.appointmentForm.getRawValue();
-  
+
     try {
       let dueCost = 0;
-  
+
       if (this.selectedDues && this.selectedDues.length > 0) {
         await this.updateDueQuantities(this.selectedDues);
         dueCost = await this.dueCost(this.selectedDues);
       }
-  
+
       const serviceTotalCost = await this.filterServiceCost();
-  
+
       const date = new Date(formValue.appointmentDate);
       const [hours, minutes] = formValue.appointmentHour.split(':').map(Number);
       date.setHours(hours, minutes);
-  
+
       const totalCost = dueCost + serviceTotalCost;
-  
+
       const submission = {
         ...formValue,
         serviceIds: this.filterServices(formValue.serviceIds),
@@ -396,9 +425,9 @@ export class CreateAppointmentComponent {
         totalCost: totalCost,
         appointmentDate: date.toISOString()
       };
-  
+
       delete submission.appointmentHour;
-  
+
       if (this.updating) {
         console.log('Actualizando cita');
         await lastValueFrom(this.appointmentService.updateAppointment(submission, this.appointmentId));
@@ -406,17 +435,21 @@ export class CreateAppointmentComponent {
         console.log('Creando nueva cita');
         console.log(submission);
         await lastValueFrom(this.appointmentService.createAppointment(submission));
+        await this.getOdontogramByPatientId(this.patientId);
+        if (this.patientOdontogram?.id) {
+          this.assignServicesToTooths(submission.serviceIds, this.patientOdontogram.id);
+        }
       }
-  
+
       this.closeModal();
       this.updating = false;
-  
+
     } catch (error) {
       console.error('Error al procesar la cita o actualizar los Dues:', error);
     }
   }
-  
-  applyFilters(event:number){
+
+  applyFilters(event: number) {
 
   }
 
@@ -426,6 +459,6 @@ export class CreateAppointmentComponent {
     }
     return o1.id === o2.id;
   }
-  
-  
+
+
 }

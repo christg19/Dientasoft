@@ -4,10 +4,13 @@ export interface Tooth {
 
     id?:number;
 
-    position:number;
+    toothPosition:number;
 
     status:ToothStatus;
 
     serviceIds:number[];
 
+    odontogramId: number;
+
 }
+

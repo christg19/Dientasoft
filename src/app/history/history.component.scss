@@ -60,7 +60,7 @@
 
 .appointments {
     width: 45dvw;
-    height: 70dvh;
+    height: 83dvh;
     background-color: #FFFFFF;
     border-radius: 4px;
     overflow-y: scroll;
@@ -242,9 +242,44 @@ path[id^="tooth-"]:hover {
   }
   
   .top-buttons{
+    width: 100%;
     display: flex;
     flex-direction: row;
-    align-items: center;
     justify-content: flex-start;
-    gap: 1rem;
+    gap: 12.3rem;
   }
+
+ 
+.status-select {
+    width: 100%; 
+    padding-top: 1rem;
+}
+
+.search-input-container{
+    width: 30dvw;
+}
+
+.status{
+    margin-bottom: 1rem;
+    
+}
+
+.button-search{
+    margin-bottom: 1.5rem;
+}
+
+.search-class{
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.select-odontogram{
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+}

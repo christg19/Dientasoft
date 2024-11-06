@@ -1,4 +1,4 @@
-import { Component, Input, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, TemplateRef, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -6,6 +6,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PatientsService } from '../shared/services/patient.service';
 import { Patient } from '../shared/interfaces/patient.interface';
 import { AppointmentService } from '../shared/services/appointment.service';
+import { OdontogramService } from '../shared/services/odontogram.service';
+import { Odontogram } from '../shared/interfaces/odontogram.interface';
+import { Tooth } from '../shared/interfaces/tooth.interface';
+import { Service } from '../shared/interfaces/services.interface';
+import { ServicesService } from '../shared/services/services.service';
+import Swal from 'sweetalert2';
+import { ToothNames, ToothStatus } from '../shared/const';
+import { ToothSVGComponent } from '../shared/components/tooth-svg/tooth-svg.component';
+import { ToothService } from '../shared/services/tooth.service';
 
 
 @Component({
@@ -15,41 +24,48 @@ import { AppointmentService } from '../shared/services/appointment.service';
 })
 export class HistoryComponent {
   public hoveredTooth: string | null = null;
-
+  public statusMode = false;
+  public toothOff = false
   public patient!: Patient;
-  public patientAppointmentPendient = [];
   public patientAppointment = [];
+  toothName!:string;
   public patientId!: number;
-  public toothList: any[] = [];
-
+  selectedFilter: string = '';
+  public toothList: Tooth[] = [];
+  selectedStatus!:number;
+  public statusOptions: any[] = [
+    { label: 'Tratamiento preventivo', value: 0 },
+    { label: 'Enfermedad Corto Plazo', value: 1 },
+    { label: 'Enfermedad Largo Plazo', value: 2 },
+    { label: 'Extracción y Protesis', value: 3 },
+    { label: 'Reservado', value: 4 }
+  ]
+  private patientOdontogram!: Odontogram
+  private servicesList: Service[] = [];
   @Input() toothId!: number;
-
   dialogRef!: MatDialogRef<any>;
-  displayedColumns: string[] = ['tooth', 'position', 'procedure', 'status'];
-  teethColums: string[] = ['name', 'procedure', 'pendingProcedure']
-  displayedHistoricColums: string[] = ['hour', 'procedure', 'cost'];
-  dataSource = new MatTableDataSource<any>(this.patientAppointmentPendient);
-  dataSourceHistoric = new MatTableDataSource<any>(this.patientAppointment)
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  displayedColumns: string[] = ['toothName','toothPosition', 'serviceIds', 'status'];
+  dataSource = new MatTableDataSource<any>();
 
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(ToothSVGComponent) toothSVGComponent!: ToothSVGComponent;
   @ViewChild('modalContent1') modalContent1!: TemplateRef<any>;
   @ViewChild('modalContent2') modalContent2!: TemplateRef<any>;
   @ViewChild('modalContent3') modalContent3!: TemplateRef<any>;
   public headerItems: { title: string, subTitle: string, modalContent: any }[] = [];
-
-  testData = [
-    { tooth: 'Incisivo Central', position: 1, procedure: 'Aplicación de Flúor', status: 'Finalizado' },
-    { tooth: 'Canino', position: 3, procedure: 'Limpieza', status: 'Finalizado' },
-    { tooth: 'Canino', position: 2, procedure: 'Limpieza', status: 'Finalizado' },
-    { tooth: 'Canino', position: 6, procedure: 'Limpieza', status: 'Finalizado' },
-
-  ]
-
+  filterOptions = [
+    { value: 'option1', viewValue: 'Filtrar por Odontograma' },
+    { value: 'option2', viewValue: 'Cambiar Estados' },
+  ];
 
   constructor(public dialog: MatDialog, private route: ActivatedRoute,
     private patientsService: PatientsService,
     private appointmentsService: AppointmentService,
+    private toothService: ToothService,
+    private odontogramService: OdontogramService,
+    private servicesService: ServicesService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
     private paginators: MatPaginatorIntl) {
     this.paginators.itemsPerPageLabel = "Registros por página";
     this.paginators.nextPageLabel = "Siguiente página";
@@ -63,26 +79,92 @@ export class HistoryComponent {
   }
 
   ngOnInit() {
-    this.dataSource = new MatTableDataSource(this.testData);
-    console.log(this.dataSource.data)
+    this.getId();
+    this.getAllServices();
+    
     this.headerItems = [
       { title: 'Historico de', subTitle: 'visitas', modalContent: this.modalContent1 },
       { title: 'Historial de', subTitle: 'pago', modalContent: this.modalContent2 },
       { title: 'Plan de', subTitle: 'tratamiento', modalContent: this.modalContent3 }
     ];
 
+  }
 
-    this.getId();
-    this.getPatientById(this.patientId);
-    if (this.patient) {
-      this.getPatientPendingAppointments();
-      this.getAllPatientApppointments();
+  seeStatus(){
+    console.log(this.selectedStatus)
+  }
+
+  clearOdontogram() {
+    if (this.toothSVGComponent) {
+      this.toothSVGComponent.clearAllSelectedTeeth();
+    }
+
+    this.dataSource.filter = '';
+  }
+
+  applyColors(){
+    if(this.toothSVGComponent){
+      this.toothSVGComponent.applyTestToothColors();
     }
   }
+  
+  getTooth(id:number){
+    this.toothService.getTooth(id).subscribe({
+      next: (data:any) => {
+        return data;
+      },
+      error: (error) => {
+        throw error;
+      }
+    })
+  }
+
+  updateTooth(id: number, position: number, status: number) {
+    Swal.fire({
+      title: `Actualizar Estado`,
+      text: `¿Estás seguro de actualizar el estado del ${ToothNames[position]} a ${ToothStatus[status]}?`,
+      showDenyButton: true,
+      showCancelButton: false,
+      confirmButtonText: "Actualizar",
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.toothService.getTooth(id).subscribe({
+          next: (tooth: any) => {
+      
+            const updatedTooth: Tooth = { toothPosition:position, status, odontogramId: tooth.odontogramId, serviceIds:tooth.serviceIds };
+            this.toothService.updateTooth(updatedTooth, id).subscribe({
+              next: () => {
+            
+                const index = this.dataSource.data.findIndex(t => t.id === id);
+                if (index !== -1) {
+                  this.dataSource.data[index] = updatedTooth;
+          
+                  this.dataSource.data = [...this.dataSource.data];
+                }
+                Swal.fire("El estado ha sido actualizado!", "", "success");
+              },
+              error: (error) => {
+                console.error("Error al actualizar el diente:", error);
+                Swal.fire("Error al actualizar el diente", "", "error");
+              },
+            });
+          },
+          error: (error) => {
+            console.error("Error al obtener el diente:", error);
+            Swal.fire("Error al obtener el diente", "", "error");
+          },
+        });
+      } else if (result.isDenied) {
+        Swal.fire("El cambio ha sido cancelado", "", "info");
+      }
+    });
+  }
+  
+  
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
-
   }
 
   spanishRangeLabel(page: number, pageSize: number, length: number): string {
@@ -100,15 +182,74 @@ export class HistoryComponent {
       const id = params.get('id');
       if (id) {
         this.patientId = +id;
+        console.log("Patient ID obtained:", this.patientId);
+        this.getOdontogramByPatientId(this.patientId);
+        this.getPatientById(this.patientId);
       }
     });
   }
+
+  getAllServices() {
+    this.servicesService.getServices().subscribe({
+      next: (services: any) => {
+        this.servicesList = services;
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    });
+  }
+
+  async getOdontogramByPatientId(id: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.odontogramService.getOdontogram(id).subscribe({
+        next: (data: any) => {
+          this.patientOdontogram = data;
+
+          const toothData = this.patientOdontogram.tooth.map((tooth: any) => ({
+            ...tooth,
+            toothPosition: tooth.toothPosition
+          }));
+
+          this.dataSource.data = toothData;
+          console.log('DataSource asignado:', this.dataSource.data);
+          this.cdr.detectChanges();
+          resolve();
+        },
+        error: error => {
+          console.error(error);
+          reject(error);
+        }
+      });
+    });
+  }
+
+  getAppointmentService(ids: number[]) {
+    let servicesNames: string[] = [];
+
+    const matchedServices = this.servicesList.filter(service => ids.includes(service.id));
+
+    matchedServices.forEach((service: Service) => {
+      servicesNames.push(service.name)
+    })
+    return servicesNames.join(', ');
+  }
+
+  getAllTooth() {
+    if (this.patientOdontogram && this.patientOdontogram.tooth) {
+
+      console.log('Datos de dientes asignados a dataSource:', this.dataSource.data);
+    } else {
+      console.warn('No hay datos de dientes para asignar al dataSource');
+    }
+  }
+
 
   getPatientById(id: number) {
     this.patientsService.getPatientById(id).subscribe({
       next: (patient: any) => {
         this.patient = patient;
-        this.getPatientPendingAppointments();
+
         this.getAllPatientApppointments();
       },
       error: (error) => {
@@ -117,45 +258,45 @@ export class HistoryComponent {
     });
   }
 
+
   getToothInfo() {
 
   }
 
   applyFilter(event: any) {
-    let filterResult!: any;
-    if (typeof event === 'number') {
-      filterResult = this.toothList.filter((propertie) =>
-        propertie.position.includes(event)
-      );
-    } else {
-      const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-      filterResult = this.toothList.filter((propertie) => 
-      propertie.procedure.some((proc: string) => proc.toLowerCase().includes(filterValue))
-    );    
-    }
+    const toothFilterArray = event;
 
-    this.dataSource.data = filterResult;
+    this.dataSource.filterPredicate = (data, filter) => {
+      try {
+        const filterPositions = JSON.parse(filter);
+        if (!Array.isArray(filterPositions)) {
+          console.error('filterPositions no es un array:', filterPositions);
+          return false;
+        }
 
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+        const toothPosition = data.toothPosition || data.position || data.id;
+        const result = filterPositions.includes(toothPosition);
+        return result;
+      } catch (e) {
+        console.error('Error al parsear filter a JSON:', e);
+        return false;
+      }
+    };
+
+    this.dataSource.filter = JSON.stringify(toothFilterArray);
+    console.log('DataSource después de aplicar el filtro:', this.dataSource.filteredData);
   }
 
-  getPatientPendingAppointments() {
-    const now = new Date();
-    this.appointmentsService.getAppointments().subscribe({
-      next: (appointmentList: any) => {
-        this.patientAppointmentPendient = appointmentList.filter((appointment: any) => {
-          return appointment.patientId === this.patient.id && new Date(appointment.appointmentDate) > now;
-        });
-        this.dataSource.data = this.patientAppointmentPendient;
+   getToothName(position:number){
+    return `${ToothNames[position]}`
+  }
 
+  onFilterChange(event: any) {
+    console.log('Filtro seleccionado:', this.selectedFilter);
+  }
 
-      },
-      error: (error) => {
-        console.error(error);
-      }
-    });
+  activeFilter() {
+    this.statusMode = !this.statusMode;
   }
 
   getAllPatientApppointments() {
@@ -164,7 +305,7 @@ export class HistoryComponent {
         this.patientAppointment = appointmentList.filter((appointment: any) => {
           return appointment.patiendId = this.patientId;
         });
-        this.dataSourceHistoric.data = this.patientAppointment;
+
       },
       error: (error) => {
         console.error(error);

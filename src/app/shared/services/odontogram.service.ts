@@ -20,7 +20,7 @@ export class OdontogramService {
   }
 
   getOdontogram(id: number) {
-    return this.httpClient.get(`${this.url}/odontogram/${id}`, {
+    return this.httpClient.get(`${this.url}/${id}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -29,7 +29,7 @@ export class OdontogramService {
   }
 
   createOdontogram(formData: any) {
-    return this.httpClient.post(`${this.url}/odontogram`, formData, {
+    return this.httpClient.post(`${this.url}`, formData, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -38,7 +38,7 @@ export class OdontogramService {
   }
 
   updateOdontogram(due: any, id: number) {
-    return this.httpClient.put(`${this.url}/odontogram/${id}`, due, {
+    return this.httpClient.put(`${this.url}/${id}`, due, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -47,7 +47,7 @@ export class OdontogramService {
   }
 
   deleteOdontogram(id: string) {
-    return this.httpClient.delete(`${this.url}/odontogram/${id}`, {
+    return this.httpClient.delete(`${this.url}/${id}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,

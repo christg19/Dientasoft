@@ -11,10 +11,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input'; 
 import { ToothSVGModule } from '../shared/components/tooth-svg/tooth-svg.module';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { ToothSVGComponent } from '../shared/components/tooth-svg/tooth-svg.component';
 import { SharedModule } from '../shared/modules/tooth-svg-shared.module';
-
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatToolbarModule} from '@angular/material/toolbar';
 
 
 @NgModule({
@@ -34,7 +36,11 @@ import { SharedModule } from '../shared/modules/tooth-svg-shared.module';
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    SharedModule
+    SharedModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatButtonToggleModule,
+    MatToolbarModule
   ]
 })
 export class HistoryModule { }

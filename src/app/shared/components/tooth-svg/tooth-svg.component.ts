@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, TemplateRef, ViewChild, AfterViewInit, Renderer2, Output, EventEmitter, ElementRef } from '@angular/core';
+import { Component, Input, OnInit, TemplateRef, ViewChild, AfterViewInit, Renderer2, Output, EventEmitter, ElementRef, SimpleChanges } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ToothStatus } from '../../const';
 import { Tooth } from '../../interfaces/tooth.interface';
@@ -38,11 +38,13 @@ const toothIdMap: { [key: string]: any } = {
   'svg_7744': 32
 };
 
-const statusColorMap: Record<ToothStatus, string> = {
-  [ToothStatus.HEALTHY]: '#FFFFFF',
-  [ToothStatus.DECAYED]: '#FF5722',
-  [ToothStatus.MISSING]: '#9E9E9E',
-  [ToothStatus.TREATED]: '#2196F3'
+const statusColorMap: Record<number, string> = {
+  0: '#A8D5BA',
+  1: '#FFD1A4', 
+  2: '#FFB3BA', 
+  3: '#A4C5E2',  
+  4: '#FF6B6B'
+
 };
 
 @Component({
@@ -53,38 +55,51 @@ const statusColorMap: Record<ToothStatus, string> = {
 export class ToothSVGComponent implements OnInit, AfterViewInit {
   @ViewChild('toothContent') toothContent!: TemplateRef<any>;
   @Input() patient?: number;
-  @Input() unableCreateTooths?:boolean;
+  @Input() unableCreateTooths?: boolean;
   @Output() actualToothId = new EventEmitter<number>;
-  @Input() componentTitle!:string;
-  @Input() appointment!:boolean;
-  colorOn:boolean = true;
+  @Output() arrayTooth = new EventEmitter<any>;
+  @Input() componentTitle!: string;
+  @Input() appointment!: boolean;
+  @Input() statusButton!: TemplateRef<any>;
+  @Input() statusOptions!: TemplateRef<any>;
+  @Input() statusMap: any;
+  @Input() actualToothArray!: Tooth[];
+  colorOn: boolean = true;
   selectedTeeth: { [key: string]: boolean } = {};
-
-  public toothList:Tooth[] = [];
-
+  public toothList: Tooth[] = [];
   dialogRef!: MatDialogRef<any>;
-  // public testToothData = [
-  //   { position: 1, status: ToothStatus.HEALTHY },
-  //   { position: 2, status: ToothStatus.DECAYED },
-  //   { position: 3, status: ToothStatus.MISSING },
-  //   { position: 4, status: ToothStatus.TREATED }
-  // ];
+
 
   constructor(public dialog: MatDialog, private renderer: Renderer2, private elementRef: ElementRef) { }
 
-  ngOnInit(): void { }
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['appointment']) {
+      this.decidingToothMethods();
+    }
+  }
+
+  ngOnInit(): void {
+    if(this.appointment){
+      this.SelectToothForAppointment();
+    }
+   }
 
   ngAfterViewInit(): void {
-    if(this.unableCreateTooths){
+    this.decidingToothMethods();
+  }
+
+
+
+  decidingToothMethods() {
+    if (this.unableCreateTooths) {
       this.removePaths();
     }
-    if(!this.appointment) {
+    if (!this.appointment) {
       this.openTooth();
       this.createTooth();
     } else {
       this.SelectToothForAppointment();
     }
-
   }
 
   createTooth() {
@@ -117,6 +132,22 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
+  clearAllSelectedTeeth() {
+    Object.keys(this.selectedTeeth).forEach(toothId => {
+      if (this.selectedTeeth[toothId]) {
+        const toothElement = document.querySelector(`path#${toothId}`);
+        if (toothElement) {
+          this.renderer.removeStyle(toothElement, 'fill');
+        }
+
+        this.selectedTeeth[toothId] = false;
+      }
+    });
+
+    this.toothList = [];
+    this.arrayTooth.emit(this.toothList);
+  }
+
   removePaths() {
     const toothPaths = [
       'path#tooth-1', 'path#tooth-2', 'path#tooth-3', 'path#tooth-4', 'path#tooth-5', 'path#tooth-6', 'path#tooth-7', 'path#tooth-8',
@@ -124,16 +155,16 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
       'path#tooth-17', 'path#tooth-18', 'path#tooth-19', 'path#tooth-20', 'path#tooth-21', 'path#tooth-22', 'path#tooth-23', 'path#tooth-24',
       'path#tooth-25', 'path#tooth-26', 'path#tooth-27', 'path#tooth-28', 'path#tooth-29', 'path#tooth-30', 'path#tooth-31', 'path#tooth-32', 'path#svg_13809', 'path#svg_8942'
     ];
-  
+
     toothPaths.forEach(selector => {
       const pathElement = this.elementRef.nativeElement.querySelector(`svg ${selector}`);
       if (pathElement) {
-        pathElement.setAttribute('fill', '#B0B0B0'); 
-        pathElement.style.pointerEvents = 'none'; 
+        pathElement.setAttribute('fill', '#B0B0B0');
+        pathElement.style.pointerEvents = 'none';
       }
     });
   }
-  
+
 
   onToothClick(event: MouseEvent | string): void {
     let element;
@@ -180,58 +211,53 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
   }
 
   applyTestToothColors(): void {
-    this.toothList.forEach((tooth) => {
-      const svgId = Object.keys(toothIdMap).find(key => toothIdMap[key] === tooth.position);
+    this.actualToothArray.forEach((tooth) => {
+      const svgId = Object.keys(toothIdMap).find(key => toothIdMap[key] === tooth.toothPosition);
       const toothElement = document.querySelector(`path#${svgId}`);
       if (toothElement) {
-        const color = statusColorMap[tooth.status as ToothStatus];
+        const color = statusColorMap[tooth.status] || '';
         this.renderer.setAttribute(toothElement, 'fill', color);
       }
     });
   }
 
-  SelectToothForAppointment() {
-    setTimeout(() => {
-      Object.keys(toothIdMap).forEach(toothId => {
-        const toothElement = document.querySelector(`path#${toothId}`);
-        if (toothElement) {
-          
-          this.renderer.listen(toothElement, 'mouseenter', () => {
-            this.renderer.setStyle(toothElement, 'cursor', 'pointer');
-          });
-          this.renderer.listen(toothElement, 'mouseleave', () => {
-            this.renderer.removeStyle(toothElement, 'cursor');
-          });
-  
-          this.renderer.listen(toothElement, 'click', () => {
-            const newColor = '#e8d061'; 
-  
-            // Verifica si el diente ya está seleccionado
-            if (this.selectedTeeth[toothId]) {
-              // Si está seleccionado, remuévelo de la lista y elimina el color
-              this.renderer.removeStyle(toothElement, 'fill');
-              this.toothList = this.toothList.filter((tooth) => tooth !== toothIdMap[toothId]);
-              console.log(this.toothList);
-              this.selectedTeeth[toothId] = false;
-            } else {
-              // Si no está seleccionado, agrégalo a la lista y cambia el color
-              this.renderer.setStyle(toothElement, 'fill', newColor);
-              this.toothList.push(toothIdMap[toothId]);
-              console.log(this.toothList);
-              this.selectedTeeth[toothId] = true;
-            }
-  
-            this.getTooth(toothIdMap[toothId]); 
-          });
-        } else {
-          console.warn(`Element with ID ${toothId} not found or is not a <path>`);
-        }
-      });
-  
-    }, 100);
-  }
+ SelectToothForAppointment() {
+  setTimeout(() => {
+    Object.keys(toothIdMap).forEach(toothId => {
+      const toothElement = document.querySelector(`path#${toothId}`);
+      if (toothElement) {
+
+        this.renderer.listen(toothElement, 'mouseenter', () => {
+          this.renderer.setStyle(toothElement, 'cursor', 'pointer');
+        });
+        this.renderer.listen(toothElement, 'mouseleave', () => {
+          this.renderer.removeStyle(toothElement, 'cursor');
+        });
+
+        this.renderer.listen(toothElement, 'click', () => {
+          const newColor = '#e8d061';
+          const toothPosition = toothIdMap[toothId];
+
+          if (this.selectedTeeth[toothId]) {
+            this.renderer.removeStyle(toothElement, 'fill');
+            this.toothList = this.toothList.filter(pos => pos !== toothPosition);
+            this.selectedTeeth[toothId] = false;
+          } else {
+            this.renderer.setStyle(toothElement, 'fill', newColor);
+            this.toothList.push(toothPosition);
+            this.selectedTeeth[toothId] = true;
+          }
+
+          this.arrayTooth.emit(this.toothList);
+        });
+      } else {
+        console.warn(`Element with ID ${toothId} not found or is not a <path>`);
+      }
+    });
+  }, 100);
+}
+
   openModal(templateRef: any, id: any): void {
-    console.log(id);
     this.dialogRef = this.dialog.open(templateRef, {
       width: '80%',
       height: 'auto',

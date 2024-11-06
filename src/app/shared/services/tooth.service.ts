@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-
-
 @Injectable({
   providedIn: 'root'
 })
@@ -11,7 +9,7 @@ export class ToothService {
   private url = 'http://localhost:3000/api/v1/tooth';
 
   getTeeth() {
-    return this.httpClient.get(`http://localhost:3000/api/v1/tooth/all`, {
+    return this.httpClient.get(`${this.url}/all`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -20,7 +18,7 @@ export class ToothService {
   }
 
   getTooth(id: number) {
-    return this.httpClient.get(`${this.url}/tooth/${id}`, {
+    return this.httpClient.get(`${this.url}/${id}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -29,7 +27,7 @@ export class ToothService {
   }
 
   createTooth(formData: any) {
-    return this.httpClient.post(`${this.url}/tooth`, formData, {
+    return this.httpClient.post(`${this.url}`, formData, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -37,8 +35,8 @@ export class ToothService {
     });
   }
 
-  updateTooth(due: any, id: number) {
-    return this.httpClient.put(`${this.url}/tooth/${id}`, due, {
+  updateTooth(tooth: any, id: number) {
+    return this.httpClient.put(`${this.url}/${id}`, tooth, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -47,7 +45,7 @@ export class ToothService {
   }
 
   deleteTooth(id: string) {
-    return this.httpClient.delete(`${this.url}/tooth/${id}`, {
+    return this.httpClient.delete(`${this.url}/${id}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,

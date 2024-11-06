@@ -31,17 +31,18 @@
 </ng-template>
 <div class="container">
     <div class="header-container">
+     <div class="container-title">
         <h3 class="title">{{componentTitle}}</h3>
+    
+            <!-- <mat-icon (click)="clearAllSelectedTeeth()" class="trash-icon">delete_sweep</mat-icon> -->
+     </div>
         <div class="line"></div>
+        <!-- <div class="status">
+            <ng-container *ngIf="statusOptions" [ngTemplateOutlet]="statusOptions"></ng-container>
+                  </div> -->
     </div>
     <svg id="mySvg" viewBox="0 0 1400 1900" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" class="img">
-        <style>
-            path {
-                stroke: none;
-            }
-        </style>
         <g class="layer">
-            
             <path d="m552,252c2.61,1.1 5.16,0.99 8,1c-2.61,-1.1 -5.16,-0.99 -8,-1z" fill="#f0eef0" id="svg_2"  />
             <path d="m683,252c2.61,1.1 5.16,0.99 8,1c-2.61,-1.1 -5.16,-0.99 -8,-1z" fill="#f2eff3" id="svg_3" />
             <path d="m547.67,253.33c-0.45,0.45 0.61,0.39 0.66,0.34c0.45,-0.45 -0.61,-0.39 -0.66,-0.34z" fill="#ecdade"
