@@ -11,7 +11,7 @@
       <mat-spinner class="spinner"></mat-spinner>
     </div> -->
     <div style="overflow-x: auto;">
-      <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
+      <!-- <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
 
         <ng-container matColumnDef="patient">
           <th mat-header-cell *matHeaderCellDef>Paciente</th>
@@ -52,7 +52,9 @@
       </table>
 
       <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Selecciona una página">
-      </mat-paginator>
+      </mat-paginator> -->
+      <app-base-grid-component [getData]="duesRoute" [columnDefinitions]="columnDefs"></app-base-grid-component>
+
     </div>
 
   </div>

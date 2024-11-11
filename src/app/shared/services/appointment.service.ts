@@ -2,62 +2,34 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Appointment } from '../interfaces/appointment.interface';
+import { BaseGridService } from './baseGrid.service';
+import { apiRoutes } from '../const/backend-routes';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppointmentService {
-  constructor(private httpClient: HttpClient) { }
-  private url = 'http://localhost:3000/api/v1/patient-appointments';
+  constructor(private httpClient: HttpClient, private endpointService: BaseGridService) { }
+  private baseUrl = apiRoutes.appointment.main;
 
   getAppointments() {
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJjZ296dW5hQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTY5NzA3ODQ3NSwiZXhwIjoxNjk3MTY0ODc1fQ.kQC5x_3O0RwVkLqCrnu4iakN61iXGrJ8AyLUOQ43mKY'
-      })
-    };
-
-    return this.httpClient.get(`${this.url}/getAllAppointments/1/10`, httpOptions);
+    return this.endpointService.getData(this.baseUrl);
   }
 
-  getAppointmentById(id: string) {
-    return this.httpClient.get(`${this.url}/getAppointmentById/${id}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+  getAppointmentById(id: number) {
+    return this.endpointService.getDataById(this.baseUrl, id);
   }
 
   createAppointment(formData: Appointment) {
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJjZ296dW5hQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTY5NzA3ODQ3NSwiZXhwIjoxNjk3MTY0ODc1fQ.kQC5x_3O0RwVkLqCrnu4iakN61iXGrJ8AyLUOQ43mKY'
-      })
-    };
-
-    return this.httpClient.post('http://localhost:3000/api/v1/patient-appointments/createAppointment', formData, httpOptions);
+    return this.endpointService.createData(this.baseUrl, formData)
   }
 
-  deleteAppointment(id: string) {
-    return this.httpClient.delete(`${this.url}/deleteAppointment/${id}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+  deleteAppointment(id: number) {
+    return this.endpointService.deleteData(this.baseUrl, id)
   }
 
-  updateAppointment(appointment: Appointment, id: string) {
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJjZ296dW5hQGdtYWlsLmNvbSIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTY5NzA3ODQ3NSwiZXhwIjoxNjk3MTY0ODc1fQ.kQC5x_3O0RwVkLqCrnu4iakN61iXGrJ8AyLUOQ43mKY'
-      })
-    };
-
-    return this.httpClient.put(`${this.url}/updateAppointment/${id}`
-      , appointment)
-
+  updateAppointment(appointment: Appointment, id: number) {
+    return this.endpointService.updateData(this.baseUrl, appointment, id);
   }
 }

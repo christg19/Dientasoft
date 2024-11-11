@@ -43,3 +43,7 @@ export enum ToothNames {
 }
 
 
+export interface DataRow<T> {
+  map: Map<string, string>;
+  columns:string[]
+}

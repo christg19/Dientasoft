@@ -11,6 +11,10 @@ const routes: Routes = [
   {
     path: 'createAppointment',
     component: CreateAppointmentComponent
+  },
+  {
+    path: 'updateAppointment/:id',
+    component: CreateAppointmentComponent
   }
 ];
 

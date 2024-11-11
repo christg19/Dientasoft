@@ -14,6 +14,8 @@ import { Dues, SelectableObject, ServiceOrDue } from '../shared/interfaces/dues.
 import { lastValueFrom } from 'rxjs';
 import { MatSelectChange } from '@angular/material/select';
 import { DuesService } from '../shared/services/dues.service';
+import { ColumnDefinition } from '../base-grid-component/base-grid-component.component';
+import { apiRoutes } from '../shared/const/backend-routes';
 
 @Component({
   selector: 'app-appointment',
@@ -21,13 +23,11 @@ import { DuesService } from '../shared/services/dues.service';
   styleUrls: ['./appointment.component.scss']
 })
 export class AppointmentComponent implements AfterViewInit {
-
-
   appointmentList: Appointment[] = []
   appointment?: Appointment;
   buttonAppointment: string[] = ['Registrar cita', 'Actualizar Cita']
   public updating: boolean = false;
-  appointmentId: string = '';
+  appointmentId!: number;
   displayedColumns: string[] = ['date', 'patientName', 'procedure', 'amount', 'actions'];
   dataSource = new MatTableDataSource<Appointment>(this.appointmentList);
   patientList: Patient[] = [];
@@ -48,9 +48,17 @@ export class AppointmentComponent implements AfterViewInit {
   isDataValid: boolean = false;
   selectedServices!: ServiceOrDue[]
 
+  public columnDefs: ColumnDefinition[] = [
+    //{ key: 'id', label: 'ID', dataType: 'number', editable: false },
+    {key: 'patientName', label: 'Nombre', dataType: 'string'},
+    {key:'totalCost', label: 'Costo total', dataType: 'number'}
+  ];
+  public appointmentRoute = apiRoutes.appointment.main;
+
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild('modalContent') modalContent!: TemplateRef<any>;
+  
 
   constructor(
     private fb: FormBuilder,
@@ -80,7 +88,7 @@ export class AppointmentComponent implements AfterViewInit {
     this.getAllAppointments();
     this.getAllPatients();
     this.getAllServices();
-
+  
     setTimeout(() => {
       this.loading = false;
     }, 200)
@@ -157,7 +165,7 @@ export class AppointmentComponent implements AfterViewInit {
       next: (appointment: any) => {
         this.appointmentList = appointment;
         this.dataSource.data = this.appointmentList;
-
+        this.dataSource.paginator = this.paginator; 
       },
       error: (error) => {
         console.error(error);
@@ -189,19 +197,16 @@ export class AppointmentComponent implements AfterViewInit {
     return fechaFormateada;
   }
 
-  gettingId(id: string): void {
+  gettingId(id: number): void {
     this.appointmentId = id;
   }
 
   gettingIdAndOpenModal(id: string): void {
-    console.log(id, 'gettingIdAndOpenModal');
-    this.updating = true;
-    this.appointmentId = id;
-    this.openModal(this.modalContent, id);
+    this.redirect(`/appointment/updateAppointment/${id}`)
   }
 
 
-  loadAppointmentDetails(id: string) {
+  loadAppointmentDetails(id: number) {
     this.updating = true;
     this.appointmentService.getAppointmentById(id).subscribe(
       (appointment: any) => {
@@ -242,7 +247,7 @@ export class AppointmentComponent implements AfterViewInit {
   }
 
 
-  deleteAppointment(id: string) {
+  deleteAppointment(id: number) {
     this.appointmentService.deleteAppointment(id).subscribe({
       next: (response: any) => {
         console.log('Cita eliminada con éxito:', response);
@@ -279,19 +284,14 @@ export class AppointmentComponent implements AfterViewInit {
     });
   }
 
-  openModal(templateRef: TemplateRef<any>, id?: string): void {
+  openModal(templateRef: TemplateRef<any>, id?: number): void {
 
     if (!id) {
       this.updating = false;
-      this.appointmentId = '';
+      this.appointmentId = 0;
       this.appointmentForm.reset();
       console.log('Creando nueva cita');
-    } else {
-      this.updating = true;
-      this.appointmentId = id;
-      this.loadAppointmentDetails(id);
-      console.log('Editando cita existente');
-    }
+    } 
 
     this.dialogRef = this.dialog.open(templateRef, { width: '400px', height: '500px' });
 
@@ -329,22 +329,19 @@ export class AppointmentComponent implements AfterViewInit {
 
   async filterServiceCost(): Promise<number> {
     if (!this.selectedServices || this.selectedServices.length === 0) {
-      return 0; // Retorna 0 si no hay servicios seleccionados
+      return 0; 
     }
 
-    // Filtrar solo aquellos elementos que son servicios y sumar sus costos
+  
     return this.selectedServices
-      .filter(item => item.itemType === 'service') // Asegurarse que solo se toman los servicios
+      .filter(item => item.itemType === 'service') 
       .reduce((acc, service) => {
-        if ('cost' in service) {  // Comprobar que el servicio tenga la propiedad 'cost'
+        if ('cost' in service) { 
           return acc + service.cost;
         }
         return acc;
       }, 0);
   }
-
-
-
 
   async updateDueQuantities(dues: Dues[]): Promise<void> {
     const updatePromises = dues.map(due => {
@@ -369,7 +366,6 @@ export class AppointmentComponent implements AfterViewInit {
     }
   }
   
-
   async dueCost(selectedDues: Dues[]): Promise<number> {
     let totalDueCost = 0;
     for (const due of selectedDues) {
@@ -393,7 +389,6 @@ export class AppointmentComponent implements AfterViewInit {
     try {
       let dueCost = 0;
   
-      // Solo actualizar Dues si hay Dues seleccionados
       if (this.selectedDues && this.selectedDues.length > 0) {
         await this.updateDueQuantities(this.selectedDues);
         dueCost = await this.dueCost(this.selectedDues);

@@ -1,0 +1,78 @@
+<div class="container">
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
+
+    <ng-container *ngFor="let column of columnDefinitions">
+      <ng-container [matColumnDef]="column.key">
+        <th mat-header-cell *matHeaderCellDef>
+          {{ column.label || (column.key | titlecase) }}
+        </th>
+        <td mat-cell *matCellDef="let element">
+
+          <ng-container *ngIf="column.icon">
+            <mat-icon 
+              (click)="getRouteToRedirect(column.icon, element.id)" 
+              class="icon">
+              {{ column.icon }}
+            </mat-icon>
+          </ng-container>
+
+          <ng-container *ngIf="column.function; else valueTemplate">
+            <span>
+              {{ getFunction(column, element[column.key]) | async }}
+            </span>
+          </ng-container>          
+
+          <ng-template #valueTemplate>
+            <span *ngIf="editingRowId !== element.id || column.editable === false">
+              {{ element[column.key] || 'N/A' }}
+            </span>
+            <input
+              *ngIf="editingRowId === element.id && column.editable !== false"
+              matInput
+              [type]="getInputType(column)"
+              [(ngModel)]="element[column.key]"
+              placeholder="Editar {{ column.label || column.key }}"
+            />
+          </ng-template>
+        </td>
+      </ng-container>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let row">
+        <button
+          *ngIf="editingRowId !== row.id"
+          mat-icon-button
+          class="icon"
+          (click)="enableEdit(row.id)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          *ngIf="editingRowId === row.id"
+          mat-icon-button
+          color="primary"
+          class="icon"
+          (click)="saveRow(row)">
+          <mat-icon>save</mat-icon>
+        </button>
+        <button
+          *ngIf="editingRowId === row.id"
+          mat-icon-button
+          color="warn"
+          class="icon"
+          (click)="cancelEdit()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <button mat-icon-button class="icon icon-delete" (click)="deleteRow(row)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumnsWithActions"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumnsWithActions;"></tr>
+  </table>
+
+  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+</div>

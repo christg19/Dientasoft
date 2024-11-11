@@ -12,9 +12,10 @@ import { Tooth } from '../shared/interfaces/tooth.interface';
 import { Service } from '../shared/interfaces/services.interface';
 import { ServicesService } from '../shared/services/services.service';
 import Swal from 'sweetalert2';
-import { ToothNames, ToothStatus } from '../shared/const';
+import { ToothNames, ToothStatus } from '../shared/const/const';
 import { ToothSVGComponent } from '../shared/components/tooth-svg/tooth-svg.component';
 import { ToothService } from '../shared/services/tooth.service';
+import { RefreshService } from '../shared/services/refresh.service';
 
 
 @Component({
@@ -23,11 +24,13 @@ import { ToothService } from '../shared/services/tooth.service';
   styleUrls: ['./history.component.scss']
 })
 export class HistoryComponent {
+  
   public hoveredTooth: string | null = null;
   public statusMode = false;
   public toothOff = false
   public patient!: Patient;
   public patientAppointment = [];
+  public changingStatus = false;
   toothName!:string;
   public patientId!: number;
   selectedFilter: string = '';
@@ -54,11 +57,12 @@ export class HistoryComponent {
   @ViewChild('modalContent3') modalContent3!: TemplateRef<any>;
   public headerItems: { title: string, subTitle: string, modalContent: any }[] = [];
   filterOptions = [
-    { value: 'option1', viewValue: 'Filtrar por Odontograma' },
-    { value: 'option2', viewValue: 'Cambiar Estados' },
+    { value: 0, viewValue: 'Filtrar por Odontograma' },
+    { value: 1, viewValue: 'Cambiar Estados' },
   ];
 
   constructor(public dialog: MatDialog, private route: ActivatedRoute,
+    private refreshService: RefreshService,
     private patientsService: PatientsService,
     private appointmentsService: AppointmentService,
     private toothService: ToothService,
@@ -87,7 +91,15 @@ export class HistoryComponent {
       { title: 'Historial de', subTitle: 'pago', modalContent: this.modalContent2 },
       { title: 'Plan de', subTitle: 'tratamiento', modalContent: this.modalContent3 }
     ];
-
+    this.dataSource.filterPredicate = (data: Tooth, filter: string) => {
+      const filterLower = filter.trim().toLowerCase();
+      
+      const procedureNames = this.getAppointmentService(data.serviceIds).toLowerCase();
+      
+      const toothPos = data.toothPosition.toString();
+      
+      return toothPos.includes(filterLower) || procedureNames.includes(filterLower);
+    };
   }
 
   seeStatus(){
@@ -95,12 +107,18 @@ export class HistoryComponent {
   }
 
   clearOdontogram() {
+  
     if (this.toothSVGComponent) {
       this.toothSVGComponent.clearAllSelectedTeeth();
+      this.statusMode = false;
     }
-
+  
     this.dataSource.filter = '';
+  
+    this.selectedFilter = ''; 
   }
+  
+  
 
   applyColors(){
     if(this.toothSVGComponent){
@@ -142,6 +160,7 @@ export class HistoryComponent {
           
                   this.dataSource.data = [...this.dataSource.data];
                 }
+                this.refreshService.triggerRefresh();
                 Swal.fire("El estado ha sido actualizado!", "", "success");
               },
               error: (error) => {
@@ -262,30 +281,10 @@ export class HistoryComponent {
   getToothInfo() {
 
   }
-
   applyFilter(event: any) {
-    const toothFilterArray = event;
-
-    this.dataSource.filterPredicate = (data, filter) => {
-      try {
-        const filterPositions = JSON.parse(filter);
-        if (!Array.isArray(filterPositions)) {
-          console.error('filterPositions no es un array:', filterPositions);
-          return false;
-        }
-
-        const toothPosition = data.toothPosition || data.position || data.id;
-        const result = filterPositions.includes(toothPosition);
-        return result;
-      } catch (e) {
-        console.error('Error al parsear filter a JSON:', e);
-        return false;
-      }
-    };
-
-    this.dataSource.filter = JSON.stringify(toothFilterArray);
-    console.log('DataSource después de aplicar el filtro:', this.dataSource.filteredData);
-  }
+    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    this.dataSource.filter = filterValue;
+}
 
    getToothName(position:number){
     return `${ToothNames[position]}`
@@ -295,8 +294,14 @@ export class HistoryComponent {
     console.log('Filtro seleccionado:', this.selectedFilter);
   }
 
-  activeFilter() {
-    this.statusMode = !this.statusMode;
+  activeFilter(option:string) {
+    console.log(option);
+    this.statusMode = true;
+    
+    if(option === '1'){
+
+    }
+    
   }
 
   getAllPatientApppointments() {

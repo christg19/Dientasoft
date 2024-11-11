@@ -12,6 +12,8 @@ import { LoadingComponent } from './shared/components/loading/loading.component'
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { LoadingComponentComponent } from './loading-component/loading-component.component';
 import { StatCardComponent } from './stat-card/stat-card.component';
+import { BaseGridComponentComponent } from './base-grid-component/base-grid-component.component';
+import { BaseGridComponentModule } from './base-grid-component/base-grid-component.module';
 
 
 
@@ -22,7 +24,8 @@ import { StatCardComponent } from './stat-card/stat-card.component';
     ModalContent1Component,
     LoadingComponent,
     LoadingComponent,
-    LoadingComponentComponent
+    LoadingComponentComponent,
+
 
   ],
   imports: [
@@ -32,7 +35,7 @@ import { StatCardComponent } from './stat-card/stat-card.component';
     HttpClientModule,
     BrowserAnimationsModule,
     MatDialogModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

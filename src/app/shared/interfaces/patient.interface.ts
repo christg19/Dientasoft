@@ -1,3 +1,4 @@
+import { Appointment } from "./appointment.interface";
 import { Dues } from "./dues.interface";
 
 export interface Patient {
@@ -7,5 +8,6 @@ export interface Patient {
     address?:string;
     tel?:string;
     email?:string;
+    appointments?:Appointment[];
     dues?:Dues[];
 }

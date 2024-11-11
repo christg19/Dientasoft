@@ -18,6 +18,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { LoadingComponent } from '../shared/components/loading/loading.component';
 import { LoadingModule } from '../shared/components/loading/loading.module';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { SharedGridModule } from '../shared/modules/grid-componente.shared.module';
 
 
 @NgModule({
@@ -40,7 +41,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     MatPaginatorModule,
     FormsModule,
     ReactiveFormsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    SharedGridModule
   ]
 })
 export class PatientsModule { }

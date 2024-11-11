@@ -10,6 +10,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ServicesService } from '../shared/services/services.service';
 import { PatientsService } from '../shared/services/patient.service';
 import { Patient } from '../shared/interfaces/patient.interface';
+import { ColumnDefinition } from '../base-grid-component/base-grid-component.component';
+import { apiRoutes } from '../shared/const/backend-routes';
 
 
 @Component({
@@ -19,7 +21,16 @@ import { Patient } from '../shared/interfaces/patient.interface';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DuesComponent {
-  displayedColumns: string[] = ['patient', 'service', 'due', 'cost', 'actions'];
+  // patientId: string name: string, service: string dueQuantity: 2
+
+  public columnDefs: ColumnDefinition[] = [
+    {key: 'patientId', label: 'Paciente', dataType: 'string', function: 'patient'},
+    {key:'name', label: 'Servicio', dataType: 'string'},
+    {key: 'dueQuantity', label: 'Cantidad de Cuotas', dataType: 'number'},
+
+  ];
+  public duesRoute = apiRoutes.dues.main;
+
   private dueId!:number;
   serviceList: Service[] = [];
   dueValue = 0;
@@ -181,7 +192,7 @@ async getAllDues() {
 
     this.dueList = await Promise.all(duePromises);
     this.dataSource.data = this.dueList;
-
+    console.log(this.dataSource.data)
   });
 }
 

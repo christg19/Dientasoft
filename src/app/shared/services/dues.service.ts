@@ -14,7 +14,7 @@ export class DuesService {
   private url = 'http://localhost:3000/api/v1/dues';
 
   getDues() {
-    return this.httpClient.get(`http://localhost:3000/api/v1/dues/getAll`, {
+    return this.httpClient.get(`http://localhost:3000/api/v1/dues/all`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -23,7 +23,7 @@ export class DuesService {
   }
 
   getDueById(id: number) {
-    return this.httpClient.get(`${this.url}/getDueById/${id}`, {
+    return this.httpClient.get(`${this.url}/${id}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -32,7 +32,7 @@ export class DuesService {
   }
 
   createDue(formData: any) {
-    return this.httpClient.post(`${this.url}/createDue`, formData, {
+    return this.httpClient.post(`${this.url}`, formData, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -41,7 +41,7 @@ export class DuesService {
   }
 
   updateDue(due: Dues, id: number) {
-    return this.httpClient.put(`${this.url}/updateDue/${id}`, due, {
+    return this.httpClient.put(`${this.url}/${id}`, due, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -50,7 +50,7 @@ export class DuesService {
   }
 
   deleteDue(id: string) {
-    return this.httpClient.delete(`${this.url}/deleteDue/${id}`, {
+    return this.httpClient.delete(`${this.url}/${id}`, {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -59,7 +59,7 @@ export class DuesService {
   }
 
   patchDue(id: number, partialUpdate: Partial<Dues>) {
-    return this.httpClient.patch(`${this.url}/patchDue/${id}`, partialUpdate, {
+    return this.httpClient.patch(`${this.url}/${id}`, partialUpdate, {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`

@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import { ReactiveFormsModule } from '@angular/forms';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { SharedGridModule } from '../shared/modules/grid-componente.shared.module';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     MatSelectModule,
     MatPaginatorModule,
     ReactiveFormsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    SharedGridModule
   ]
 })
 export class DuesModule { }

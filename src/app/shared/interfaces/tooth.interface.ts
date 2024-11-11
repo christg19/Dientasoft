@@ -1,4 +1,4 @@
-import { ToothStatus } from '../const';
+import { ToothStatus } from '../const/const';
 
 export interface Tooth {
 

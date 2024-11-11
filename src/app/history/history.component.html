@@ -21,17 +21,18 @@
         </div>
         <div class="select-odontogram">
             <mat-form-field appearance="outline" class="custom-select">
-                <mat-label>Filtro Avanzado</mat-label>
-                <mat-select [(value)]="selectedFilter" (selectionChange)="activeFilter()">
-                  <mat-option *ngFor="let option of filterOptions" [value]="option.value">
-                    {{ option.viewValue }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-              <button mat-raised-button color="warn" class="button-search" (click)="clearOdontogram()">
-                Limpiar <mat-icon>clear</mat-icon>
-              </button>
-        </div>
+              <mat-label>Filtro Avanzado</mat-label>
+              <mat-select [(value)]="selectedFilter" (selectionChange)="activeFilter(selectedFilter)">
+                <mat-option *ngFor="let option of filterOptions" [value]="option.value">
+                  {{ option.viewValue }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <button mat-raised-button color="warn" class="button-search" (click)="clearOdontogram()">
+              Limpiar <mat-icon>clear</mat-icon>
+            </button>
+          </div>
+          
 
     </div>
     <div class="main-appointment">
@@ -88,7 +89,7 @@
 
         <div class="odont">
             <app-tooth-svg #ToothSVGComponent [patient]="patientId" [componentTitle]="'Odontograma'" [appointment]="statusMode"
-                (arrayTooth)="applyFilter($event)" [statusMap]="" [actualToothArray]="dataSource.data"></app-tooth-svg>
+             [changeStatus]="changingStatus"   (arrayTooth)="applyFilter($event)" [statusMap]="" [actualToothArray]="dataSource.data"></app-tooth-svg>
                 <!-- <ng-template #toothInfo >
                     <button mat-flat-button color="accent" class="procedure-button">Activar</button>
                   </ng-template> -->

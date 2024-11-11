@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,6 +7,7 @@ import { Categories, Product } from '../shared/interfaces/product.interface';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Instrument } from '../shared/interfaces/instrument.interface';
+import { MatSort } from '@angular/material/sort';
 
 
 export interface TableOption {
@@ -22,7 +23,7 @@ export interface TableOption {
   templateUrl: './inventory.component.html',
   styleUrls: ['./inventory.component.scss']
 })
-export class InventoryComponent implements OnInit {
+export class InventoryComponent implements OnInit, AfterViewInit {
   public actions: boolean = true;
   public loading: boolean = false;
   public instrumentalQuantity: number = 0;
@@ -60,9 +61,10 @@ export class InventoryComponent implements OnInit {
   ];
 
   displayedColumns: string[] = [];
-  dataSource = new MatTableDataSource<any>();
+  dataSource = new MatTableDataSource<Product>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private route: ActivatedRoute, private router: Router, private cdr: ChangeDetectorRef, private productService: ProductService, private paginators: MatPaginatorIntl, private fb: FormBuilder, public dialog: MatDialog,) {
     this.paginators.itemsPerPageLabel = "Registros por página";
@@ -94,6 +96,7 @@ export class InventoryComponent implements OnInit {
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
 
   spanishRangeLabel(page: number, pageSize: number, length: number): string {

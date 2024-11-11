@@ -1,7 +1,10 @@
 import { Component, Input, OnInit, TemplateRef, ViewChild, AfterViewInit, Renderer2, Output, EventEmitter, ElementRef, SimpleChanges } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ToothStatus } from '../../const';
+import { ToothNames, ToothStatus } from '../../const/const';
 import { Tooth } from '../../interfaces/tooth.interface';
+import Swal from 'sweetalert2';
+import { Subscription } from 'rxjs';
+import { RefreshService } from '../../services/refresh.service';
 
 const toothIdMap: { [key: string]: any } = {
   'svg_1': 1,
@@ -43,8 +46,8 @@ const statusColorMap: Record<number, string> = {
   1: '#FFD1A4', 
   2: '#FFB3BA', 
   3: '#A4C5E2',  
-  4: '#FF6B6B'
-
+  4: '#FF6B6B',
+  5: '#E0E0E0',
 };
 
 @Component({
@@ -64,31 +67,56 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
   @Input() statusOptions!: TemplateRef<any>;
   @Input() statusMap: any;
   @Input() actualToothArray!: Tooth[];
+  @Input() changeStatus: boolean = false;
+  private refreshSubscription!: Subscription;
   colorOn: boolean = true;
   selectedTeeth: { [key: string]: boolean } = {};
+  private isSelectToothEnabled = true;
+  private listeners: (() => void)[] = [];
+
   public toothList: Tooth[] = [];
+
   dialogRef!: MatDialogRef<any>;
+  options1 = [
+    { value: 'opcion1', viewValue: 'Opción 1' },
+    { value: 'opcion2', viewValue: 'Opción 2' },
+    { value: 'opcion3', viewValue: 'Opción 3' },
+  ];
 
+  options2 = [
+    { value: 'opcionA', viewValue: 'Opción A' },
+    { value: 'opcionB', viewValue: 'Opción B' },
+    { value: 'opcionC', viewValue: 'Opción C' },
+  ];
 
-  constructor(public dialog: MatDialog, private renderer: Renderer2, private elementRef: ElementRef) { }
+  constructor(public dialog: MatDialog, private renderer: Renderer2, private elementRef: ElementRef, private refreshService:RefreshService) { }
 
   ngOnChanges(changes: SimpleChanges) {
+    if (changes['actualToothArray'] && !changes['actualToothArray'].firstChange) {
+      this.applyTestToothColors();
+    }
     if (changes['appointment']) {
       this.decidingToothMethods();
     }
   }
+  
 
   ngOnInit(): void {
     if(this.appointment){
       this.SelectToothForAppointment();
     }
+    this.refreshSubscription = this.refreshService.refresh$.subscribe(() => {
+      this.refreshComponent();
+    })
    }
 
   ngAfterViewInit(): void {
     this.decidingToothMethods();
   }
 
-
+  refreshComponent(){
+    this.applyTestToothColors();
+  }
 
   decidingToothMethods() {
     if (this.unableCreateTooths) {
@@ -120,7 +148,7 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
             this.renderer.addClass(toothElement, 'click-animate');
             this.actualToothId.emit(id);
 
-            this.openModal(this.toothContent, id)
+            this.dialogCreateTooth(id);
           });
         } else {
           console.warn(`Element with ID ${toothId} not found or is not a <path>`);
@@ -132,6 +160,47 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
+  async dialogCreateTooth(id: number) {
+    const { value: formValues } = await Swal.fire({
+      title: `Asignar datos a ${ToothNames[id]}`,
+      html: `
+        <select id="swal-select1" class="swal2-input" style="width: 80%; padding: 10px; margin: 10px;">
+          ${this.options1
+            .map((option) => `<option value="${option.value}">${option.viewValue}</option>`)
+            .join('')}
+        </select>
+        <select id="swal-select2" class="swal2-input" style="width: 80%; padding: 10px; margin: 10px;">
+          ${this.options2
+            .map((option) => `<option value="${option.value}">${option.viewValue}</option>`)
+            .join('')}
+        </select>
+      `,
+      focusConfirm: false,
+      preConfirm: () => {
+        return [
+          (document.getElementById('swal-select1') as HTMLSelectElement).value,
+          (document.getElementById('swal-select2') as HTMLSelectElement).value,
+        ];
+      },
+    });
+  
+    // Utilizar las opciones seleccionadas
+    if (formValues) {
+      Swal.fire(`Seleccionaste: ${formValues[0]} y ${formValues[1]}`);
+      this.usarOpcionesSeleccionadas(formValues[0], formValues[1]);
+    }
+  }
+  
+  // Ejemplo de método para usar las opciones seleccionadas
+  usarOpcionesSeleccionadas(opcion1: string, opcion2: string) {
+    console.log(`Opción 1 seleccionada: ${opcion1}`);
+    console.log(`Opción 2 seleccionada: ${opcion2}`);
+    // Lógica adicional para manejar las opciones seleccionadas...
+  }
+  
+  
+  
+
   clearAllSelectedTeeth() {
     Object.keys(this.selectedTeeth).forEach(toothId => {
       if (this.selectedTeeth[toothId]) {
@@ -139,13 +208,17 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
         if (toothElement) {
           this.renderer.removeStyle(toothElement, 'fill');
         }
-
         this.selectedTeeth[toothId] = false;
       }
     });
 
     this.toothList = [];
     this.arrayTooth.emit(this.toothList);
+
+    this.listeners.forEach(unlisten => unlisten());
+    this.listeners = []; 
+
+    this.openTooth();
   }
 
   removePaths() {
@@ -215,47 +288,46 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
       const svgId = Object.keys(toothIdMap).find(key => toothIdMap[key] === tooth.toothPosition);
       const toothElement = document.querySelector(`path#${svgId}`);
       if (toothElement) {
-        const color = statusColorMap[tooth.status] || '';
+        const color = statusColorMap[tooth.status];
         this.renderer.setAttribute(toothElement, 'fill', color);
       }
     });
   }
 
- SelectToothForAppointment() {
-  setTimeout(() => {
-    Object.keys(toothIdMap).forEach(toothId => {
-      const toothElement = document.querySelector(`path#${toothId}`);
-      if (toothElement) {
+  SelectToothForAppointment() {
 
-        this.renderer.listen(toothElement, 'mouseenter', () => {
-          this.renderer.setStyle(toothElement, 'cursor', 'pointer');
-        });
-        this.renderer.listen(toothElement, 'mouseleave', () => {
-          this.renderer.removeStyle(toothElement, 'cursor');
-        });
+    setTimeout(() => {
+      Object.keys(toothIdMap).forEach(toothId => {
+        const toothElement = document.querySelector(`path#${toothId}`);
+        if (toothElement) {
+          const mouseEnterListener = this.renderer.listen(toothElement, 'mouseenter', () => {
+            this.renderer.setStyle(toothElement, 'cursor', 'pointer');
+          });
+          const mouseLeaveListener = this.renderer.listen(toothElement, 'mouseleave', () => {
+            this.renderer.removeStyle(toothElement, 'cursor');
+          });
+          const clickListener = this.renderer.listen(toothElement, 'click', () => {
+            const newColor = '#e8d061';
+            const toothPosition = toothIdMap[toothId];
 
-        this.renderer.listen(toothElement, 'click', () => {
-          const newColor = '#e8d061';
-          const toothPosition = toothIdMap[toothId];
+            if (this.selectedTeeth[toothId]) {
+              this.renderer.removeStyle(toothElement, 'fill');
+              this.toothList = this.toothList.filter(pos => pos !== toothPosition);
+              this.selectedTeeth[toothId] = false;
+            } else {
+              this.renderer.setStyle(toothElement, 'fill', newColor);
+              this.toothList.push(toothPosition);
+              this.selectedTeeth[toothId] = true;
+            }
 
-          if (this.selectedTeeth[toothId]) {
-            this.renderer.removeStyle(toothElement, 'fill');
-            this.toothList = this.toothList.filter(pos => pos !== toothPosition);
-            this.selectedTeeth[toothId] = false;
-          } else {
-            this.renderer.setStyle(toothElement, 'fill', newColor);
-            this.toothList.push(toothPosition);
-            this.selectedTeeth[toothId] = true;
-          }
+            this.arrayTooth.emit(this.toothList);
+          });
 
-          this.arrayTooth.emit(this.toothList);
-        });
-      } else {
-        console.warn(`Element with ID ${toothId} not found or is not a <path>`);
-      }
-    });
-  }, 100);
-}
+          this.listeners.push(mouseEnterListener, mouseLeaveListener, clickListener);
+        }
+      });
+    }, 100);
+  }
 
   openModal(templateRef: any, id: any): void {
     this.dialogRef = this.dialog.open(templateRef, {

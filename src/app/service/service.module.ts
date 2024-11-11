@@ -14,6 +14,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CreateServiceComponent } from './create-service/create-service.component'; 
 import { LoadingModule } from '../shared/components/loading/loading.module';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { SharedGridModule } from '../shared/modules/grid-componente.shared.module';
 
 
 @NgModule({
@@ -33,7 +34,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     MatIconModule,
     MatPaginatorModule,
     MatSelectModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    SharedGridModule
   ]
 })
 export class ServiceModule { }
