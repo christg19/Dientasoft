@@ -1,56 +1,40 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { apiRoutes } from '../const/backend-routes';
+import { BaseGridService } from './baseGrid.service';
 import { Service } from '../interfaces/services.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ServicesService {
-  constructor(private httpClient: HttpClient) { }
-  private url = 'http://localhost:3000/api/v1/service';
+  constructor(
+    private baseGridService: BaseGridService
+    ) 
+    { }
+  private url = apiRoutes.services.main;
 
-  getServices() {
-    return this.httpClient.get(`${this.url}/all`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+  getServices(): Observable<Service[]> {
+    return this.baseGridService.getData<Service[]>(this.url);
   }
 
-  getServiceById(id: number) {
-    return this.httpClient.get(`${this.url}/${id}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+  getServiceById(id: number): Observable<Service> {
+    return this.baseGridService.getDataById<Service>(this.url,id);
   }
 
-  createService(formData: any) {
-    return this.httpClient.post(`${this.url}`, formData, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+  createService(formData: Service) {
+    return this.baseGridService.createData(this.url, formData);
   }
 
   updateService(service: Service, id: number) {
-    return this.httpClient.put(`${this.url}/${id}`, service, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+    return this.baseGridService.updateData(this.url, service, id);
   }
 
-  deleteService(id: string) {
-    return this.httpClient.delete(`${this.url}/${id}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+  deleteService(id: number) {
+    return this.baseGridService.deleteData(this.url, id)
+  }
+
+  patchService(id: number, partialUpdate: Partial<Service>) {
+    return this.baseGridService.pathData(this.url, id, partialUpdate);
   }
 }

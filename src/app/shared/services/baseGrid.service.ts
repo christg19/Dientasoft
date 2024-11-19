@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable, catchError, map, throwError } from "rxjs";
 import { apiRoutes } from "../const/backend-routes";
+import { DialogService } from "./dialog.service";
 
 @Injectable({
     providedIn: 'root'
@@ -9,7 +10,10 @@ import { apiRoutes } from "../const/backend-routes";
 export class BaseGridService {
     private baseUrl = apiRoutes.mainRoute;
 
-    constructor(private http: HttpClient) {
+    constructor(
+        private http: HttpClient,
+        private dialogService:DialogService,
+        ) {
 
     }
 
@@ -24,17 +28,16 @@ export class BaseGridService {
     
         return this.http.get<T>(`${this.baseUrl}${endpoint}/all`, { params: queryParams }).pipe(
             map((response) => {
-                console.log('API Response:', response); 
                 return response;
               }),
             
             catchError((error) => {
                 console.error('Error al obtener datos:', error);
+                this.dialogService.showErrorMessage('Error al mostrar la data');
                 return throwError(error);
             })
         );
     }
-    
 
     getDataById<T>(endpoint:string, id:number):Observable<T>{
 
@@ -42,6 +45,7 @@ export class BaseGridService {
             map((response:T) => response),
             catchError((error) => {
                 console.warn('Error al obtener dato: ', error);
+                this.dialogService.showErrorMessage('Ha ocurrido un error al intentar obtener los datos...')
                 return throwError(error);
             })
         )
@@ -72,6 +76,17 @@ export class BaseGridService {
         return this.http.delete<T>(`${this.baseUrl}${endpoint}/${id}`).pipe(
             catchError((error) => {
                 console.error('Error al borrar la data: ', error);
+                return throwError(error);
+            })
+        )
+    }
+
+    pathData<T>(endpoint:string, id:number, body: Partial<T>): Observable<T> {
+
+        return this.http.patch<T>(`${this.baseUrl}${endpoint}/${id}`, body).pipe(
+            map((response:any) => response),
+            catchError((error) => {
+                console.error('Error al parchear la data: ', error);
                 return throwError(error);
             })
         )

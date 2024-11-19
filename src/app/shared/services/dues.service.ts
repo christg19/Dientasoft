@@ -1,69 +1,40 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Appointment } from '../interfaces/appointment.interface';
-import { Patient } from '../interfaces/patient.interface';
 import { Dues } from '../interfaces/dues.interface';
-
+import { apiRoutes } from '../const/backend-routes';
+import { BaseGridService } from './baseGrid.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DuesService {
-  constructor(private httpClient: HttpClient) { }
-  private url = 'http://localhost:3000/api/v1/dues';
+  constructor(
+    private baseGridService: BaseGridService
+    ) 
+    { }
+  private url = apiRoutes.dues.main;
 
-  getDues() {
-    return this.httpClient.get(`http://localhost:3000/api/v1/dues/all`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+  getDues(): Observable<Dues[]> {
+    return this.baseGridService.getData<Dues[]>(this.url);
   }
 
-  getDueById(id: number) {
-    return this.httpClient.get(`${this.url}/${id}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+  getDueById(id: number): Observable<Dues> {
+    return this.baseGridService.getDataById<Dues>(this.url,id);
   }
 
-  createDue(formData: any) {
-    return this.httpClient.post(`${this.url}`, formData, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+  createDue(formData: Dues) {
+    return this.baseGridService.createData(this.url, formData);
   }
 
   updateDue(due: Dues, id: number) {
-    return this.httpClient.put(`${this.url}/${id}`, due, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+    return this.baseGridService.updateData(this.url, due, id);
   }
 
-  deleteDue(id: string) {
-    return this.httpClient.delete(`${this.url}/${id}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+  deleteDue(id: number) {
+    return this.baseGridService.deleteData(this.url, id)
   }
 
   patchDue(id: number, partialUpdate: Partial<Dues>) {
-    return this.httpClient.patch(`${this.url}/${id}`, partialUpdate, {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      })
-    });
+    return this.baseGridService.pathData(this.url, id, partialUpdate);
   }
 }

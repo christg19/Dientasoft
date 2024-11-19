@@ -3,7 +3,6 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Patient } from 'src/app/shared/interfaces/patient.interface';
-import { PatientsService } from 'src/app/shared/services/patient.service';
 import { Service } from 'src/app/shared/interfaces/services.interface';
 import { ServicesService } from 'src/app/shared/services/services.service';
 
@@ -13,13 +12,18 @@ import { ServicesService } from 'src/app/shared/services/services.service';
   styleUrls: ['./create-service.component.scss']
 })
 export class CreateServiceComponent {
-  private serviceId!:number;
+  private serviceId!: number;
   serviceForm!: FormGroup;
 
-  constructor(private fb: FormBuilder, private servicesService: ServicesService, private router: Router, private route: ActivatedRoute, private cdr:ChangeDetectorRef) {
+  constructor(
+    private fb: FormBuilder,
+    private servicesService: ServicesService,
+    private router: Router,
+    private route: ActivatedRoute,
+  ) {
     this.serviceForm = this.fb.group({
       name: ['', Validators.required],
-      cost: [ , Validators.required],
+      cost: [, Validators.required],
     });
   }
 
@@ -58,7 +62,7 @@ export class CreateServiceComponent {
 
   updateService(service: Service, id: number) {
     this.servicesService.updateService(service, id).subscribe({
-      next: (response:any) => {
+      next: (response: any) => {
         console.log('Updateado con exito:', response);
 
       },
@@ -68,16 +72,8 @@ export class CreateServiceComponent {
     });
   }
 
-  createPatient(service: Patient) {
-    this.servicesService.createService(service).subscribe({
-      next: (response: any) => {
-        console.log('Servicio creado exitosamente:', response);
-        this.router.navigate(['/patients']);
-      },
-      error: (error: any) => {
-        console.error('Error al crear el servicio:', error);
-      }
-    });
+  createService(service: Service) {
+    this.servicesService.createService(service)
   }
 
   submitForm() {
@@ -88,7 +84,7 @@ export class CreateServiceComponent {
         this.updateService(formValue, this.serviceId)
         this.router.navigate(['/services']);
       } else {
-        this.createPatient(formValue);
+        this.createService(formValue);
       }
 
     }

@@ -11,50 +11,7 @@
       <mat-spinner class="spinner"></mat-spinner>
     </div> -->
     <div style="overflow-x: auto;">
-      <!-- <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
-
-        <ng-container matColumnDef="patient">
-          <th mat-header-cell *matHeaderCellDef>Paciente</th>
-          <td mat-cell *matCellDef="let due"> {{due.patientId}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="service">
-          <th mat-header-cell *matHeaderCellDef>Servicio</th>
-          <td mat-cell *matCellDef="let due"> {{due.serviceId}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="due">
-          <th mat-header-cell *matHeaderCellDef>Cuotas Pendientes</th>
-          <td mat-cell *matCellDef="let due">{{ due.dueQuantity }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="cost"   >
-          <th mat-header-cell *matHeaderCellDef>Costo Pendiente</th>
-          <td mat-cell *matCellDef="let due">{{ due.totalCost }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="actions" class="icons">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Acciones</th>
-          <td mat-cell *matCellDef="let row" class="icon-container">
-
-            <button mat-icon-button class="icon icon-edit" (click)="gettingIdAndOpenModal(row.id)">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button class="icon icon-delete" (click)="deleteDue(row.id)">
-              <mat-icon>delete</mat-icon>
-            </button>
-
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
-
-      <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Selecciona una página">
-      </mat-paginator> -->
       <app-base-grid-component [getData]="duesRoute" [columnDefinitions]="columnDefs"></app-base-grid-component>
-
     </div>
 
   </div>

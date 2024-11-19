@@ -14,6 +14,7 @@ import { LoadingComponentComponent } from './loading-component/loading-component
 import { StatCardComponent } from './stat-card/stat-card.component';
 import { BaseGridComponentComponent } from './base-grid-component/base-grid-component.component';
 import { BaseGridComponentModule } from './base-grid-component/base-grid-component.module';
+import { NgChartsModule } from 'ng2-charts';
 
 
 
@@ -36,6 +37,7 @@ import { BaseGridComponentModule } from './base-grid-component/base-grid-compone
     BrowserAnimationsModule,
     MatDialogModule,
     MatProgressSpinnerModule,
+    NgChartsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

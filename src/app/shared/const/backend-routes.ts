@@ -11,6 +11,15 @@ export const apiRoutes = {
     },
     dues: {
       main: '/dues'
+    },
+    product: {
+      main: '/product'
+    },
+    tooth: {
+      main: '/tooth'
+    },
+    odontogram: {
+      main: '/odontogram'
     }
 
 }

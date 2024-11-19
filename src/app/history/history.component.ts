@@ -1,21 +1,19 @@
-import { ChangeDetectorRef, Component, Input, TemplateRef, ViewChild } from '@angular/core';
+import { Component, Input, TemplateRef, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
-import { PatientsService } from '../shared/services/patient.service';
+import { ActivatedRoute } from '@angular/router';
 import { Patient } from '../shared/interfaces/patient.interface';
-import { AppointmentService } from '../shared/services/appointment.service';
-import { OdontogramService } from '../shared/services/odontogram.service';
 import { Odontogram } from '../shared/interfaces/odontogram.interface';
 import { Tooth } from '../shared/interfaces/tooth.interface';
 import { Service } from '../shared/interfaces/services.interface';
-import { ServicesService } from '../shared/services/services.service';
 import Swal from 'sweetalert2';
-import { ToothNames, ToothStatus } from '../shared/const/const';
+import { ToothNames, ToothStatus } from '../shared/const/enums/tooth.enum';
 import { ToothSVGComponent } from '../shared/components/tooth-svg/tooth-svg.component';
-import { ToothService } from '../shared/services/tooth.service';
 import { RefreshService } from '../shared/services/refresh.service';
+import { apiRoutes } from '../shared/const/backend-routes';
+import { ColumnDefinition } from '../base-grid-component/base-grid-component.component';
+import { BaseGridService } from '../shared/services/baseGrid.service';
 
 
 @Component({
@@ -24,18 +22,19 @@ import { RefreshService } from '../shared/services/refresh.service';
   styleUrls: ['./history.component.scss']
 })
 export class HistoryComponent {
-  
-  public hoveredTooth: string | null = null;
-  public statusMode = false;
-  public toothOff = false
-  public patient!: Patient;
-  public patientAppointment = [];
-  public changingStatus = false;
-  toothName!:string;
-  public patientId!: number;
-  selectedFilter: string = '';
-  public toothList: Tooth[] = [];
-  selectedStatus!:number;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(ToothSVGComponent) toothSVGComponent!: ToothSVGComponent;
+  @ViewChild('modalContent1') modalContent1!: TemplateRef<any>;
+  @ViewChild('modalContent2') modalContent2!: TemplateRef<any>;
+  @ViewChild('modalContent3') modalContent3!: TemplateRef<any>;
+
+  @Input() toothId!: number;
+
+  public columnDefs: ColumnDefinition[] = [
+    {key: 'toothPosition', label: 'Posición', dataType: 'number'},
+    {key: 'toothName', label: 'Diente', dataType: 'number', enum: 'toothName'}
+  ];
+
   public statusOptions: any[] = [
     { label: 'Tratamiento preventivo', value: 0 },
     { label: 'Enfermedad Corto Plazo', value: 1 },
@@ -43,33 +42,46 @@ export class HistoryComponent {
     { label: 'Extracción y Protesis', value: 3 },
     { label: 'Reservado', value: 4 }
   ]
-  private patientOdontogram!: Odontogram
-  private servicesList: Service[] = [];
-  @Input() toothId!: number;
-  dialogRef!: MatDialogRef<any>;
-  displayedColumns: string[] = ['toothName','toothPosition', 'serviceIds', 'status'];
-  dataSource = new MatTableDataSource<any>();
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(ToothSVGComponent) toothSVGComponent!: ToothSVGComponent;
-  @ViewChild('modalContent1') modalContent1!: TemplateRef<any>;
-  @ViewChild('modalContent2') modalContent2!: TemplateRef<any>;
-  @ViewChild('modalContent3') modalContent3!: TemplateRef<any>;
   public headerItems: { title: string, subTitle: string, modalContent: any }[] = [];
   filterOptions = [
     { value: 0, viewValue: 'Filtrar por Odontograma' },
     { value: 1, viewValue: 'Cambiar Estados' },
   ];
 
-  constructor(public dialog: MatDialog, private route: ActivatedRoute,
+  public toothRoute = apiRoutes.tooth.main;
+  public patientRoute = apiRoutes.patient.main;
+  public appointmentRoute = apiRoutes.appointment.main;
+  public odontogramRoute = apiRoutes.odontogram.main;
+  public servicesRoute = apiRoutes.services.main;
+
+
+  public hoveredTooth: string | null = null;
+  public toothOff = false
+  public toothName!:string;
+  public toothList: Tooth[] = [];
+
+  public statusMode = false;
+  public patientAppointment = [];
+  public changingStatus = false;
+
+  public patientId!: number;
+  public patient!: Patient;
+  private patientOdontogram!: Odontogram
+
+  public selectedFilter: string = '';
+  public selectedStatus!:number;
+
+  private servicesList: Service[] = [];
+  public dialogRef!: MatDialogRef<any>;
+  public displayedColumns: string[] = ['toothName','toothPosition', 'serviceIds', 'status'];
+  public dataSource = new MatTableDataSource<any>();
+
+  constructor(
+    public dialog: MatDialog, 
+    private route: ActivatedRoute,
     private refreshService: RefreshService,
-    private patientsService: PatientsService,
-    private appointmentsService: AppointmentService,
-    private toothService: ToothService,
-    private odontogramService: OdontogramService,
-    private servicesService: ServicesService,
-    private router: Router,
-    private cdr: ChangeDetectorRef,
+    private baseGridService: BaseGridService,
     private paginators: MatPaginatorIntl) {
     this.paginators.itemsPerPageLabel = "Registros por página";
     this.paginators.nextPageLabel = "Siguiente página";
@@ -118,8 +130,6 @@ export class HistoryComponent {
     this.selectedFilter = ''; 
   }
   
-  
-
   applyColors(){
     if(this.toothSVGComponent){
       this.toothSVGComponent.applyTestToothColors();
@@ -127,7 +137,7 @@ export class HistoryComponent {
   }
   
   getTooth(id:number){
-    this.toothService.getTooth(id).subscribe({
+    this.baseGridService.getDataById(this.toothRoute,id).subscribe({
       next: (data:any) => {
         return data;
       },
@@ -147,11 +157,11 @@ export class HistoryComponent {
       denyButtonText: `Cancelar`,
     }).then((result) => {
       if (result.isConfirmed) {
-        this.toothService.getTooth(id).subscribe({
+        this.baseGridService.getDataById(this.toothRoute,id).subscribe({
           next: (tooth: any) => {
       
-            const updatedTooth: Tooth = { toothPosition:position, status, odontogramId: tooth.odontogramId, serviceIds:tooth.serviceIds };
-            this.toothService.updateTooth(updatedTooth, id).subscribe({
+            const updatedTooth: Tooth = { toothPosition:position, status, odontogramId: tooth.odontogramId, serviceIds:tooth.serviceIds, toothName: position };
+            this.baseGridService.updateData(this.toothRoute,updatedTooth, id).subscribe({
               next: () => {
             
                 const index = this.dataSource.data.findIndex(t => t.id === id);
@@ -179,8 +189,6 @@ export class HistoryComponent {
       }
     });
   }
-  
-  
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
@@ -209,7 +217,7 @@ export class HistoryComponent {
   }
 
   getAllServices() {
-    this.servicesService.getServices().subscribe({
+    this.baseGridService.getData(this.servicesRoute).subscribe({
       next: (services: any) => {
         this.servicesList = services;
       },
@@ -221,18 +229,16 @@ export class HistoryComponent {
 
   async getOdontogramByPatientId(id: number): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.odontogramService.getOdontogram(id).subscribe({
+      this.baseGridService.getDataById(this.odontogramRoute, id).subscribe({
         next: (data: any) => {
           this.patientOdontogram = data;
-
           const toothData = this.patientOdontogram.tooth.map((tooth: any) => ({
             ...tooth,
-            toothPosition: tooth.toothPosition
+            toothPosition: tooth.toothPosition,
+            odontogramId: this.patientOdontogram.id 
           }));
-
+  
           this.dataSource.data = toothData;
-          console.log('DataSource asignado:', this.dataSource.data);
-          this.cdr.detectChanges();
           resolve();
         },
         error: error => {
@@ -242,7 +248,7 @@ export class HistoryComponent {
       });
     });
   }
-
+  
   getAppointmentService(ids: number[]) {
     let servicesNames: string[] = [];
 
@@ -265,10 +271,10 @@ export class HistoryComponent {
 
 
   getPatientById(id: number) {
-    this.patientsService.getPatientById(id).subscribe({
+    this.baseGridService.getDataById(this.patientRoute,id).subscribe({
       next: (patient: any) => {
-        this.patient = patient;
 
+        this.patient = patient;
         this.getAllPatientApppointments();
       },
       error: (error) => {
@@ -305,7 +311,7 @@ export class HistoryComponent {
   }
 
   getAllPatientApppointments() {
-    this.appointmentsService.getAppointments().subscribe({
+    this.baseGridService.getData(this.appointmentRoute).subscribe({
       next: (appointmentList: any) => {
         this.patientAppointment = appointmentList.filter((appointment: any) => {
           return appointment.patiendId = this.patientId;

@@ -5,6 +5,7 @@ export enum Categories {
 }
 
 export interface Product {
+    id?:number;
     name:string;
     unitDate:Date;
     notes?:string;

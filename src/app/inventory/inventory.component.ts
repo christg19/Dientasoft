@@ -35,7 +35,7 @@ export class InventoryComponent implements OnInit, AfterViewInit {
   @ViewChild('modalContent') modalContent!: TemplateRef<any>;
 
   public buttonsNames: string[] = ['Instrumentos', 'Quimicos', 'Desechables'];
-  public productList: Product[] = [];
+  public productList: any[] = [];
   public tableOptions: TableOption[] = [
     {
       buttonName: "INSTRUMENTAL",
@@ -134,7 +134,7 @@ export class InventoryComponent implements OnInit, AfterViewInit {
 
     item.instrumentalState = isChecked;
   
-    const partialUpdate: Partial<Instrument> = {
+    const partialUpdate: Partial<Product> = {
       instrumentalState: isChecked
     };
   
@@ -146,7 +146,7 @@ export class InventoryComponent implements OnInit, AfterViewInit {
   
 
 
-  deleteProduct(id: string) {
+  deleteProduct(id: number) {
     this.productService.deleteProduct(id).subscribe({
       next: (response: any) => {
 
@@ -283,37 +283,30 @@ export class InventoryComponent implements OnInit, AfterViewInit {
     return this.getDataSourceProduct(option)
   }
 
-  createInstrument(instrument: Instrument) {
+  createInstrument(instrument: Product) {
     this.productService.createProduct(instrument).subscribe({
-      next: (response: any) => {
-        this.getProducts();
-      }
-    })
-  }
-
-  updateInstrument(instrument: Instrument, id: number) {
-    this.productService.updateProduct(instrument, id).subscribe({
-      next: (response: any) => {
+      next: (response) => {
+        console.log('Producto creado exitosamente:', response);
         this.getProducts();
       },
-      error: (error: any) => {
-        console.error(error);
+      error: (error) => {
+        console.error('Error al crear el producto:', error);
       }
-    })
+    });
+  }
+  
+  updateInstrument(instrument: Product, id: number) {
+    this.productService.updateProduct(instrument, id)
   }
 
   submitForm() {
     if (this.inventoryForm.valid) {
       const formValue = this.inventoryForm.value;
-
-      if (this.inventoryId) {
-        this.updateInstrument(formValue, this.inventoryId)
-          this.closeModal();
-      } else {
-        console.log(formValue)
+      
         this.createInstrument(formValue);
         this.closeModal();
-      }
+
+        console.log(this.inventoryForm.value)
 
     } else {
       console.error('El formulario es inválido', this.inventoryForm.errors);

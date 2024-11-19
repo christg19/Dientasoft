@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, TemplateRef, ViewChild, AfterViewInit, Renderer2, Output, EventEmitter, ElementRef, SimpleChanges } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ToothNames, ToothStatus } from '../../const/const';
+import { ToothNames, ToothStatus } from '../../const/enums/tooth.enum';
 import { Tooth } from '../../interfaces/tooth.interface';
 import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';

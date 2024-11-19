@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { Appointment } from '../shared/interfaces/appointment.interface';
 import { AppointmentService } from '../shared/services/appointment.service';
-import { PatientsService } from '../shared/services/patient.service';
+import { PatientService } from '../shared/services/patient.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Patient } from '../shared/interfaces/patient.interface';
@@ -60,7 +60,7 @@ export class GeneralComponent implements OnInit, AfterViewInit {
   ]
   constructor(
     private appointmentService: AppointmentService,
-    private patientService: PatientsService,
+    private patientService: PatientService,
     private servicesService: ServicesService,
   ) { 
   }

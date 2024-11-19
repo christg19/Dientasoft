@@ -4,7 +4,7 @@ export enum ToothStatus {
   'Enfermedad Largo Plazo' = 2,
   'Extracción y Protesis' = 3,
   'Reservado' = 4,
-  
+  'No asignado' = 5
 }
 
 export enum ToothNames {
@@ -40,10 +40,4 @@ export enum ToothNames {
   "Primer Molar Inferior Derecho" = 30,
   "Segundo Molar Inferior Derecho" = 31,
   "Tercer Molar Inferior Derecho" = 32
-}
-
-
-export interface DataRow<T> {
-  map: Map<string, string>;
-  columns:string[]
 }

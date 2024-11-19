@@ -17,6 +17,7 @@ import { ToothSVGComponent } from '../shared/components/tooth-svg/tooth-svg.comp
 import { SharedModule } from '../shared/modules/tooth-svg-shared.module';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatToolbarModule} from '@angular/material/toolbar';
+import { SharedGridModule } from '../shared/modules/grid-componente.shared.module';
 
 
 @NgModule({
@@ -40,7 +41,8 @@ import {MatToolbarModule} from '@angular/material/toolbar';
     FormsModule,
     ReactiveFormsModule,
     MatButtonToggleModule,
-    MatToolbarModule
+    MatToolbarModule,
+    SharedGridModule
   ]
 })
 export class HistoryModule { }

@@ -8,14 +8,14 @@ import { Appointment } from 'src/app/shared/interfaces/appointment.interface';
 import { Dues, SelectableObject, ServiceOrDue } from 'src/app/shared/interfaces/dues.interface';
 import { Patient } from 'src/app/shared/interfaces/patient.interface';
 import { Service } from 'src/app/shared/interfaces/services.interface';
-import { AppointmentService } from 'src/app/shared/services/appointment.service';
 import { DuesService } from 'src/app/shared/services/dues.service';
-import { PatientsService } from 'src/app/shared/services/patient.service';
-import { ServicesService } from 'src/app/shared/services/services.service';
-import { ToothService } from 'src/app/shared/services/tooth.service';
-import { OdontogramService } from 'src/app/shared/services/odontogram.service'
 import { Odontogram } from 'src/app/shared/interfaces/odontogram.interface';
 import { Tooth } from 'src/app/shared/interfaces/tooth.interface';
+import { apiRoutes } from 'src/app/shared/const/backend-routes';
+import { BaseGridService } from 'src/app/shared/services/baseGrid.service';
+import { ToothNames } from 'src/app/shared/const/enums/tooth.enum';
+import { ServicesService } from 'src/app/shared/services/services.service';
+import { AppointmentService } from 'src/app/shared/services/appointment.service';
 
 @Component({
   selector: 'app-create-appointment',
@@ -23,44 +23,53 @@ import { Tooth } from 'src/app/shared/interfaces/tooth.interface';
   styleUrls: ['./create-appointment.component.scss']
 })
 export class CreateAppointmentComponent {
-  appointmentData = undefined;
-  appointmentHour = undefined;
-  patientId!: number;
-  redirectToClient = '/patients'
-  redirectToServices = '/services'
-  servicesList: Service[] = []
-  appointmentForm!: FormGroup;
-  patientList: Patient[] = [];
-  appointmentList: Appointment[] = []
-  appointment?: Appointment;
-  buttonAppointment: string[] = ['Registrar cita', 'Actualizar Cita']
+  private dialogRef!: MatDialogRef<any>;
+  private endpointRoutes = apiRoutes;
+
+  public appointmentForm!: FormGroup;
+  public patientList: Patient[] = [];
+
+  public appointmentList: Appointment[] = []
+  public appointment?: Appointment;
+
+  public buttonAppointment: string[] = ['Registrar cita', 'Actualizar Cita']
+  public displayedColumns: string[] = ['date', 'patientName', 'procedure', 'amount', 'actions'];
+  public appointmentServicesName: string[] = [];
+  public redirectToClient: string = '/patients'
+  public redirectToServices: string = '/services'
+
+
+  public patientOdontogram!: Odontogram;
+
+  public loading: Boolean = false;
   public updating: boolean = false;
-  appointmentId!: number;
-  displayedColumns: string[] = ['date', 'patientName', 'procedure', 'amount', 'actions'];
-  loading: Boolean = false;
-  appointmentServicesName: string[] = [];
-  dialogRef!: MatDialogRef<any>;
-  patientOdontogram!: Odontogram;
-  toothPositionArray: number[] = [];
-  duesList!: Dues[];
-  selectedDue!: Dues;
-  combinedList: (Service | (Dues & { itemType: 'service' | 'due' }))[] = [];
-  totalDues!: number;
+  public isDataValid: boolean = false;
+
+  public selectedDues: Dues[] = [];
+  public duesList: Dues[] = [];
+  public selectedDue!: Dues;
+  public combinedList: (Service | (Dues & { itemType: 'service' | 'due' }))[] = [];
+  public servicesList: Service[] = []
+  public selectedServices: ServiceOrDue[] = [];
+
+  public patientId!: number;
   public componentDueCost: number = 0;
+  public appointmentId!: number;
+  public toothPositionArray: number[] = [];
+  public totalDues!: number;
   public reduceCost: number = 0;
-  selectedDues!: Dues[];
-  isDataValid: boolean = false;
-  selectedServices!: ServiceOrDue[]
   public patientSelectedId!: number;
+
+  public appointmentData = undefined;
+  public appointmentHour = undefined;
+
   constructor(
-    private patientService: PatientsService,
     private fb: FormBuilder,
-    private appointmentService: AppointmentService,
-    private toothService: ToothService,
-    private odontogramService: OdontogramService,
-    private servicesService: ServicesService,
     private router: Router,
     private duesService: DuesService,
+    private baseGridService: BaseGridService,
+    private servicesService: ServicesService,
+    private appointmentService: AppointmentService,
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute
 
@@ -78,13 +87,12 @@ export class CreateAppointmentComponent {
     this.getAllPatients();
     this.getAllServices()
       .then(() => {
-
         if (this.duesList || this.servicesList) {
           this.combineLists(this.duesList, this.servicesList);
         } else {
-          console.log('Dues List esta vacio');
+          console.log('Dues List está vacío');
         }
-
+  
         this.appointmentId = Number(this.route.snapshot.paramMap.get('id') || '')
         if (this.appointmentId) {
           this.loadAppointmentDetails(this.appointmentId);
@@ -95,47 +103,44 @@ export class CreateAppointmentComponent {
         this.loading = false;
       });
   }
-
-
-
+  
 
   ngAfterViewInit() {
 
   }
 
+  redirect(url: string) {
+    this.router.navigate([url])
+  }
+
+  applyFilters(event: number) {
+
+  }
+
+  compareFn(o1: any, o2: any): boolean {
+    if (!o1 || !o2) {
+      return false;
+    }
+    return o1.id === o2.id;
+  }
+
+  getPatientId(id: number) {
+    this.patientSelectedId = id;
+  }
 
   combineLists(duesList: Dues[], serviceList: Service[]) {
     if (duesList && duesList.length > 0) {
       this.combinedList = [
         ...serviceList.map(item => ({ ...item, itemType: 'service' as 'service' })),
         ...duesList.filter(due => due.dueQuantity > 0)
-          .map(due => ({ ...due, itemType: 'due' as 'due' }))
+          .map(due => ({ ...due, itemType: 'due' as 'due', name: `Cuota de ${due.name}` }))
       ];
     } else {
       this.combinedList = serviceList.map(item => ({ ...item, itemType: 'service' as 'service' }));
     }
+    console.log('Combined List:', this.combinedList);
   }
   
-
-
-
-
-  spanishRangeLabel(page: number, pageSize: number, length: number): string {
-    if (length == 0 || pageSize == 0) {
-      return `0 de ${length}`;
-    }
-    length = Math.max(length, 0);
-    const startIndex = page * pageSize;
-    const endIndex = startIndex < length ? Math.min(startIndex + pageSize, length) : startIndex + pageSize;
-    return `${startIndex + 1} - ${endIndex} de ${length}`;
-  }
-
-  redirect(url: string) {
-
-    this.router.navigate([url])
-  }
-
-
 
   addingDues(id: number) {
     if (id === null || id === undefined) {
@@ -145,7 +150,7 @@ export class CreateAppointmentComponent {
 
     this.patientId = id;
 
-    this.patientService.getPatientById(id).subscribe(async (patient: any) => {
+    this.baseGridService.getDataById(this.endpointRoutes.patient.main, id).subscribe(async (patient: any) => {
       this.duesList = patient && patient.dues ? patient.dues : [];
       this.combineLists(this.duesList, this.servicesList);
     }, error => {
@@ -153,15 +158,11 @@ export class CreateAppointmentComponent {
     });
   }
 
-
   onSelectionChange(event: MatSelectChange) {
     const selectedItems = event.value;
     this.selectedDues = selectedItems.filter((item: SelectableObject) => item.itemType === 'due');
     this.selectedServices = selectedItems.filter((item: SelectableObject) => item.itemType === 'service');
   }
-  
-  
-
 
   formatDate(date: string) {
     const fecha = new Date(date);
@@ -190,12 +191,9 @@ export class CreateAppointmentComponent {
     this.appointmentId = id;
   }
 
-
-
-
   loadAppointmentDetails(id: number) {
     this.updating = true;
-    this.appointmentService.getAppointmentById(id).subscribe(
+    this.baseGridService.getDataById(this.endpointRoutes.appointment.main, id).subscribe(
       (appointment: any) => {
         const appointmentData: Appointment = appointment;
         const appointmentDateTime = new Date(appointmentData.appointmentDate);
@@ -223,8 +221,6 @@ export class CreateAppointmentComponent {
     );
   }
 
-
-
   getAppointmentService(ids: number[]) {
     let servicesNames: string[] = [];
 
@@ -239,7 +235,7 @@ export class CreateAppointmentComponent {
 
   async getOdontogramByPatientId(id: number): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.odontogramService.getOdontogram(id).subscribe({
+      this.baseGridService.getDataById(this.endpointRoutes.odontogram.main, id).subscribe({
         next: (data: any) => {
           this.patientOdontogram = data;
           resolve();
@@ -251,7 +247,6 @@ export class CreateAppointmentComponent {
       });
     });
   }
-
 
   saveToothList(array: number[]) {
     this.toothPositionArray = array;
@@ -268,11 +263,12 @@ export class CreateAppointmentComponent {
         existingTooth.serviceIds = [...(existingTooth.serviceIds || []), ...serviceIds];
       } else {
 
-        this.toothService.createTooth({
+        this.baseGridService.createData<Tooth>(this.endpointRoutes.tooth.main, {
           toothPosition: toothPosition,
           odontogramId: odontogramId,
           serviceIds: serviceIds,
-          status: null
+          status: 5,
+          toothName: `${ToothNames[toothPosition]}`
         }).subscribe({
           next: (newTooth) => {
             this.patientOdontogram.tooth.push(newTooth);
@@ -293,7 +289,7 @@ export class CreateAppointmentComponent {
     };
 
     if (this.patientOdontogram.id) {
-      this.odontogramService.updateOdontogram(odontogramToUpdate, this.patientOdontogram.id)
+      this.baseGridService.updateData(this.endpointRoutes.odontogram.main, odontogramToUpdate, this.patientOdontogram.id)
         .subscribe({
           next: () => console.log('Odontograma actualizado correctamente'),
           error: (error) => console.error('Error al actualizar el odontograma:', error)
@@ -301,9 +297,8 @@ export class CreateAppointmentComponent {
     }
   }
 
-
   deleteAppointment(id: number) {
-    this.appointmentService.deleteAppointment(id).subscribe({
+    this.baseGridService.deleteData<Appointment>(this.endpointRoutes.appointment.main, id).subscribe({
       next: (response: any) => {
         console.log('Cita eliminada con éxito:', response);
         this.cdr.detectChanges();
@@ -314,16 +309,16 @@ export class CreateAppointmentComponent {
     });
   }
 
-  getAllServices(): Promise<void> {
-    return lastValueFrom(this.servicesService.getServices()).then((services: any) => {
-      this.servicesList = services;
-    }).catch(error => {
-      console.error('Error loading services:', error);
-    });
+  async getAllServices(): Promise<void> {
+    try {
+      this.servicesList = await lastValueFrom(this.servicesService.getServices());
+    } catch (error) {
+      console.error('Error al obtener los servicios:', error);
+    }
   }
 
   getAllPatients() {
-    this.patientService.getPatients().subscribe({
+    this.baseGridService.getData<Patient[]>(this.endpointRoutes.patient.main).subscribe({
       next: (patients: any) => {
         this.patientList = patients;
       },
@@ -331,11 +326,6 @@ export class CreateAppointmentComponent {
         console.error(error);
       }
     });
-  }
-
-  closeModal(): void {
-    this.dialogRef.close();
-    this.updating = false;
   }
 
   updateDue(due: Dues, id: number) {
@@ -385,7 +375,7 @@ export class CreateAppointmentComponent {
         return Promise.reject('ID inválido o dueQuantity no positiva');
       }
     });
-  
+
     try {
       await Promise.all(updatePromises);
     } catch (error) {
@@ -394,8 +384,6 @@ export class CreateAppointmentComponent {
       throw error;
     }
   }
-  
-  
 
   async dueCost(selectedDues: Dues[]): Promise<number> {
     let totalDueCost = 0;
@@ -412,14 +400,11 @@ export class CreateAppointmentComponent {
     this.componentDueCost = totalDueCost;
     return totalDueCost;
   }
-  
-  
-  
 
   async submitForm() {
     if (!this.appointmentForm.valid) {
       console.error('El formulario no es válido. Detalles de los errores:');
-  
+
       return;
     }
 
@@ -429,7 +414,6 @@ export class CreateAppointmentComponent {
       let dueCost = 0;
 
       if (this.selectedDues && this.selectedDues.length > 0) {
-        // Calcular el costo antes de actualizar las cuotas
         dueCost = await this.dueCost(this.selectedDues);
         await this.updateDueQuantities(this.selectedDues);
       }
@@ -467,25 +451,12 @@ export class CreateAppointmentComponent {
 
     } catch (error) {
       console.error('Error al procesar la cita o actualizar los Dues:', error);
-    
+
     }
   }
-  
 
-  applyFilters(event: number) {
 
-  }
 
-  getPatientId(id: number) {
-    this.patientSelectedId = id;
-  }
-
-  compareFn(o1: any, o2: any): boolean {
-    if (!o1 || !o2) {
-      return false;
-    }
-    return o1.id === o2.id;
-  }
 
 
 }

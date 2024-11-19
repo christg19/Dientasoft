@@ -1,56 +1,19 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { Tooth } from "../interfaces/tooth.interface";
+import { apiRoutes } from "../const/backend-routes";
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
+
 export class ToothService {
-  constructor(private httpClient: HttpClient) { }
-  private url = 'http://localhost:3000/api/v1/tooth';
+    private baseUrl = `${apiRoutes.mainRoute}/${apiRoutes.odontogram.main}`;
+    constructor(
+        private httpClient: HttpClient
+    ){ }
 
-  getTeeth() {
-    return this.httpClient.get(`${this.url}/all`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-  }
-
-  getTooth(id: number) {
-    return this.httpClient.get(`${this.url}/${id}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-  }
-
-  createTooth(formData: any) {
-    return this.httpClient.post(`${this.url}`, formData, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-  }
-
-  updateTooth(tooth: any, id: number) {
-    return this.httpClient.put(`${this.url}/${id}`, tooth, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-  }
-
-  deleteTooth(id: string) {
-    return this.httpClient.delete(`${this.url}/${id}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-  }
-
+    getTeethByOdontogramId(id:number){
+        return this.httpClient.get<Tooth[]>(`${this.baseUrl}/${id}`)
+    }
 }

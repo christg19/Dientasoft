@@ -59,6 +59,7 @@
 }
 
 .appointments {
+  
     width: 45dvw;
     height: 83dvh;
     background-color: #FFFFFF;
@@ -165,40 +166,11 @@ mat-icon {
     overflow-y: scroll;
 }
 
-.angular-table {
-     table-layout: fixed;
-    width: 100%;
-    height: 85%;
-    box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.2);
-
-}
-
-th,
-td {
- 
-    width: 9%;
-    text-align: center;
-    font-family: "Mulish", sans-serif;
-}
-
-th {
-    font-weight: bold;
-}
-
-mat-paginator {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: none;
-  }
-
 .teeth {
     display: flex;
     flex-direction: row;
     width: 53dvw;
 }
-
-
 
 .element-image {
     cursor: pointer;
@@ -283,3 +255,31 @@ path[id^="tooth-"]:hover {
     align-items: center;
     justify-content: center;
 }
+
+
+.angular-table {
+    table-layout: fixed;
+   width: 100%;
+   height: 85%;
+   box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.2);
+
+}
+
+th,
+td {
+
+   width: 9%;
+   text-align: center;
+   font-family: "Mulish", sans-serif;
+}
+
+th {
+   font-weight: bold;
+}
+
+mat-paginator {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   box-shadow: none;
+ }

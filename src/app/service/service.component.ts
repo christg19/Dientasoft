@@ -35,15 +35,15 @@ export class ServiceComponent {
     //{ key: 'productIds', label: 'Productos', dataType: 'array' },
     //{ key: 'itemType', label: 'Tipo', dataType: 'string', editable: false },
   ];
-  
+  //Nombre, Costo, cuota
 
   constructor(private productService:ProductService,
     public dialog: MatDialog, 
     private fb: FormBuilder, 
     private router: Router, 
-    private servicesService: ServicesService,
     private cdr: ChangeDetectorRef,
-    private refreshService: RefreshService
+    private servicesService: ServicesService,
+    private refreshService: RefreshService,
     ) {
 
     this.serviceForm = this.fb.group({
@@ -74,16 +74,11 @@ export class ServiceComponent {
   }
 
   getProducts() {
-    this.productService.getProducts().subscribe({
-      next: (products: any) => {
-        this.instrumentList = products;
-        console.log('Instrument list loaded:', this.instrumentList);
-      
-      },
-      error: (error) => {
-        console.error(error);
+    this.productService.getProducts().subscribe(
+      (response:any) => {
+        this.instrumentList = response;
       }
-    });
+    )
   }
 
 

@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { Appointment } from '../shared/interfaces/appointment.interface';
 import { AppointmentService } from '../shared/services/appointment.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { PatientsService } from '../shared/services/patient.service';
+import { PatientService } from '../shared/services/patient.service';
 import { Patient } from '../shared/interfaces/patient.interface';
 import { ServicesService } from '../shared/services/services.service';
 import { Service } from '../shared/interfaces/services.interface';
@@ -50,7 +50,9 @@ export class AppointmentComponent implements AfterViewInit {
 
   public columnDefs: ColumnDefinition[] = [
     //{ key: 'id', label: 'ID', dataType: 'number', editable: false },
+    {key:'appointmentDate', label: 'Fecha', dataType: 'date', date: true},
     {key: 'patientName', label: 'Nombre', dataType: 'string'},
+    {key:'serviceIds', label:'Servicios', dataType: 'array', function: 'service', editable:true},
     {key:'totalCost', label: 'Costo total', dataType: 'number'}
   ];
   public appointmentRoute = apiRoutes.appointment.main;
@@ -62,7 +64,15 @@ export class AppointmentComponent implements AfterViewInit {
 
   constructor(
     private fb: FormBuilder,
-    private router: Router, public dialog: MatDialog, private cdr: ChangeDetectorRef, private servicesService: ServicesService, private paginators: MatPaginatorIntl, private appointmentService: AppointmentService, private patientService: PatientsService, private duesService: DuesService) {
+    private router: Router, 
+    public dialog: MatDialog, 
+    private cdr: ChangeDetectorRef, 
+    private servicesService: ServicesService, 
+    private paginators: MatPaginatorIntl, 
+    private appointmentService: AppointmentService, 
+    private patientService: PatientService, 
+    private duesService: DuesService) 
+    {
     this.paginators.itemsPerPageLabel = "Registros por página";
     this.paginators.nextPageLabel = "Siguiente página";
     this.paginators.previousPageLabel = "Página anterior";

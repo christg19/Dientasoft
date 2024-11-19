@@ -1,37 +1,40 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Appointment } from '../interfaces/appointment.interface';
-import { Patient } from '../interfaces/patient.interface';
-import { BaseGridService } from './baseGrid.service';
 import { apiRoutes } from '../const/backend-routes';
-
+import { BaseGridService } from './baseGrid.service';
+import { Patient } from '../interfaces/patient.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PatientsService {
-  constructor(private httpClient: HttpClient, private baseGridService: BaseGridService) { }
-  private baseUrl = apiRoutes.patient.main;
+export class PatientService {
+  constructor(
+    private baseGridService: BaseGridService
+    ) 
+    { }
+  private url = apiRoutes.patient.main;
 
-  getPatients() {
-    return this.baseGridService.getData(this.baseUrl)
+  getPatients(): Observable<Patient[]> {
+    return this.baseGridService.getData<Patient[]>(this.url);
   }
 
-  getPatientById(id: number) {
-    return this.baseGridService.getDataById(this.baseUrl, id)
+  getPatientById(id: number): Observable<Patient> {
+    return this.baseGridService.getDataById<Patient>(this.url,id);
   }
 
-  createPatient(formData: any) {
-    return this.baseGridService.createData(this.baseUrl, formData)
+  createPatient(formData: Patient) {
+    return this.baseGridService.createData(this.url, formData);
   }
 
-  updatePatient(patient: Patient, id: number) {
-    return this.baseGridService.updateData(this.baseUrl, patient, id)
+  updatePatient(Patient: Patient, id: number) {
+    return this.baseGridService.updateData(this.url, Patient, id);
   }
 
   deletePatient(id: number) {
-    return this.baseGridService.deleteData(this.baseUrl, id)
+    return this.baseGridService.deleteData(this.url, id)
+  }
 
+  patchPatient(id: number, partialUpdate: Partial<Patient>) {
+    return this.baseGridService.pathData(this.url, id, partialUpdate);
   }
 }

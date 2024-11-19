@@ -1,17 +1,16 @@
 import { AfterViewInit, ChangeDetectorRef, Component, TemplateRef, ViewChild } from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DataSource } from '@angular/cdk/collections';
-import { PatientsService } from '../shared/services/patient.service';
+import { PatientService } from '../shared/services/patient.service';
 import { Patient } from '../shared/interfaces/patient.interface';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AppointmentService } from '../shared/services/appointment.service';
 import { Appointment } from '../shared/interfaces/appointment.interface';
-import { Observable, lastValueFrom } from 'rxjs';
+import { Observable, firstValueFrom, map, catchError, of } from 'rxjs';
 import { ColumnDefinition } from '../base-grid-component/base-grid-component.component';
 import { apiRoutes } from '../shared/const/backend-routes';
+import { RefreshService } from '../shared/services/refresh.service';
 
 
 @Component({
@@ -38,12 +37,17 @@ export class PatientsComponent implements AfterViewInit {
 
   //Nombre, Historico dental, Consultas pendientes, Antecedentes, Cita Programada
 
-  redirectToClient = '/patients'
-  redirectToServices = '/services'
+  public redirectToClient = '/patients'
+  public redirectToServices = '/services'
 
-  constructor(public dialog: MatDialog, private patientsService: PatientsService, private fb: FormBuilder, private router: Router, private paginators: MatPaginatorIntl, private patientService: PatientsService,
-    private route: ActivatedRoute, private cdr: ChangeDetectorRef, private appointmentService: AppointmentService) {
-
+  constructor(
+    public dialog: MatDialog,
+    private patientsService: PatientService,
+    private fb: FormBuilder,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private refreshService: RefreshService
+  ) {
     this.patientForm = this.fb.group({
       name: ['', Validators.required],
       age: [, Validators.required],
@@ -81,60 +85,50 @@ export class PatientsComponent implements AfterViewInit {
     });
   }
 
-  async getAppointmentsFromPatient(id: number): Promise<number> {
-    try {
-      const patient = await this.getPatient(id);
+  getPatient(id: number): Observable<Patient> {
+    return this.patientsService.getPatientById(id);
+  }
 
-      if (patient && patient.appointments) {
-        const futureAppointments = this.getAppointmentsForFuture(patient.appointments);
-        return futureAppointments.length;
-      } else {
+  getAppointmentsFromPatient(id: number): Observable<number> {
+    return this.getPatient(id).pipe(
+      map(patient => {
+        if (patient && patient.appointments) {
+          const futureAppointments = this.getAppointmentsForFuture(patient.appointments);
+          return futureAppointments.length;
+        }
         return 0;
+      }),
+      catchError(error => {
+        console.error('Error al obtener el paciente:', error);
+        return of(0);
+      })
+    );
+  }
+
+  getAllPatients() {
+    this.patientsService.getPatients().subscribe({
+      next: (patients) => {
+        Promise.all(
+          patients.map(async patient => {
+            const pendingCount = patient.id !== undefined
+              ? await this.getAppointmentsFromPatient(patient.id).toPromise()
+              : 0;
+            return { ...patient, pendingAppointments: pendingCount };
+          })
+        ).then(updatedPatients => {
+          this.patientList = updatedPatients;
+        });
+      },
+      error: (error) => {
+        console.error('Error al obtener los pacientes:', error);
       }
-    } catch (error) {
-      console.error('Error al obtener el paciente:', error);
-      return 0;
-    }
+    });
   }
-
-
-  async getPatient(id: number): Promise<Patient> {
-    try {
-      return await lastValueFrom(this.patientService.getPatientById(id) as Observable<Patient>);
-    } catch (error) {
-      console.error('Error al intentar obtener el paciente:', error);
-      throw new Error('Error al obtener el paciente. Intenta nuevamente.');
-    }
-  }
-
-  async getAllPatients() {
-    try {
-      const patients = await lastValueFrom(this.patientService.getPatients()) as Patient[];
-
-      const patientsWithAppointments = await Promise.all(
-        patients.map(async patient => {
-
-          const pendingCount = patient.id !== undefined
-            ? await this.getAppointmentsFromPatient(patient.id)
-            : 0;
-          return { ...patient, pendingAppointments: pendingCount };
-        })
-      );
-
-      this.patientList = patientsWithAppointments;
-
-    } catch (error) {
-      console.error('Error al obtener los pacientes:', error);
-    }
-  }
-
-
+  
 
   redirect(url: string) {
     this.router.navigate([url])
   }
-
-
 
   createPatient(patient: Patient) {
     this.patientsService.createPatient(patient).subscribe({
@@ -142,6 +136,7 @@ export class PatientsComponent implements AfterViewInit {
         console.log('Paciente creado exitosamente:', response);
         this.closeModal();
         this.getAllPatients();
+        this.refreshService.triggerRefresh();
       },
       error: (error: any) => {
         console.error('Error al crear paciente:', error);
@@ -156,7 +151,6 @@ export class PatientsComponent implements AfterViewInit {
     }, 0);
   }
 
-
   closeModal() {
     this.dialogRef.close();
   }
@@ -166,10 +160,9 @@ export class PatientsComponent implements AfterViewInit {
       const formValue = this.patientForm.value;
       this.createPatient(formValue);
     }
-
   }
 
-  applyFilter(event:Event){
+  applyFilter(event: Event) {
 
   }
 
