@@ -2,21 +2,32 @@
     display: flex;
     gap: 0.75rem;
     margin-bottom: 1.25rem;
-    justify-content:space-between;
+    justify-content: space-between;
     width: 100%;
 }
 
 .appointments {
-    background: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); 
     padding: 1.25rem;
     margin-bottom: 1.25rem;
+    border-collapse: separate;
+    border-spacing: 0 10px;
 }
 
-.appointments
-.title {
+ .appointments .title {
     text-align: center;
+    font-size: 20px;
     font-weight: 500;
+    margin-bottom: 1rem;
+    color: #4a4a4a;
 }
+
+.graph-header .title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 500;
+            color: #4a4a4a;
+    }
 
 .chart {
     background: white;
@@ -26,34 +37,88 @@
 
 .split {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 1.25rem;
+    height: 100%;
 }
 
-.quick-notes {
-    padding: 1.5rem;
-    background-color: #f9fb95;
-    width: 30%;
+.chart-container {
+    background: white;
+    padding: 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    height: calc(100vh - 250px); 
 }
 
-.quick-notes
-.divToText {
-    max-height: 265px;
-    overflow-y: auto;
+.chart-group{
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
 }
 
-.quick-notes
-.divToText:focus {
-    outline: none;;
+canvas {
+    width: 100% !important;
+    height: auto !important;
+    display: block;
+}
+
+.tabla-citas {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e0e0e0;
+}
+
+.fila-cita {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.fila-cita:hover {
+    background-color: #f0f2f5;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tabla-citas th,
+.tabla-citas td {
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: center;
+    font-weight: 500;
+}
+
+.tabla-citas thead {
+    background-color: #e6e6e6;
+    font-weight: bold;
+}
+
+.breadcrumb-container {
+    margin-bottom: 1.5rem;
+}
+
+.chart-action {
+    font-family: "Mulish", sans-serif;
 }
 
 @media only screen and (max-width: 900px) {
-    .stats {
+    .split {
         flex-direction: column;
     }
 
-    .split {
-        flex-direction: column;
+    .chart-container {
+        height: auto;
+        margin-bottom: 1rem;
     }
 
     .quick-notes {
@@ -62,6 +127,46 @@
     }
 }
 
-.bold{ 
+.bold {
     font-weight: bold;
 }
+
+.breadcrumb-container {
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  font-family: "Mulish", sans-serif;
+}
+
+.breadcrumb {
+  display: flex;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.breadcrumb-item {
+  font-size: 16px;
+  color: #4a4a4a;
+  font-weight: 500;
+}
+
+.breadcrumb-item a {
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb-item a:hover {
+  color: #0056b3;
+}
+
+.breadcrumb-item.active {
+  color: #4a4a4a;
+  font-weight: bold;
+}
+
+

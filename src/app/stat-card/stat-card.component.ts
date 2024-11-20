@@ -6,5 +6,5 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./stat-card.component.scss']
 })
 export class StatCardComponent {
-  @Input() stat: { title: string, value: string, color: string } = {title: "", value: "", color: ""};
+  @Input() stat: { title: string, value: string, color: string, icon:string } = {title: "", value: "", color: "", icon: ""};
 }

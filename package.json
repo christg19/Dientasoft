@@ -24,6 +24,8 @@
     "luxon": "^3.4.4",
     "ng2-charts": "^5.0.4",
     "ngx-material-timepicker": "^13.1.1",
+    "primeicons": "^7.0.0",
+    "primeng": "^17.18.12",
     "rxjs": "~7.8.0",
     "selenium-webdriver": "^4.21.0",
     "sweetalert2": "^11.14.5",

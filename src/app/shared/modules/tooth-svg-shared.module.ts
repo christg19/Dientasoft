@@ -7,7 +7,7 @@ import {MatIconModule} from '@angular/material/icon';
 
 @NgModule({
   declarations: [
-    ToothSVGComponent
+    ToothSVGComponent,
   ],
   imports: [
     CommonModule,

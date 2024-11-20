@@ -8,6 +8,10 @@ import { Patient } from '../shared/interfaces/patient.interface';
 import { ServicesService } from '../shared/services/services.service';
 import { Service } from '../shared/interfaces/services.interface';
 import { firstValueFrom } from 'rxjs';
+import { ChartData, ChartOptions, ChartType } from 'chart.js';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MenuItem } from 'primeng/api';
+
 
 export interface Menu {
   title: string;
@@ -29,6 +33,104 @@ export class GeneralComponent implements OnInit, AfterViewInit {
   serviceList!: Service[];
   public appointments: Appointment[] = [];
   displayedColumns: string[] = ['date', 'patientName', 'procedure', 'amount'];
+  items = [
+    { label: 'General', link: '/general' },
+    { label: 'Estadísticas', link: '/citas' },
+  ];
+
+  home = { icon: 'pi pi-home', link: '/' };
+  
+  chartType1: ChartType = 'bar';
+  chartData1: ChartData<'bar'> = {
+      labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+      datasets: [
+          {
+              label: 'Servicios Realizados',
+              data: [10, 20, 30, 40, 50],
+              backgroundColor: ['#4A90E2', '#50E3C2', '#F5A623', '#E94E77', '#8E44AD'],
+          },
+      ],
+  };
+  
+  chartType2: ChartType = 'pie';
+  chartData2: ChartData<'pie'> = {
+      labels: ['Limpieza Dental', 'Ortodoncia', 'Blanqueamiento'],
+      datasets: [
+          {
+              data: [45, 25, 30],
+              backgroundColor: ['#4A90E2', '#50E3C2', '#F5A623'],
+          },
+      ],
+  };
+  
+  chartType3: ChartType = 'line'; 
+  chartData3: ChartData<'line'> = {
+      labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+      datasets: [
+          {
+              label: 'Ingresos Totales',
+              data: [1000, 2000, 3000, 4000, 5000],
+              borderColor: '#4A90E2',
+              fill: false,
+          },
+      ],
+  };
+  
+  chartOptions2: ChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+            display: true,
+            labels: {
+                font: {
+                    family: 'Mulish, sans-serif', // Cambia la fuente
+                    size: 14, // Tamaño del texto
+                   
+                },
+                color: '#333333', // Color del texto de la leyenda
+            },
+        },
+    },
+  };
+  
+  chartOptions3: ChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+            display: true,
+            labels: {
+                font: {
+                    family: 'Mulish, sans-serif', // Cambia la fuente
+                    size: 14, // Tamaño del texto
+                    
+                },
+                color: '#333333', // Color del texto de la leyenda
+            },
+        },
+    },
+  };
+
+  chartOptions: ChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+          display: true,
+          labels: {
+              font: {
+                  family: 'Mulish, sans-serif', // Cambia la fuente
+                  size: 14, // Tamaño del texto
+                 
+              },
+              color: '#333333', // Color del texto de la leyenda
+          },
+      },
+  },
+};
+  
+
   dataSource = new MatTableDataSource<any>(this.appointments);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -36,33 +138,37 @@ export class GeneralComponent implements OnInit, AfterViewInit {
     this.dataSource.paginator = this.paginator;
   }
 
-  optionMenu = [
+  public optionMenu = [
     {
-      title: "Citas pendientes<br>en la semana",
-      value: '43',
+      title: "Citas Pendientes",
+      value: '21',
       color: "#1950DD",
+      icon: 'schedule'
     },
     {
-      title: "Cantidad de pacientes",
-      value: '34',
+      title: "Citas Completadas",
+      value: '132',
       color: "#DDB219",
+      icon: 'check_circle_outline'
     },
     {
-      title: "Gastos este mes",
-      value: "- RD $ 9400",
+      title: "Servicio Popular",
+      value: "Limpieza Dental",
       color: "#DD1919",
+      icon: 'star_border'
     },
     {
-      title: "Ventas realizadas<br>este mes",
-      value: '37',
+      title: "Ganancia Total",
+      value: '37,900',
       color: "#87DD19",
+      icon: 'attach_money'
     },
   ]
   constructor(
     private appointmentService: AppointmentService,
     private patientService: PatientService,
     private servicesService: ServicesService,
-  ) { 
+  ) {
   }
 
   ngOnInit(): void {
@@ -156,10 +262,10 @@ export class GeneralComponent implements OnInit, AfterViewInit {
       console.warn('serviceList is not loaded yet.');
       return Promise.resolve([]);
     }
-  
+
     const names = this.serviceList
-    .filter(service => ids.includes(service.id)) 
-    .map(service => service.name);
+      .filter(service => ids.includes(service.id))
+      .map(service => service.name);
     console.log("servicios: ", this.serviceList)
     console.log(names)
     return Promise.resolve(names);

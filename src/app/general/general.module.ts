@@ -7,6 +7,11 @@ import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { StatCardComponent } from '../stat-card/stat-card.component';
+import { NgChartsModule } from 'ng2-charts';
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
+import { SharedBreadModule } from '../shared/modules/bread-component.shared.module';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
 
 
 @NgModule({
@@ -21,6 +26,11 @@ import { StatCardComponent } from '../stat-card/stat-card.component';
     MatTableModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
+    NgChartsModule,
+    MatIconModule,
+    MatButtonModule,
+    SharedBreadModule,
+    BreadcrumbModule
   ]
 })
 export class GeneralModule { }

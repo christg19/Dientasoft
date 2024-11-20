@@ -1,12 +1,41 @@
 <div class="layout">
   <div class="menu">
-    <div class="options" *ngFor="let option of menu" (click)="redirect(option.title)">
-      <mat-icon>{{option.icon}}</mat-icon>
-      <p class="option-title">
-        {{option.title}}
-      </p>
+    <!-- Grupo: General -->
+    <div class="group-title">General</div>
+    <div class="options" *ngFor="let option of groupedMenu.general" (click)="redirect(option.title)">
+      <mat-icon>{{ option.icon }}</mat-icon>
+      <p class="option-title">{{ option.title }}</p>
     </div>
+  
+    <!-- Grupo: Gestión de Pacientes -->
+    <div class="group-title">Gestión de Pacientes</div>
+    <div class="options" *ngFor="let option of groupedMenu.patients" (click)="redirect(option.title)">
+      <mat-icon>{{ option.icon }}</mat-icon>
+      <p class="option-title">{{ option.title }}</p>
+    </div>
+  
+    <!-- Grupo: Gestión Administrativa -->
+    <div class="group-title">Gestión Administrativa</div>
+    <div class="options" *ngFor="let option of groupedMenu.admin" (click)="redirect(option.title)">
+      <mat-icon>{{ option.icon }}</mat-icon>
+      <p class="option-title">{{ option.title }}</p>
+    </div>
+  
+    <!-- Grupo: Finanzas -->
+    <div class="group-title">Finanzas</div>
+    <div class="options" *ngFor="let option of groupedMenu.finance" (click)="redirect(option.title)">
+      <mat-icon>{{ option.icon }}</mat-icon>
+      <p class="option-title">{{ option.title }}</p>
+    </div>
+  
+    <!-- Grupo: Configuración -->
+    <!-- <div class="group-title">Configuración</div>
+    <div class="options" *ngFor="let option of groupedMenu.settings" (click)="redirect(option.title)">
+      <mat-icon>{{ option.icon }}</mat-icon>
+      <p class="option-title">{{ option.title }}</p>
+    </div> -->
   </div>
+  
   <div class="container">
     <router-outlet></router-outlet>
   </div>

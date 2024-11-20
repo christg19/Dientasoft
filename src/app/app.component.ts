@@ -6,31 +6,53 @@ import { Router } from '@angular/router';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent  {
+export class AppComponent {
   title = 'Dientasoft';
 
-  menu = [{ title: 'General', icon: 'speed', url:'/general' },
-  { title: 'Citas', icon: 'date_range', url: '/appointment' },
-  { title: 'Pacientes', icon: 'group', url: '/patients' },
-  { title: 'Inventario', icon: 'local_hospital', url: '/inventory' },
-  { title: 'Servicios', icon: 'medical_services', url: '/services' },
-  { title: 'Cuotas', icon: 'attach_money', url: '/dues' },
-  { title: 'Trabajadores', icon: 'engineering', url: '' },
-  { title: 'Ventas', icon: 'point_of_sale', url: '' },
-  { title: 'Mi Cuenta', icon: 'account_circle', url: '' },
-  { title: 'Ajustes', icon: 'settings', url: '' },
-  // { title: 'Cerrar sesion', icon: 'logout', url: '' }
-]
+  groupedMenu = {
+    general: [
+      { title: 'General', icon: 'speed', url: '/general' },
+      { title: 'Citas', icon: 'date_range', url: '/appointment' },
+    ],
+    patients: [
+      { title: 'Pacientes', icon: 'group', url: '/patients' },
+      { title: 'Servicios', icon: 'medical_services', url: '/services' },
+    ],
+    admin: [
+      { title: 'Inventario', icon: 'local_hospital', url: '/inventory' },
+      { title: 'Trabajadores', icon: 'engineering', url: '' },
+    ],
+    finance: [
+      { title: 'Cuotas', icon: 'attach_money', url: '/dues' },
+      { title: 'Ventas', icon: 'point_of_sale', url: '' },
+    ],
+    // settings: [
+    //   { title: 'Mi Cuenta', icon: 'account_circle', url: '' },
+    //   { title: 'Ajustes', icon: 'settings', url: '' },
+    // ],
+  };
 
-  constructor (
-private router: Router
-  ){ }
+  constructor(
+    private router: Router
+  ) { }
 
-  redirect(url:string){
-    let submenu = this.menu.filter((option)=>{
-      return option.title === url
-  })
+  redirect(url: string) {
 
-  this.router.navigate([submenu[0].url])
+    const allMenuOptions = [
+      ...this.groupedMenu.general,
+      ...this.groupedMenu.patients,
+      ...this.groupedMenu.admin,
+      ...this.groupedMenu.finance,
+      // ...this.groupedMenu.settings,
+    ];
+
+    const submenu = allMenuOptions.find((option) => option.title === url);
+
+    if (submenu && submenu.url) {
+      this.router.navigate([submenu.url]);
+    } else {
+      console.error("URL no encontrada o no definida");
+    }
   }
+
 }

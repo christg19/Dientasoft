@@ -1,67 +1,105 @@
 body {
-    font-family: "Mulish", sans-serif;
-}
-
-.container {
-    padding: 1rem;
-    min-height: 100dvh;
-    width: 100%;
+  font-family: "Mulish", sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
 .layout {
-    display: flex;
+  display: flex;
+  height: 100vh; 
+  overflow: hidden; 
 }
 
 .menu {
-    position: sticky;
-    top: 0;
-    display: flex;
-    flex-direction: column;
-    background-color: #FFFFFF;
-    align-items: center;
-    padding-right: 5rem;
-    overflow-y: hidden;
-    overflow-x: hidden;
+  position: sticky;
+  top: 0;
+  width: 210px; 
+  height: 100vh; 
+  background-color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1rem;
+  overflow-y: auto; 
+  box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
 }
 
 .options {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    align-self: flex-start;
-    gap: 0.5rem;
-    padding: 1.25rem;
-    cursor: pointer;
-    transition: color 0.5s ease; 
-    user-select: none;
-    text-decoration: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: color 0.5s ease;
+  user-select: none;
 }
 
-.options:hover{
-    color: #4A90E2; 
+.options:hover {
+  color: #4A90E2;
 }
+
+.container {
+  flex: 1; 
+  overflow-y: auto; 
+  padding: 1rem;
+  background-color: #f7f7f7; 
+}
+
 .logo {
-    width: 38px;
-    height: 41px;
+  width: 38px;
+  height: 41px;
 }
-
-// @media only screen and (max-width: 1200px) {
-//     .menu {
-//         width: 30%;
-        
-//     }
-//     .options {
-//         margin-left: -1.5rem;
-//     }
-// }
 
 @media only screen and (max-width: 1300px) {
-    .menu {
-        padding-right: 0;
-    }
+  .menu {
+    width: 80px; 
+    padding: 0.5rem;
+  }
 
-    .menu
-    .option-title {
-        display: none;
-    }
+  .menu .option-title {
+    display: none;
+  }
+}
+
+.group-title {
+  font-size: 0.875rem; /* Tamaño de fuente pequeño */
+  font-weight: bold;
+  color: #7A7A7A;
+  margin: 1rem 0 0.5rem;
+  padding: 0.25rem 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.options {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: color 0.3s ease, background-color 0.3s ease;
+  border-radius: 8px; /* Añadir bordes redondeados */
+}
+
+.options:hover {
+  background-color: #F1F5F9;
+  color: #4A90E2;
+}
+
+.options mat-icon {
+  font-size: 1.25rem;
+  color: #6B7280;
+}
+
+.option-title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.group-title + .options {
+  margin-top: 0.5rem; /* Separación entre título y primera opción */
 }
