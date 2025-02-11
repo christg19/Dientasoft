@@ -49,3 +49,89 @@
     font-family: "Mulish", sans-serif;
   }
   
+  .tabla-citas {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e0e0e0;
+}
+
+.fila-cita {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.fila-cita:hover {
+    background-color: #f0f2f5;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tabla-citas th,
+.tabla-citas td {
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: center;
+    font-weight: 500;
+}
+
+.tabla-citas thead {
+    background-color: #e6e6e6;
+    font-weight: bold;
+}
+
+.fila-cita {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.fila-cita:hover {
+  background-color: #f0f2f5;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-select-container {
+  width: 100%;
+  position: relative;
+}
+
+.custom-select {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: 'Roboto', sans-serif;
+  color: #333;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  appearance: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #999;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+  }
+}
+
+.custom-select option {
+  padding: 8px;
+  font-size: 14px;
+  font-family: 'Roboto', sans-serif;
+  color: #333;
+}

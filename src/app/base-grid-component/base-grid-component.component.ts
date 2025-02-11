@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, SimpleChanges, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
 import { BaseGridService } from '../shared/services/baseGrid.service';
@@ -19,9 +19,11 @@ export interface ColumnDefinition {
   editable?: boolean;
   icon?: string;
   function?: 'patient' | 'product' | 'service' | 'date';
-  enum?: 'toothName';
+  enum?: 'toothName' | 'statusName';
   date?: boolean
+  selectEndpoint?: string;
 }
+
 
 
 @Component({
@@ -37,7 +39,11 @@ export class BaseGridComponentComponent<T extends { [key: string]: any }> implem
   private enumCache = new Map<string, Observable<string>>();
   private routes = apiRoutes;
 
+  public selectOptions: { [key: string]: { id: number; name: string }[] } = {};
+
   public dataSource = new MatTableDataSource<T>();
+  private originalData: T[] = []; 
+
   public displayedColumns: string[] = [];
   public displayedColumnsWithActions: string[] = [];
   public componentRoute!: string;
@@ -45,7 +51,7 @@ export class BaseGridComponentComponent<T extends { [key: string]: any }> implem
   public keyName = 'icon';
 
   @Input() columnDefinitions: ColumnDefinition[] = [];
-
+  @Input() filterStatus: number | null = null; 
   @Input() set getData(route: string) {
     this.componentRoute = route;
 
@@ -82,6 +88,7 @@ export class BaseGridComponentComponent<T extends { [key: string]: any }> implem
     this.refreshService.refresh$.subscribe(() => {
       console.log('Recibiendo evento de refresco');
       this.loadData();
+      this.applyFilter();
     });
   }
 
@@ -90,6 +97,18 @@ export class BaseGridComponentComponent<T extends { [key: string]: any }> implem
       this.dataSource.paginator = this.paginator;
     }
   }
+
+  ngOnInit(){
+    this.loadSelectOptions();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['filterStatus'] && this.originalData.length > 0) {
+      console.log('Cambio detectado en filterStatus:', this.filterStatus); 
+      this.applyFilter();
+    }
+  }
+  
 
   spanishRangeLabel(page: number, pageSize: number, length: number): string {
     if (length === 0 || pageSize === 0) {
@@ -103,19 +122,52 @@ export class BaseGridComponentComponent<T extends { [key: string]: any }> implem
         : startIndex + pageSize;
     return `${startIndex + 1} - ${endIndex} de ${length}`;
   }
+  
+  loadSelectOptions(): void {
+    this.columnDefinitions.forEach((column) => {
+      if (column.selectEndpoint) {
+        this.gridService.getData<{ id: number; name: string }[]>(column.selectEndpoint).subscribe(
+          (response) => {
+            this.selectOptions[column.key] = response;
+            console.log('Servicios para select: ',this.selectOptions)
+          },
+          (error) => {
+            console.error(`Error cargando opciones para ${column.key}:`, error);
+          }
+        );
+      }
+    });
+  }
+
+  getEnumOptions(enumKey: string): { value: number; label: string }[] {
+    if (enumKey === 'statusName') {
+      return [
+        { value: 0, label: 'Pendiente' },
+        { value: 1, label: 'Completada' },
+        { value: 2, label: 'Cancelada' },
+
+      ];
+    }
+    return [];
+  }  
+
+  onSelectChange(column: ColumnDefinition, element: T): void {
+    console.log(`Cambio en ${column.key}:`, element[column.key]);
+  }
 
   loadData(): void {
     this.gridService.getData(this.componentRoute).subscribe(
       (response: any) => {
+        this.originalData = response; 
         this.dataSource.data = response;
-        this.displayedColumns = this.columnDefinitions.map(col => col.key);
-        this.displayedColumnsWithActions = [...this.displayedColumns, 'actions'];
+        this.applyFilter(); 
       },
       (error) => {
-        console.warn('Se produjo un error al traer la data: ', error);
+        console.warn('Error al cargar los datos:', error);
       }
     );
   }
+  
 
 
   enableEdit(rowId: number): void {
@@ -220,33 +272,31 @@ export class BaseGridComponentComponent<T extends { [key: string]: any }> implem
 
   getEnum(enumType: string, enumNum: number): Observable<string> {
     const cacheKey = `enum-${enumType}-${enumNum}`;
-
+  
     if (this.enumCache.has(cacheKey)) {
       return this.enumCache.get(cacheKey)!;
     }
-
+  
     const translatedValue = this.translateEnum(enumType, enumNum);
     const translatedValue$ = of(translatedValue);
-
+  
     this.enumCache.set(cacheKey, translatedValue$);
-
+  
     return translatedValue$;
   }
-
-
+  
   private translateEnum(enumType: string, enumNum: number): string {
-
     if (!enumType) {
-      return 'Debes ingresar el enum que deseas utilizar';
+      return 'Enum no especificado';
     }
-
+  
     if (enumMap.has(enumType)) {
       return enumMap.get(enumType)?.(enumNum) || 'Valor no encontrado';
     } else {
       return 'Enum no encontrado';
     }
   }
-
+  
   getPatientsNames(ids: number | number[]): Observable<string | string[]> {
     const baseUrl = this.routes.patient.main;
 
@@ -424,5 +474,21 @@ export class BaseGridComponentComponent<T extends { [key: string]: any }> implem
     );
   }
 
-
+  applyFilter(): void {
+    console.log('Aplicando filtro en el hijo:', this.filterStatus);
+    if (this.filterStatus === null) {
+      this.dataSource.data = this.originalData; 
+    } else {
+      this.dataSource.data = this.originalData.filter(
+        (item) => item['status'] === this.filterStatus
+      );
+    }
+  
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
+  }
+  
+  
+  
 }

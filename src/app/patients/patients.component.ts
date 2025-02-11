@@ -32,7 +32,9 @@ export class PatientsComponent implements AfterViewInit {
 
   public columnDefs: ColumnDefinition[] = [
     { key: 'name', label: 'Nombre', dataType: 'string' },
-    { key: 'id', label: 'Historico Dental', icon: 'library_books' }
+    { key: 'dentalRecord', label: 'Antecedentes', icon: 'medical_services'},
+    { key: 'id', label: 'Historico Dental', icon: 'library_books' },
+    
   ];
 
   //Nombre, Historico dental, Consultas pendientes, Antecedentes, Cita Programada
@@ -145,7 +147,7 @@ export class PatientsComponent implements AfterViewInit {
   }
 
   openModal(templateRef: TemplateRef<any>) {
-    this.dialogRef = this.dialog.open(templateRef, { width: '400px', height: '500px' });
+    this.dialogRef = this.dialog.open(templateRef, { width: '800px', height: '600px' });
     setTimeout(() => {
       this.cdr.detectChanges();
     }, 0);

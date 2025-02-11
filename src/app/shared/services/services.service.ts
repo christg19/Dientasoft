@@ -22,6 +22,7 @@ export class ServicesService {
     return this.baseGridService.getDataById<Service>(this.url,id);
   }
 
+
   createService(formData: Service) {
     return this.baseGridService.createData(this.url, formData);
   }
@@ -36,5 +37,9 @@ export class ServicesService {
 
   patchService(id: number, partialUpdate: Partial<Service>) {
     return this.baseGridService.pathData(this.url, id, partialUpdate);
+  }
+
+  getServicesByIds(ids: number[]): Observable<Service[]> {
+    return this.baseGridService.getDataByIds<Service>(this.url, ids);
   }
 }

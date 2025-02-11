@@ -1,68 +1,73 @@
 
 
   <div class="container">
+    <div class="breadcrumb-container">
+      <nav aria-label="breadcrumb">
+          <ul class="breadcrumb">
+              <li class="breadcrumb-item">
+                  <a routerLink="/general">Gestión de Pacientes </a>
+              </li>
+              <li class="breadcrumb-item active" aria-current="page">/ Servicios</li>
+          </ul>
+      </nav>
+  </div>
     <div class="top-buttons">
+      <button mat-flat-button color="accent" (click)="openModal(modalContent)" class="register-button">Agregar un
+        servicio</button>
       <mat-form-field appearance="outline" class="search-input-container">
         <input type="text" (keyup)="applyFilter($event)" matInput placeholder="Busca un servicio..."
           class="search-input">
       </mat-form-field>
-      <button mat-flat-button color="accent" (click)="openModal(modalContent)">Agregar un
-        servicio</button>
-
     </div>
-    <div class="table-appointment">
-      <!-- <div class="spinner-container">
-        <mat-spinner class="spinner"></mat-spinner>
-      </div> -->
-      <div style="overflow-x: auto;" >
+    <div class="table-appointment">  
         <app-base-grid-component [getData]="serviceRoute" [columnDefinitions]="columnDefs"></app-base-grid-component>
-      </div>
     </div>
   </div>
 
 
-<ng-template #modalContent>
-  <form [formGroup]="serviceForm" (ngSubmit)="submitForm()" class="form">
-    <div class="mat-dialog-container">
+  <ng-template #modalContent>
+    <form [formGroup]="serviceForm" (ngSubmit)="submitForm()" class="form">
+      <div class="modal-container">
 
-      <div class="modal-top">
-        <mat-icon class="close-icon" (click)="closeModal()">close</mat-icon>
-      </div>
-      <div class="content-modal">
-        <mat-form-field class="example-form-field">
-          <mat-label>Nombre</mat-label>
-          <input matInput formControlName="name">
-        </mat-form-field>
-
-        <mat-form-field class="example-form-field">
-          <mat-label>Costo</mat-label>
-          <input matInput formControlName="cost" type="number">
-        </mat-form-field>
-
-        <mat-form-field class="example-form-field">
-          <mat-label>Cantidad de cuotas</mat-label>
-          <input matInput formControlName="duesQuantity" type="number">
-        </mat-form-field>
-
-        <mat-form-field appearance="fill" class="services-select">
-          <mat-label>Selecciona materiales</mat-label>
-          <mat-select formControlName="productIds" multiple>
-            <mat-option *ngFor="let instrument of instrumentList" [value]="instrument.id.toString()">
-              {{ instrument.name }}
-            </mat-option>
-          </mat-select>
-          
-          
-          
-          
-        </mat-form-field>
+        <h3 class="form-title">Registrar Servicio</h3>
         
-
-        <div class="create">
-          <button mat-raised-button color="primary" class="create-button" type="submit">Registrar</button>
+        <div class="form-row">
+          <div class="custom-input">
+            <label for="service-name">Nombre</label>
+            <input id="service-name" type="text" formControlName="name" placeholder="Ingresa el nombre del servicio" />
+          </div>
         </div>
-
+        
+        <div class="form-row">
+          <div class="custom-input">
+            <label for="service-cost">Costo</label>
+            <input id="service-cost" type="number" formControlName="cost" placeholder="Ingresa el costo" />
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="custom-input">
+            <label for="duesQuantity">Cantidad de cuotas</label>
+            <input id="duesQuantity" type="number" formControlName="duesQuantity" placeholder="Ingresa la cantidad de cuotas" />
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="custom-input">
+            <label for="product-ids">Selecciona materiales</label>
+            <select id="product-ids" formControlName="productIds" multiple>
+              <option value="" disabled>Seleccione uno o más materiales...</option>
+              <option *ngFor="let instrument of instrumentList" [value]="instrument.id.toString()">
+                {{ instrument.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="button-row">
+          <button type="submit" class="action-button primary">Registrar servicio</button>
+        </div>
       </div>
-    </div>
-  </form>
-</ng-template>
+    </form>
+  </ng-template>
+  

@@ -1,285 +1,273 @@
-.main-container {
+/* Contenedor Principal */
+.appointments-main-container {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin-left: 1.78rem;
-
-}
-
-.teeth-component{
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: 'Mulish', sans-serif;
+  }
+  
+  /* Filtros y Botones */
+  .filters-container {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     display: flex;
-    flex-direction: row;
-}
-
-.header-title {
+    justify-content: space-between;
+  }
+  
+  .filters {
+    display: flex;
+    flex-direction: row; /* Los elementos se colocan en fila */
+    align-items: center; /* Alinea verticalmente todos los elementos */
+    gap: 1rem; /* Espacio entre el select y los botones */
+  }
+  
+  
+  .action-button {
+    padding: 0.5rem 1.5rem; /* Aumenta el tamaño del botón */
+    font-size: 14px; /* Ajusta el tamaño del texto */
+    height: 40px; /* Uniformiza la altura con el filtro */
+    display: flex;
+    align-items: center; /* Centra el contenido verticalmente */
+    gap: 0.5rem; /* Espacio entre el texto y el ícono */
+  }
+  
+  .action-button mat-icon {
+    font-size: 18px; /* Tamaño uniforme del ícono */
+  }
+  
+  
+  /* Tabla y Odontograma */
+  .main-content {
+    display: flex;
+    gap: 2rem;
+    justify-content: space-between;
+  }
+  
+  /* Tabla de Citas */
+  .appointments-table {
+    flex: 2;
+    background-color: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 12px;
     display: flex;
     flex-direction: column;
-    font-size: 20px;
-    font-weight: bold;
-    font-family: "Mulish", sans-serif;
-    align-items: center;
-    justify-content: center;
-    background-color: #FFFFFF;
-    max-width: 268px;
-    flex: 1 1 auto;
-}
-
-.header {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    height: auto;
     gap: 1rem;
-    flex-wrap: nowrap;
-}
-
-.info {
-    background-color: #FFFFFF;
-    border-radius: 4px;
-    box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.2);
-
-}
-
-.header div {
-    width: 17dvw;
-    height: 15dvh;
-}
-
-
-.main-appointment {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-}
-
-.appointments-container {
-    display: flex;
-    flex-direction: column;
-}
-
-.appointments {
-  
-    width: 45dvw;
-    height: 83dvh;
-    background-color: #FFFFFF;
-    border-radius: 4px;
-    overflow-y: scroll;
-}
-
-.dental-history {
-    background-color: #FFFFFF;
-    border-radius: 3px;
-    margin: 1.78rem;
-    margin-left: 1rem;
-    width: 20dvw;
-    height: 73dvh;
-}
-
-.odont{
-    height: 83dvh;
-    width: 60dvh;
-    background-color: #FFFFFF;
-    border-radius: 5px;
-
-}
-
-.dental-history .teeth {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-}
-
-.info-teeth {
-    position: relative;
-    margin-right: 0rem;
-    border: solid;
-    border-radius: 5px;
-    padding: 1rem;
-
-}
-
-.teeth-content p {
-    font-size: 20px;
-    font-weight: bold;
-}
-
-
-
-.dental-history h1 {
-    padding-top: 1rem;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    font-family: "Mulish", sans-serif;
-    align-items: center;
-    font-weight: bold;
-
-}
-
-.dientes {
-    width: 200px;
-    height: 100px;
-    visibility: visible;
-}
-
-.icons {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 10rem;
-    background-color: #FFFFFF;
-    margin-top: 1.1rem;
-    width: 44.4dvw;
-    padding: 1rem;
-    border-radius: 4px;
-}
-
-mat-icon {
-    font-size: 40px;
-    height: 40px;
-    width: 40px;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-    cursor: pointer;
-}
-
-.icon {
-    font-size: 44px;
-    height: 44px;
-}
-
-.mat-icon:hover {
-    transform: scale(1.1);
-
-}
-
-.modal-appointment {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
-
-.table-teeth{
-    overflow-y: scroll;
-}
-
-.teeth {
-    display: flex;
-    flex-direction: row;
-    width: 53dvw;
-}
-
-.element-image {
-    cursor: pointer;
-}
-
-path[id^="tooth-"]:hover {
-    fill: red;
-}
-
-::-webkit-scrollbar {
-    width: 10px;
-}
-
-::-webkit-scrollbar-track {
-    background-color: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: #888;
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background-color: #555;
-}
-
-.img{
-    min-width: 100dvw;
-    height: auto;
-  
-  }
-
-  .search-input-container{
- 
-    width: 20dvw;
-  
-  }
-
-  .procedure-button{
-    margin-bottom: 1.5rem;
   }
   
-  .top-buttons{
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: 12.3rem;
-  }
-
- 
-.status-select {
-    width: 100%; 
-    padding-top: 1rem;
-}
-
-.search-input-container{
-    width: 30dvw;
-}
-
-.status{
-    margin-bottom: 1rem;
-    
-}
-
-.button-search{
-    margin-bottom: 1.5rem;
-}
-
-.search-class{
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    align-items: center;
-    justify-content: center;
-}
-
-.select-odontogram{
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    align-items: center;
-    justify-content: center;
-}
-
-
-.angular-table {
+  /* Tabla Angular */
+  .angular-table {
     table-layout: fixed;
-   width: 100%;
-   height: 85%;
-   box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.2);
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+  }
+  
+  th,
+  td {
+    text-align: center;
+    padding: 0.5rem;
+    font-size: 14px;
+  }
+  
+  th {
+    background-color: #f3f4f6; /* Fondo gris claro */
+    border-bottom: 2px solid #e5e7eb; /* Borde inferior */
+    color: #374151; /* Texto más oscuro */
+    padding: 1rem;
+  }
+  
+  
+  .fila-cita {
+    background-color: #ffffff;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+  
+  .fila-cita:hover {
+    background-color: #f0f2f5;
+  }
+  
+  /* Paginador */
+  .mat-paginator {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+  
+  /* Odontograma */
+  .odontograma-container {
+    background-color: #ffffff; /* Blanco puro para contraste */
+    border-radius: 16px; /* Bordes más suaves */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08); /* Sombra más suave */
+    padding: 2rem; /* Aumenta el padding para mayor espacio interior */
+  }
 
-}
+  .action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem; /* Espacio entre el texto y el icono */
+    padding: 0.75rem 1.5rem; /* Tamaño del botón */
+    border: none;
+    border-radius: 8px; /* Bordes redondeados */
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Mulish', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  /* Botón Primario (Buscar) */
+  .action-button.primary {
+    background-color: #2563eb; /* Azul */
+    color: #ffffff;
+  }
+  
+  .action-button.primary:hover {
+    background-color: #1e40af; /* Azul más oscuro */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Efecto al pasar el mouse */
+    transform: translateY(-2px); /* Efecto sutil */
+  }
+  
+  /* Botón Secundario (Limpiar) */
+  .action-button.secondary {
+    background-color: #f87171; /* Rojo */
+    color: #ffffff;
+  }
+  
+  .action-button.secondary:hover {
+    background-color: #b91c1c; /* Rojo más oscuro */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  /* Icono dentro de los botones */
+  .button-icon {
+    font-size: 18px; /* Tamaño del icono */
+  }
 
-th,
-td {
+  /* Contenedor del Select */
+.custom-input {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; /* Espacio entre el label y el select */
+    width: 100%; /* Asegura que ocupe todo el ancho disponible */
+    font-family: 'Mulish', sans-serif;
+  }
+  
+  /* Label Estilizado */
+  .custom-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4a4a4a; /* Gris oscuro */
+  }
+  
+  /* Select Estilizado */
+  .custom-select {
+    width: 100%;
+    padding: 0.75rem 1rem; /* Espaciado interno */
+    border: 1px solid #d1d5db; /* Borde gris claro */
+    border-radius: 8px; /* Bordes redondeados */
+    font-size: 14px;
+    color: #374151; /* Texto gris oscuro */
+    background-color: #f9fafb; /* Fondo claro */
+    transition: all 0.3s ease; /* Suaviza los cambios visuales */
+    appearance: none; /* Oculta la flecha predeterminada del navegador */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='gray'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1rem;
+  }
+  
+  /* Interacción al Foco */
+  .custom-select:focus {
+    border-color: #2563eb; /* Azul al tener foco */
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3); /* Resaltado suave */
+    outline: none; /* Elimina el borde por defecto */
+  }
+  
+  /* Placeholder (Primera Opción) */
+  .custom-select option[value=""] {
+    color: #9ca3af; /* Texto gris claro */
+  }
 
-   width: 9%;
-   text-align: center;
-   font-family: "Mulish", sans-serif;
-}
+  .breadcrumb-container {
+    padding: 0.5rem 1rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    font-family: "Mulish", sans-serif;
+    width: 100%;
+  }
+  
+  .breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .breadcrumb-item {
+    font-size: 16px;
+    color: #4a4a4a;
+    font-weight: 500;
+  }
+  
+  .breadcrumb-item a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .breadcrumb-item a:hover {
+    color: #0056b3;
+  }
+  
+  .breadcrumb-item.active {
+    color: #4a4a4a;
+    font-weight: bold;
+  }
+  
+  .status-select select {
+    width: 100%;
+    padding: 0.5rem 2.5rem 0.5rem 1rem; /* Aumentamos el padding a la derecha */
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #374151;
+    background-color: #f9fafb;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='gray'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1rem;
+  }
+  
+  .status-select select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+    outline: none;
+  }
+  
 
-th {
-   font-weight: bold;
-}
-
-mat-paginator {
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   box-shadow: none;
- }
+  
+  @media (max-width: 768px) {
+    .main-content {
+      flex-direction: column; /* Apila los elementos */
+      gap: 1.5rem; /* Reduce el espacio entre elementos */
+    }
+  
+    .appointments-table, .odontograma-container {
+      width: 100%; /* Ocupa todo el ancho disponible */
+    }
+  }
+  

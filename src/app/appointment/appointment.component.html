@@ -1,87 +1,102 @@
 <div class="main-container">
+  <div class="breadcrumb-container">
+    <nav aria-label="breadcrumb">
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a routerLink="/general">General</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">/ Citas</li>
+        </ul>
+    </nav>
+</div>
   <div class="top-buttons">
-    <!-- <mat-form-field appearance="outline" class="search-input-container">
-        <input type="text" (keyup)="applyFilter($event)" matInput placeholder="Busca un paciente..."
-          class="search-input">
-      </mat-form-field> -->
-    <button mat-flat-button color="accent" (click)="redirect('/appointment/createAppointment')">Agendar una
-      cita</button>
+
+    <div class="register-button">
+      <button mat-flat-button color="accent" (click)="redirect('/appointment/createAppointment')" class="btn-primary">Agendar
+        cita</button>
+    </div>
+
+    <div class="buttons">
+      <button mat-flat-button color="accent" (click)="applyFilter(null)">Todas</button>
+      <button mat-flat-button color="primary" (click)="applyFilter(1)">Completadas</button>
+      <button mat-flat-button color="warn" (click)="applyFilter(0)">Pendientes</button>
+    </div>
+
 
   </div>
-  <div class="table-appointment">
+  <div class="table-appointment ">
 
     <div class="spinner-container" *ngIf="loading">
       <mat-spinner class="spinner"></mat-spinner>
     </div>
 
-  <app-base-grid-component [getData]="appointmentRoute" [columnDefinitions]="columnDefs"></app-base-grid-component>
+    <app-base-grid-component [getData]="appointmentRoute" [columnDefinitions]="columnDefs" [filterStatus]="filterStatus"></app-base-grid-component>
 
   </div>
 </div>
 
-<ng-template #modalContent >
-  <form [formGroup]="appointmentForm" (ngSubmit)="submitForm()" >
-  <div class="mat-dialog-container">
-    <div class="modal-top">
-      <mat-icon class="close-icon" (click)="closeModal()">close</mat-icon>
-    </div>
-    <div class="content-modal">
-      <mat-form-field class="example-form-field">
-        <mat-label>Elige una fecha</mat-label>
-        <input matInput [matDatepicker]="datepicker" formControlName="appointmentDate">
-        <mat-hint></mat-hint>
-        <mat-datepicker-toggle matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
-        <mat-datepicker #datepicker></mat-datepicker>
-      </mat-form-field>
-
-      <mat-form-field appearance="fill" class="example-form-field">
-        <mat-label>Selecciona una hora</mat-label>
-        <input type="time" matInput formControlName="appointmentHour">
-      </mat-form-field>
-
-      <div class="patient">
-        <mat-form-field appearance="fill" class="patient-select">
-          <mat-label>Selecciona un paciente</mat-label>
-          <mat-select 
-          formControlName="patientId" 
-          (selectionChange)="addingDues($event.value)">
-          <mat-option *ngFor="let option of patientList" [value]="option.id">
-            {{ option.name }}
-          </mat-option>
-        </mat-select>
-        
+<ng-template #modalContent>
+  <form [formGroup]="appointmentForm" (ngSubmit)="submitForm()">
+    <div class="mat-dialog-container">
+      <div class="modal-top">
+        <mat-icon class="close-icon" (click)="closeModal()">close</mat-icon>
+      </div>
+      <div class="content-modal">
+        <mat-form-field class="example-form-field">
+          <mat-label>Elige una fecha</mat-label>
+          <input matInput [matDatepicker]="datepicker" formControlName="appointmentDate">
+          <mat-hint></mat-hint>
+          <mat-datepicker-toggle matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
+          <mat-datepicker #datepicker></mat-datepicker>
         </mat-form-field>
-        <button mat-mini-fab color="primary" aria-label="Add" [value]="redirectToClient"
-          (click)="redirect(redirectToClient)">
-          <mat-icon>add</mat-icon>
-        </button>
-      </div>
 
-      <div class="services">
-        <mat-form-field appearance="fill" class="services-select">
-          <mat-label>Servicios y Cuotas</mat-label>
-          <mat-select formControlName="serviceIds" multiple [compareWith]="compareFn" (selectionChange)="onSelectionChange($event)">
-            <mat-option *ngFor="let item of combinedList" [value]="item">{{ item.name }}</mat-option>
-          </mat-select>
-          
+        <mat-form-field appearance="fill" class="example-form-field">
+          <mat-label>Selecciona una hora</mat-label>
+          <input type="time" matInput formControlName="appointmentHour">
         </mat-form-field>
-        
-            
-        
-        <button mat-mini-fab color="primary" aria-label="Add" [value]="redirectToServices"
-          (click)="redirect(redirectToServices)">
-          <mat-icon>add</mat-icon>
-        </button>
-      </div>
-      <div class="create">
-        <button mat-flat-button color="accent" class="register-button" type="submit">
-          {{ updating ? buttonAppointment[1] : buttonAppointment[0] }}
-        </button>
-      </div>
-      
-    </div>
 
-    <!-- <button mat-button (click)="closeModal()">Cerrar</button> -->
-  </div>
+        <div class="patient">
+          <mat-form-field appearance="fill" class="patient-select">
+            <mat-label>Selecciona un paciente</mat-label>
+            <mat-select formControlName="patientId" (selectionChange)="addingDues($event.value)">
+              <mat-option *ngFor="let option of patientList" [value]="option.id">
+                {{ option.name }}
+              </mat-option>
+            </mat-select>
+
+          </mat-form-field>
+          <button mat-mini-fab color="primary" aria-label="Add" [value]="redirectToClient"
+            (click)="redirect(redirectToClient)">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+
+        <div class="services">
+          <mat-form-field appearance="fill" class="services-select">
+            <mat-label>Servicios y Cuotas</mat-label>
+            <mat-select formControlName="serviceIds" multiple [compareWith]="compareFn"
+              (selectionChange)="onSelectionChange($event)">
+              <mat-option *ngFor="let item of combinedList" [value]="item">{{ item.name }}</mat-option>
+            </mat-select>
+
+          </mat-form-field>
+
+
+
+          <button mat-mini-fab color="primary" aria-label="Add" [value]="redirectToServices"
+            (click)="redirect(redirectToServices)">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        <div class="create">
+          <button mat-flat-button color="accent" class="register-button" type="submit">
+            {{ updating ? buttonAppointment[1] : buttonAppointment[0] }}
+          </button>
+        </div>
+
+      </div>
+
+      <!-- <button mat-button (click)="closeModal()">Cerrar</button> -->
+    </div>
   </form>
 </ng-template>

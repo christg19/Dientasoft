@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, TemplateRef } from '@angular/core';
+import { ChangeDetectorRef, Component, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { lastValueFrom } from 'rxjs';
 import { Appointment } from 'src/app/shared/interfaces/appointment.interface';
 import { Dues, SelectableObject, ServiceOrDue } from 'src/app/shared/interfaces/dues.interface';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Patient } from 'src/app/shared/interfaces/patient.interface';
 import { Service } from 'src/app/shared/interfaces/services.interface';
 import { DuesService } from 'src/app/shared/services/dues.service';
@@ -16,15 +17,24 @@ import { BaseGridService } from 'src/app/shared/services/baseGrid.service';
 import { ToothNames } from 'src/app/shared/const/enums/tooth.enum';
 import { ServicesService } from 'src/app/shared/services/services.service';
 import { AppointmentService } from 'src/app/shared/services/appointment.service';
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { ToothSVGComponent } from 'src/app/shared/components/tooth-svg/tooth-svg.component';
 
 @Component({
   selector: 'app-create-appointment',
   templateUrl: './create-appointment.component.html',
-  styleUrls: ['./create-appointment.component.scss']
+  styleUrls: ['./create-appointment.component.scss'],
 })
 export class CreateAppointmentComponent {
+
+  @ViewChild(ToothSVGComponent) toothSvgComponent!: ToothSVGComponent;
+
+  selectedServiceIds: number[] = [];
+  dueCostS: number = 0;
+
   private dialogRef!: MatDialogRef<any>;
   private endpointRoutes = apiRoutes;
+  public firstPayment: number = 0;
 
   public appointmentForm!: FormGroup;
   public patientList: Patient[] = [];
@@ -32,12 +42,12 @@ export class CreateAppointmentComponent {
   public appointmentList: Appointment[] = []
   public appointment?: Appointment;
 
-  public buttonAppointment: string[] = ['Registrar cita', 'Actualizar Cita']
+  public buttonAppointment: string[] = ['Registrar cita', 'Actualizar Cita', 'Limpiar Cita']
   public displayedColumns: string[] = ['date', 'patientName', 'procedure', 'amount', 'actions'];
   public appointmentServicesName: string[] = [];
   public redirectToClient: string = '/patients'
   public redirectToServices: string = '/services'
-
+  public currentStep = 1;
 
   public patientOdontogram!: Odontogram;
 
@@ -47,7 +57,7 @@ export class CreateAppointmentComponent {
 
   public selectedDues: Dues[] = [];
   public duesList: Dues[] = [];
-  public selectedDue!: Dues;
+  public selectedDue: Dues | null = null;
   public combinedList: (Service | (Dues & { itemType: 'service' | 'due' }))[] = [];
   public servicesList: Service[] = []
   public selectedServices: ServiceOrDue[] = [];
@@ -63,6 +73,10 @@ export class CreateAppointmentComponent {
   public appointmentData = undefined;
   public appointmentHour = undefined;
 
+  public duePaymentAmount: number = 0;
+
+  public showDueInput: boolean = false;
+  
   constructor(
     private fb: FormBuilder,
     private router: Router,
@@ -71,13 +85,14 @@ export class CreateAppointmentComponent {
     private servicesService: ServicesService,
     private appointmentService: AppointmentService,
     private cdr: ChangeDetectorRef,
+    private snackBar: MatSnackBar,
     private route: ActivatedRoute
 
   ) {
     this.appointmentForm = this.fb.group({
-      appointmentDate: [Date, Validators.required],
+      appointmentDate: ['', Validators.required], 
       appointmentHour: ['', Validators.required],
-      serviceIds: [[], [Validators.required]],
+      serviceIds: ['', Validators.required],   
       patientId: ['', Validators.required],
     });
   }
@@ -92,7 +107,7 @@ export class CreateAppointmentComponent {
         } else {
           console.log('Dues List está vacío');
         }
-  
+
         this.appointmentId = Number(this.route.snapshot.paramMap.get('id') || '')
         if (this.appointmentId) {
           this.loadAppointmentDetails(this.appointmentId);
@@ -103,12 +118,56 @@ export class CreateAppointmentComponent {
         this.loading = false;
       });
   }
-  
+
 
   ngAfterViewInit() {
 
   }
 
+  private showMessage(message: string, action: string = 'Cerrar', duration: number = 3000): void {
+    this.snackBar.open(message, action, {
+      duration,
+      panelClass: ['minimal-snackbar']
+    });
+  }
+
+  updateFirstPayment(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    const payment = parseFloat(inputElement.value);
+
+    if (isNaN(payment) || payment <= 0) {
+      console.warn('Monto inválido para el primer pago');
+      return;
+    }
+
+    this.firstPayment = payment;
+
+    this.recalculateDues();
+  }
+
+  recalculateDues(): void {
+    if (!this.selectedDues || this.selectedDues.length === 0) {
+      return;
+    }
+
+    if (this.firstPayment <= 0) {
+      console.warn('El monto del primer pago debe ser mayor que 0.');
+      return;
+    }
+
+    this.selectedDues.forEach(due => {
+      const originalTotalCost = due.originalTotalCost ?? due.totalCost;
+      const remainingAmount = originalTotalCost - this.firstPayment;
+
+      if (remainingAmount <= 0) {
+        due.totalCost = 0;
+      } else {
+        due.totalCost = remainingAmount;
+      }
+    });
+
+    console.log('Dues recalculadas:', this.selectedDues);
+  }
   redirect(url: string) {
     this.router.navigate([url])
   }
@@ -129,39 +188,97 @@ export class CreateAppointmentComponent {
   }
 
   combineLists(duesList: Dues[], serviceList: Service[]) {
-    if (duesList && duesList.length > 0) {
-      this.combinedList = [
-        ...serviceList.map(item => ({ ...item, itemType: 'service' as 'service' })),
-        ...duesList.filter(due => due.dueQuantity > 0)
-          .map(due => ({ ...due, itemType: 'due' as 'due', name: `Cuota de ${due.name}` }))
-      ];
-    } else {
-      this.combinedList = serviceList.map(item => ({ ...item, itemType: 'service' as 'service' }));
-    }
+    this.combinedList = [
+      ...serviceList.map(item => ({
+        ...item,
+        itemType: 'service' as const,
+      })),
+      ...duesList.map(due => ({
+        ...due,
+        itemType: 'due' as const,
+        name: `Cuota de ${due.name}`,
+        totalCost: due.totalCost || 0,
+      })),
+    ];
+
     console.log('Combined List:', this.combinedList);
   }
-  
 
-  addingDues(id: number) {
-    if (id === null || id === undefined) {
+
+  addingDues(event: Event) {
+    const target = event.target as HTMLSelectElement;
+
+    if (!target || !target.value) {
       console.error('No encontrado');
       return;
     }
 
+    const id = parseInt(target.value, 10);
+
     this.patientId = id;
 
-    this.baseGridService.getDataById(this.endpointRoutes.patient.main, id).subscribe(async (patient: any) => {
-      this.duesList = patient && patient.dues ? patient.dues : [];
-      this.combineLists(this.duesList, this.servicesList);
-    }, error => {
-      console.error('Error fetching patient with id:', id, error);
-    });
+    this.baseGridService.getDataById(this.endpointRoutes.patient.main, id).subscribe(
+      async (patient: any) => {
+        this.duesList = patient?.dues || [];
+        this.duesList = this.duesList.filter((due) =>{
+         return due.totalCost !== 0;
+        })
+        console.log('Updated Dues List:', this.duesList);
+
+        this.combineLists(this.duesList, this.servicesList);
+
+        this.dueCostS = this.calculateDueCost(this.selectedDues);
+        console.log('Recalculated Total Due Cost (dueCostS):', this.dueCostS);
+      },
+      (error) => {
+        console.error('Error fetching patient with id:', id, error);
+      }
+    );
   }
 
-  onSelectionChange(event: MatSelectChange) {
-    const selectedItems = event.value;
-    this.selectedDues = selectedItems.filter((item: SelectableObject) => item.itemType === 'due');
-    this.selectedServices = selectedItems.filter((item: SelectableObject) => item.itemType === 'service');
+
+  getIdAndCost(event: Event) {
+    const selectElement = event.target as HTMLSelectElement;
+    if (!selectElement || !selectElement.value) {
+      return;
+    }
+    const selectedId = Number(selectElement.value);
+  
+    this.appointmentForm.get('serviceIds')?.setValue(selectedId);
+  
+    const selectedService = this.combinedList.find(item => item.id === selectedId);
+  
+    if (selectedService) {
+      if (selectedService.itemType === 'service') {
+        this.firstPayment = selectedService.cost;
+        this.showDueInput = false;
+        this.selectedDue = null;
+      } else if (selectedService.itemType === 'due') {
+        this.firstPayment = 0;
+        this.showDueInput = true;
+        this.selectedDue = selectedService as Dues;
+      }
+    }
+  }
+  
+  clearForm(): void {
+
+    this.appointmentForm.reset();
+
+    // this.toothSvgComponent.clearAllSelectedTeethForm();
+  
+    this.duePaymentAmount = 0;
+    this.showDueInput = false;
+    this.selectedDue = null;
+
+    this.toothPositionArray = [];
+
+    this.showMessage('El formulario se ha limpiado correctamente.');
+  }
+  
+
+  calculateDueCost(dueItems: any[]): number {
+    return dueItems.reduce((total, item) => total + (item.cost || 0), 0);
   }
 
   formatDate(date: string) {
@@ -328,6 +445,18 @@ export class CreateAppointmentComponent {
     });
   }
 
+  goToNextStep(): void {
+    this.currentStep++;
+  }
+
+  goToPreviousStep(): void {
+    this.currentStep--;
+  }
+
+  isStepVisible(step: number): boolean {
+    return this.currentStep === step;
+  }
+
   updateDue(due: Dues, id: number) {
     this.duesService.updateDue(due, id).subscribe({
       next: (response: any) => {
@@ -336,7 +465,11 @@ export class CreateAppointmentComponent {
     })
   }
 
-  filterServices(list: ServiceOrDue[]): (number | string)[] {
+  filterServices(list: ServiceOrDue[] | ServiceOrDue | null | undefined): (number | string)[] {
+    if (!Array.isArray(list)) {
+      if (!list) return [];
+      list = [list];
+    }
     return list.map(item => {
       if (item.itemType === 'service') {
         return item.id;
@@ -364,15 +497,15 @@ export class CreateAppointmentComponent {
 
   async updateDueQuantities(dues: Dues[]): Promise<void> {
     const updatePromises = dues.map(due => {
-      if (due.dueQuantity > 0 && due.id !== undefined) {
-        const decrement = due.totalCost / due.dueQuantity;
+      if (due.id !== undefined) {
+
         return lastValueFrom(this.duesService.patchDue(due.id, {
-          dueQuantity: due.dueQuantity - 1,
-          totalCost: due.totalCost - decrement
+          totalCost: due.totalCost
+
         }));
       } else {
-        console.error('Intento de actualizar un Due sin ID válido o con dueQuantity no positiva:', due);
-        return Promise.reject('ID inválido o dueQuantity no positiva');
+        console.error('Intento de actualizar un Due sin ID válido:', due);
+        return Promise.reject('ID inválido');
       }
     });
 
@@ -380,7 +513,6 @@ export class CreateAppointmentComponent {
       await Promise.all(updatePromises);
     } catch (error) {
       console.error('Hubo un error al actualizar los Dues:', error);
-
       throw error;
     }
   }
@@ -389,12 +521,8 @@ export class CreateAppointmentComponent {
     let totalDueCost = 0;
     for (const due of selectedDues) {
       if (due.itemType === 'due') {
-        if (due.dueQuantity > 0) {
-          const costPerDue = due.totalCost / due.dueQuantity;
-          totalDueCost += costPerDue;
-        } else {
-          console.warn(`Due ID: ${due.id} tiene dueQuantity <= 0. No se añadirá al costo.`);
-        }
+
+        totalDueCost += due.totalCost;
       }
     }
     this.componentDueCost = totalDueCost;
@@ -403,60 +531,90 @@ export class CreateAppointmentComponent {
 
   async submitForm() {
     if (!this.appointmentForm.valid) {
-      console.error('El formulario no es válido. Detalles de los errores:');
-
+      this.showMessage('El formulario no es válido.');
       return;
     }
-
+    
     const formValue = this.appointmentForm.getRawValue();
-
-    try {
-      let dueCost = 0;
-
-      if (this.selectedDues && this.selectedDues.length > 0) {
-        dueCost = await this.dueCost(this.selectedDues);
-        await this.updateDueQuantities(this.selectedDues);
+    
+    let dueAmountForAppointment = 0;
+    if (this.selectedDue && this.showDueInput) {
+      dueAmountForAppointment = this.duePaymentAmount;
+      if (isNaN(dueAmountForAppointment) || dueAmountForAppointment <= 0) {
+        this.showMessage('Debe ingresar un monto válido para el pago de la cuota');
+        return;
       }
+      if (dueAmountForAppointment > this.selectedDue.totalCost) {
+        this.showMessage('El monto ingresado excede el total pendiente de la cuota');
+        return;
+      }
+    }
 
-      const serviceTotalCost = await this.filterServiceCost();
+    let normalServicesCost = 0;
+    const selectedItem = this.combinedList.find(item => item.id === formValue.serviceIds);
+    if (selectedItem && selectedItem.itemType === 'service') {
+      normalServicesCost = selectedItem.cost;
+    }
+    
+    const appointmentTotalCost = normalServicesCost + dueAmountForAppointment;
 
-      const date = new Date(formValue.appointmentDate);
-      const [hours, minutes] = formValue.appointmentHour.split(':').map(Number);
-      date.setHours(hours, minutes);
+    const date = new Date(formValue.appointmentDate);
+    const [hours, minutes] = formValue.appointmentHour.split(':').map(Number);
+    date.setHours(hours, minutes);
 
-      const totalCost = dueCost + serviceTotalCost;
+    let serviceIdToSend: number;
+    if (this.selectedDue && this.selectedDue.itemType === 'due') {
+      serviceIdToSend = Number(this.selectedDue.serviceId);
+    } else {
+      serviceIdToSend = formValue.serviceIds;
+    }
 
-      const submission = {
-        ...formValue,
-        serviceIds: this.filterServices(formValue.serviceIds),
-        duesCost: dueCost,
-        totalCost: totalCost,
-        appointmentDate: date.toISOString()
-      };
-
-      delete submission.appointmentHour;
-
+    const submission = {
+      ...formValue,
+      serviceIds: [serviceIdToSend],
+      duesCost: dueAmountForAppointment,
+      totalCost: appointmentTotalCost,
+      appointmentDate: date.toISOString(),
+    };
+    
+    delete submission.appointmentHour;
+    
+    try {
       if (this.updating) {
         await lastValueFrom(this.appointmentService.updateAppointment(submission, this.appointmentId));
+        this.showMessage('Cita actualizada con éxito.');
       } else {
         await lastValueFrom(this.appointmentService.createAppointment(submission));
-        await this.getOdontogramByPatientId(this.patientId);
-        if (this.patientOdontogram?.id) {
-          this.assignServicesToTooths(submission.serviceIds, this.patientOdontogram.id);
-        }
-        this.redirect(`/patients/history/${this.patientId}`);
+        this.showMessage('Cita registrada con éxito.');
       }
-
-      this.updating = false;
-
     } catch (error) {
-      console.error('Error al procesar la cita o actualizar los Dues:', error);
+      this.showMessage('Error al procesar la cita.');
+      return; 
+    }
+    
+    if (this.selectedDue && this.selectedDue.id !== undefined) {
+      const newTotalDue = this.selectedDue.totalCost - dueAmountForAppointment;
+      try {
+        await lastValueFrom(
+          this.duesService.patchDue(this.selectedDue.id, { totalCost: newTotalDue })
+        );
+        this.showMessage('Cuota actualizada correctamente.');
+      } catch (error) {
+        this.showMessage('Error actualizando la cuota.');
+      }
+    }
+    try {
+      await this.getOdontogramByPatientId(this.patientId);
 
+      if (this.patientOdontogram && this.patientOdontogram.id) {
+ 
+        await this.assignServicesToTooths([serviceIdToSend], this.patientOdontogram.id);
+        this.redirect(this.redirectToClient)
+      }
+    } catch (error) {
+      this.showMessage('Error al actualizar el odontograma.');
     }
   }
-
-
-
-
-
+  
+  
 }

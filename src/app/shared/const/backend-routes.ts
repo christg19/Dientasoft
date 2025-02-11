@@ -16,10 +16,14 @@ export const apiRoutes = {
       main: '/product'
     },
     tooth: {
-      main: '/tooth'
+      main: '/tooth',
+      main2: 'http://localhost:3000/api/v1/tooth'
     },
     odontogram: {
       main: '/odontogram'
+    },
+    notifications: {
+      main: '/notifications'
     }
 
 }

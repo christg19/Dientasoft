@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, TemplateRef, ViewChild } f
 import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
-import { Appointment } from '../shared/interfaces/appointment.interface';
+import { Appointment, AppointmentStatus } from '../shared/interfaces/appointment.interface';
 import { AppointmentService } from '../shared/services/appointment.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PatientService } from '../shared/services/patient.service';
@@ -16,6 +16,8 @@ import { MatSelectChange } from '@angular/material/select';
 import { DuesService } from '../shared/services/dues.service';
 import { ColumnDefinition } from '../base-grid-component/base-grid-component.component';
 import { apiRoutes } from '../shared/const/backend-routes';
+import { TableOption } from '../inventory/inventory.component';
+import { RefreshService } from '../shared/services/refresh.service';
 
 @Component({
   selector: 'app-appointment',
@@ -23,6 +25,8 @@ import { apiRoutes } from '../shared/const/backend-routes';
   styleUrls: ['./appointment.component.scss']
 })
 export class AppointmentComponent implements AfterViewInit {
+  public filterStatus: number | null = null; // Estado del filtro
+
   appointmentList: Appointment[] = []
   appointment?: Appointment;
   buttonAppointment: string[] = ['Registrar cita', 'Actualizar Cita']
@@ -52,9 +56,35 @@ export class AppointmentComponent implements AfterViewInit {
     //{ key: 'id', label: 'ID', dataType: 'number', editable: false },
     {key:'appointmentDate', label: 'Fecha', dataType: 'date', date: true},
     {key: 'patientName', label: 'Nombre', dataType: 'string'},
-    {key:'serviceIds', label:'Servicios', dataType: 'array', function: 'service', editable:true},
+    {key:'serviceIds', label:'Servicios', dataType: 'array', function: 'service', editable:true, selectEndpoint: apiRoutes.services.main},
+    {key:'status', label: 'Estado de la Cita', dataType:'number', enum:'statusName'},
     {key:'totalCost', label: 'Costo total', dataType: 'number'}
   ];
+
+  public tableOptions: TableOption[] = [
+    {
+      buttonName: "Completadas",
+      active: true,
+      columns: ['Item', 'Cantidad disponible', 'Fecha de compra', 'Notas', 'Esterilizado / Limpiado / Empaquetado'],
+      products: [],
+      table: ['items', 'status', 'date', 'notes', 'actions']
+    },
+    {
+      buttonName: "Pendientes",
+      active: false,
+      columns: ['Item', 'Cantidad disponible', 'Fecha de caducidad', 'Notas',],
+      products: [],
+      table: ['items', 'expiryDate', 'notes', 'actions']
+    },
+    {
+      buttonName: "Canceladas",
+      active: false,
+      columns: ['Item', 'Cantidad disponible', 'Fecha de caducidad', 'Notas'],
+      products: [],
+      table: ['items', 'expiryDate', 'notes', 'actions']
+    }
+  ];
+
   public appointmentRoute = apiRoutes.appointment.main;
 
 
@@ -71,6 +101,7 @@ export class AppointmentComponent implements AfterViewInit {
     private paginators: MatPaginatorIntl, 
     private appointmentService: AppointmentService, 
     private patientService: PatientService, 
+    private refreshService: RefreshService,
     private duesService: DuesService) 
     {
     this.paginators.itemsPerPageLabel = "Registros por página";
@@ -95,6 +126,7 @@ export class AppointmentComponent implements AfterViewInit {
 
   ngOnInit(): void {
     this.loading = true;
+    
     this.getAllAppointments();
     this.getAllPatients();
     this.getAllServices();
@@ -108,6 +140,21 @@ export class AppointmentComponent implements AfterViewInit {
     this.dataSource.paginator = this.paginator;
   }
 
+  applyFilter(status: number | null): void {
+    this.filterStatus = status;
+    this.refreshService.triggerRefresh(); // Notifica al hijo
+    console.log('Aplicando filtro desde el padre:', status);
+  }
+  
+  
+
+  pollAppointments(){
+    this.appointmentService.pollAppointments().subscribe(
+      (response) => {
+        this.refreshService.triggerRefresh();
+      }
+    )
+  }
 
   combineLists(duesList: Dues[], serviceList: Service[]) {
     this.combinedList = [
@@ -137,8 +184,6 @@ export class AppointmentComponent implements AfterViewInit {
 
     this.router.navigate([url])
   }
-
-
 
   addingDues(id: number) {
     if (id === null || id === undefined) {
@@ -417,7 +462,7 @@ export class AppointmentComponent implements AfterViewInit {
         serviceIds: this.filterServices(formValue.serviceIds),
         duesCost: dueCost,
         totalCost: totalCost,
-        appointmentDate: date.toISOString()
+        appointmentDate: date.toISOString(),
       };
   
       delete submission.appointmentHour;

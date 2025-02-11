@@ -1,123 +1,63 @@
-
-
-  <div class="container">
-    <div class="top-buttons">
-      <mat-form-field appearance="outline" class="search-input-container">
-        <input type="text" (keyup)="applyFilter($event)" matInput placeholder="Busca un paciente..."
-          class="search-input">
-      </mat-form-field>
-      <button mat-flat-button color="accent" (click)="openModal(modalContent)">Registrar
-        paciente</button>
-
-    </div>
-    <div class="table-appointment">
-      <!-- <div class="spinner-container" >
-        <mat-spinner class="spinner"></mat-spinner>
-      </div> -->
-      <div style="overflow-x: auto;" >
-        <!-- <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table" >
-
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>Nombre</th>
-            <td mat-cell *matCellDef="let patient"> {{patient.name}} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="history">
-            <th mat-header-cell *matHeaderCellDef>Historial dental</th>
-            <td mat-cell *matCellDef="let patient"> <mat-icon (click)="profile(patient.id)"
-                class="history-icon">library_books</mat-icon> </td>
-          </ng-container>
-
-          <ng-container matColumnDef="age">
-            <th mat-header-cell *matHeaderCellDef>Edad</th>
-            <td mat-cell *matCellDef="let patient"> {{patient.age}} </td>
-          </ng-container> -->
-
-          <!-- <ng-container matColumnDef="procedure">
-            <th mat-header-cell *matHeaderCellDef>Ultimo procedimiento</th>
-            <td mat-cell *matCellDef="let patient"> </td>
-          </ng-container> -->
-
-          <!-- <ng-container matColumnDef="pending-appointment">
-            <th mat-header-cell *matHeaderCellDef>Consultas pendientes</th>
-            <td mat-cell *matCellDef="let patient"> <span class="pending-eye">{{ patient.pendingAppointments }}<mat-icon (click)="redirect('')"
-                  style="cursor: pointer;">remove_red_eye</mat-icon></span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="background">
-            <th mat-header-cell *matHeaderCellDef>Antecedentes</th>
-            <td mat-cell *matCellDef="let appointment"> <span class="pending-eye"> <mat-icon (click)="redirect('')"
-                  style="cursor: pointer;">medical_services</mat-icon></span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="pending_appointment">
-            <th mat-header-cell *matHeaderCellDef>Cita programada</th>
-            <td mat-cell *matCellDef="let patient"> <mat-icon class="bookmark">bookmark</mat-icon> </td>
-          </ng-container>
-
-          <ng-container matColumnDef="actions" class="icons">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Acciones</th>
-            <td mat-cell *matCellDef="let row" class="icon-container">
-
-              <button mat-icon-button class="icon icon-edit" (click)="redirectToEdit(row.id)">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button class="icon icon-delete" (click)="deletePatient(row.id)">
-                <mat-icon>delete</mat-icon>
-              </button>
-
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-
-        <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Selecciona una página">
-        </mat-paginator> -->
-        <app-base-grid-component [getData]="patientRoute" [columnDefinitions]="columnDefs"></app-base-grid-component>
-      </div>
-
-    </div>
+<div class="container">
+  <div class="breadcrumb-container">
+    <nav aria-label="breadcrumb">
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a routerLink="/patients">Gestión de Pacientes</a>
+        </li>
+        <li class="breadcrumb-item" aria-current="page">/ Pacientes</li>
+      </ul>
+    </nav>
   </div>
+  <div class="top-buttons">
+    <button mat-flat-button color="accent" (click)="openModal(modalContent)" class="register-button">Registrar
+      paciente</button>
+    <mat-form-field appearance="outline" class="search-input-container">
+      <input type="text" (keyup)="applyFilter($event)" matInput placeholder="Busca un paciente..." class="search-input">
+    </mat-form-field>
+  </div>
+  <div class="table-appointment">
+    <app-base-grid-component [getData]="patientRoute" [columnDefinitions]="columnDefs"></app-base-grid-component>
+  </div>
+</div>
 
 
 <ng-template #modalContent>
   <form [formGroup]="patientForm" (ngSubmit)="submitForm()" class="form">
-    <div class="mat-dialog-container">
-
-      <div class="modal-top">
-        <mat-icon class="close-icon" (click)="closeModal()">close</mat-icon>
-      </div>
-
-      <div class="content-modal">
-        <mat-form-field class="example-full-width">
-          <mat-label>Nombre</mat-label>
-          <input matInput formControlName="name">
-        </mat-form-field>
-
-        <mat-form-field class="example-full-width">
-          <mat-label>Edad</mat-label>
-          <input matInput formControlName="age" type="number">
-        </mat-form-field>
-
-        <mat-form-field class="example-full-width">
-          <mat-label>Dirección</mat-label>
-          <input matInput formControlName="address">
-        </mat-form-field>
-
-        <mat-form-field class="example-full-width">
-          <mat-label>Teléfono</mat-label>
-          <input matInput formControlName="tel">
-        </mat-form-field>
-
-        <div class="create">
-          <button mat-raised-button color="primary" class="register-button" type="submit">Registrar paciente</button>
+    <div class="modal-container">
+      <h3 class="form-title">Registrar Paciente</h3>
+      
+      <div class="form-row">
+        <div class="custom-input">
+          <label for="name">Nombre</label>
+          <input id="name" type="text" formControlName="name" placeholder="Ingresa el nombre" />
         </div>
       </div>
+      
+      <div class="form-row">
+        <div class="custom-input">
+          <label for="age">Edad</label>
+          <input id="age" type="number" formControlName="age" placeholder="Ingresa la edad" />
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="custom-input">
+          <label for="address">Dirección</label>
+          <input id="address" type="text" formControlName="address" placeholder="Ingresa la dirección" />
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="custom-input">
+          <label for="tel">Teléfono</label>
+          <input id="tel" type="text" formControlName="tel" placeholder="Ingresa el teléfono" />
+        </div>
+      </div>
+      
+      <div class="button-row">
+        <button type="submit" class="action-button primary">Registrar paciente</button>
+      </div>
     </div>
-
   </form>
 </ng-template>

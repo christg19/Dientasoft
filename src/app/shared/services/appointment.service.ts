@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, switchMap, timer } from 'rxjs';
 import { apiRoutes } from '../const/backend-routes';
 import { BaseGridService } from './baseGrid.service';
 import { Appointment } from '../interfaces/appointment.interface';
@@ -36,5 +36,11 @@ export class AppointmentService {
 
   patchAppointment(id: number, partialUpdate: Partial<Appointment>) {
     return this.baseGridService.pathData(this.url, id, partialUpdate);
+  }
+
+  pollAppointments(): Observable<Appointment[]> {
+    return timer(0, 30000).pipe(
+      switchMap(() => this.getAppointments())
+    );
   }
 }

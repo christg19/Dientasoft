@@ -1,10 +1,14 @@
-import { ToothNames } from "./enums/tooth.enum";
+import { StatusNames, ToothNames } from "./enums/tooth.enum";
 
-export const enumMap = new Map <string, Function> ([
-    ['toothName', toothEnum]
-  ])
-  
-  
-  export function toothEnum(position: number){
-    return ToothNames[position];
-  }
+export const enumMap = new Map<string, (position: number) => string>([
+  ['toothName', toothEnum],
+  ['statusName', statusEnum],
+]);
+
+export function toothEnum(position: number): string {
+  return ToothNames[position] || 'Diente desconocido';
+}
+
+export function statusEnum(position: number): string {
+  return StatusNames[position] || 'Estado desconocido';
+}

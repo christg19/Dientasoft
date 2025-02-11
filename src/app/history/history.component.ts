@@ -54,6 +54,7 @@ export class HistoryComponent {
   public appointmentRoute = apiRoutes.appointment.main;
   public odontogramRoute = apiRoutes.odontogram.main;
   public servicesRoute = apiRoutes.services.main;
+  public originalToothData: Tooth[] = [];
 
 
   public hoveredTooth: string | null = null;
@@ -92,6 +93,10 @@ export class HistoryComponent {
     this.paginators.getRangeLabel = (page, pageSize, length) => {
       return this.spanishRangeLabel(page, pageSize, length);
     };
+    this.refreshService.refresh$.subscribe(() => {
+      console.log('Recibiendo evento de refresco');
+      this.getOdontogramByPatientId(this.patientId)
+    });
   }
 
   ngOnInit() {
@@ -119,16 +124,26 @@ export class HistoryComponent {
   }
 
   clearOdontogram() {
-  
     if (this.toothSVGComponent) {
       this.toothSVGComponent.clearAllSelectedTeeth();
       this.statusMode = false;
     }
-  
+    
+    // Limpiar el filtro en la tabla
+    this.selectedFilter = '';
     this.dataSource.filter = '';
-  
-    this.selectedFilter = ''; 
+    
+    // Recargar los datos originales del odontograma
+    this.getOdontogramByPatientId(this.patientId)
+      .then(() => {
+        // Opcional: Si tienes algún mensaje o log, puedes indicarlo.
+        console.log('Filtros limpiados, se han recargado todos los dientes.');
+      })
+      .catch(error => {
+        console.error('Error al recargar el odontograma:', error);
+      });
   }
+  
   
   applyColors(){
     if(this.toothSVGComponent){
@@ -147,41 +162,38 @@ export class HistoryComponent {
     })
   }
 
-  updateTooth(id: number, position: number, status: number) {
+  updateToothStatusInFrontend(id: number, odontogramId: number, toothPosition: number, status: any) {
+    const newStatus = Number(status);
+    
+    if (!Object.values(ToothStatus).includes(newStatus)) {
+      Swal.fire("Estado inválido", "Selecciona un estado válido", "warning");
+      return;
+    }
+    
     Swal.fire({
       title: `Actualizar Estado`,
-      text: `¿Estás seguro de actualizar el estado del ${ToothNames[position]} a ${ToothStatus[status]}?`,
+      text: `¿Estás seguro de actualizar el estado del ${ToothNames[toothPosition]} a ${ToothStatus[newStatus]}?`,
       showDenyButton: true,
-      showCancelButton: false,
       confirmButtonText: "Actualizar",
-      denyButtonText: `Cancelar`,
+      denyButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        this.baseGridService.getDataById(this.toothRoute,id).subscribe({
-          next: (tooth: any) => {
-      
-            const updatedTooth: Tooth = { toothPosition:position, status, odontogramId: tooth.odontogramId, serviceIds:tooth.serviceIds, toothName: position };
-            this.baseGridService.updateData(this.toothRoute,updatedTooth, id).subscribe({
-              next: () => {
-            
-                const index = this.dataSource.data.findIndex(t => t.id === id);
-                if (index !== -1) {
-                  this.dataSource.data[index] = updatedTooth;
-          
-                  this.dataSource.data = [...this.dataSource.data];
-                }
-                this.refreshService.triggerRefresh();
-                Swal.fire("El estado ha sido actualizado!", "", "success");
-              },
-              error: (error) => {
-                console.error("Error al actualizar el diente:", error);
-                Swal.fire("Error al actualizar el diente", "", "error");
-              },
-            });
+        const payload = { odontogramId, status: newStatus };
+        
+        // Llamar a updateDataComplete con la URL completa deseada:
+        this.baseGridService.updateDataComplete(`${apiRoutes.tooth.main2}/${id}/status`, payload).subscribe({
+          next: (updatedTooth: any) => {
+            // Actualiza localmente el estado (o recarga el odontograma si lo prefieres)
+            const index = this.originalToothData.findIndex(t => t.id === id);
+            if (index !== -1) {
+              this.originalToothData[index].status = newStatus;
+            }
+            this.refreshService.triggerRefresh();
+            Swal.fire("El estado ha sido actualizado!", "", "success");
           },
           error: (error) => {
-            console.error("Error al obtener el diente:", error);
-            Swal.fire("Error al obtener el diente", "", "error");
+            console.error("Error al actualizar el diente:", error);
+            Swal.fire("Error al actualizar el diente", "", "error");
           },
         });
       } else if (result.isDenied) {
@@ -189,7 +201,8 @@ export class HistoryComponent {
       }
     });
   }
-
+  
+  
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
   }
@@ -233,11 +246,14 @@ export class HistoryComponent {
         next: (data: any) => {
           this.patientOdontogram = data;
           const toothData = this.patientOdontogram.tooth.map((tooth: any) => ({
-            ...tooth,
+            id: tooth.id, // ID real del diente
             toothPosition: tooth.toothPosition,
-            odontogramId: this.patientOdontogram.id 
+            status: tooth.status,
+            serviceIds: tooth.serviceIds,
+            toothName: tooth.toothName || ToothNames[tooth.toothPosition],
+            odontogramId: Number(this.patientOdontogram.id) // Se fuerza a número
           }));
-  
+          this.originalToothData = toothData;  // Guardamos la lista original
           this.dataSource.data = toothData;
           resolve();
         },
@@ -248,6 +264,8 @@ export class HistoryComponent {
       });
     });
   }
+  
+  
   
   getAppointmentService(ids: number[]) {
     let servicesNames: string[] = [];
@@ -287,11 +305,20 @@ export class HistoryComponent {
   getToothInfo() {
 
   }
-  applyFilter(event: any) {
-    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    this.dataSource.filter = filterValue;
-}
-
+  applyFilter(filterValue: any): void {
+    // Si el valor es un array (posiciones de dientes)
+    if (Array.isArray(filterValue)) {
+      // Filtrar la lista original por los dientes cuya posición esté incluida en el array
+      this.dataSource.data = this.originalToothData.filter((tooth: Tooth) =>
+        filterValue.includes(tooth.toothPosition)
+      );
+    } else if (typeof filterValue === 'string') {
+      // Caso de búsqueda textual (por ejemplo, en un input)
+      const value = filterValue.trim().toLowerCase();
+      this.dataSource.filter = value;
+    }
+  }
+  
    getToothName(position:number){
     return `${ToothNames[position]}`
   }

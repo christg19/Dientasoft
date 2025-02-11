@@ -5,6 +5,11 @@ import { Tooth } from '../../interfaces/tooth.interface';
 import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
 import { RefreshService } from '../../services/refresh.service';
+import { lastValueFrom } from 'rxjs';
+import { ServicesService } from '../../services/services.service';
+import { BaseGridService } from '../../services/baseGrid.service';
+import { apiRoutes } from '../../const/backend-routes';
+import { ActivatedRoute } from '@angular/router';
 
 const toothIdMap: { [key: string]: any } = {
   'svg_1': 1,
@@ -61,7 +66,7 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
   @Input() unableCreateTooths?: boolean;
   @Output() actualToothId = new EventEmitter<number>;
   @Output() arrayTooth = new EventEmitter<any>;
-  @Input() componentTitle!: string;
+  @Input() componentTitle?: string;
   @Input() appointment!: boolean;
   @Input() statusButton!: TemplateRef<any>;
   @Input() statusOptions!: TemplateRef<any>;
@@ -70,6 +75,7 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
   @Input() changeStatus: boolean = false;
   private refreshSubscription!: Subscription;
   colorOn: boolean = true;
+  public odontogramId!: number; 
   selectedTeeth: { [key: string]: boolean } = {};
   private isSelectToothEnabled = true;
   private listeners: (() => void)[] = [];
@@ -77,20 +83,19 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
   public toothList: Tooth[] = [];
 
   dialogRef!: MatDialogRef<any>;
-  options1 = [
-    { value: 'opcion1', viewValue: 'Opción 1' },
-    { value: 'opcion2', viewValue: 'Opción 2' },
-    { value: 'opcion3', viewValue: 'Opción 3' },
-  ];
+ 
 
-  options2 = [
-    { value: 'opcionA', viewValue: 'Opción A' },
-    { value: 'opcionB', viewValue: 'Opción B' },
-    { value: 'opcionC', viewValue: 'Opción C' },
-  ];
-
-  constructor(public dialog: MatDialog, private renderer: Renderer2, private elementRef: ElementRef, private refreshService:RefreshService) { }
-
+  constructor(
+    public dialog: MatDialog,
+    private renderer: Renderer2,
+    private elementRef: ElementRef,
+    private refreshService: RefreshService,
+    private servicesService: ServicesService,
+    private baseGridService: BaseGridService,
+    private route: ActivatedRoute
+  ) { 
+  
+  }
   ngOnChanges(changes: SimpleChanges) {
     if (changes['actualToothArray'] && !changes['actualToothArray'].firstChange) {
       this.applyTestToothColors();
@@ -102,6 +107,15 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
   
 
   ngOnInit(): void {
+   
+    this.route.paramMap.subscribe((params) => {
+      // Suponiendo que el parámetro se llama "id"
+      const id = params.get('id');
+      if (id) {
+        this.odontogramId = Number(id);
+        console.log('OdontogramId almacenado:', this.odontogramId);
+      }
+    });
     if(this.appointment){
       this.SelectToothForAppointment();
     }
@@ -161,35 +175,115 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
   }
 
   async dialogCreateTooth(id: number) {
-    const { value: formValues } = await Swal.fire({
-      title: `Asignar datos a ${ToothNames[id]}`,
-      html: `
-        <select id="swal-select1" class="swal2-input" style="width: 80%; padding: 10px; margin: 10px;">
-          ${this.options1
-            .map((option) => `<option value="${option.value}">${option.viewValue}</option>`)
-            .join('')}
-        </select>
-        <select id="swal-select2" class="swal2-input" style="width: 80%; padding: 10px; margin: 10px;">
-          ${this.options2
-            .map((option) => `<option value="${option.value}">${option.viewValue}</option>`)
-            .join('')}
-        </select>
-      `,
-      focusConfirm: false,
-      preConfirm: () => {
-        return [
-          (document.getElementById('swal-select1') as HTMLSelectElement).value,
-          (document.getElementById('swal-select2') as HTMLSelectElement).value,
-        ];
-      },
-    });
-  
-    // Utilizar las opciones seleccionadas
-    if (formValues) {
-      Swal.fire(`Seleccionaste: ${formValues[0]} y ${formValues[1]}`);
-      this.usarOpcionesSeleccionadas(formValues[0], formValues[1]);
+    try {
+      // Obtener la lista de procedimientos desde el endpoint de services
+      const procedures: any[] = await lastValueFrom(this.servicesService.getServices());
+      // Generar el HTML de las opciones del select múltiple
+      const optionsHtml = procedures
+        .map(proc => `<option value="${proc.id}">${proc.name}</option>`)
+        .join('');
+    
+      // Mostrar el modal con SweetAlert2, incluyendo dos botones:
+      // - "Limpiar selección" para deseleccionar manualmente las opciones.
+      // - "Quitar todos" para actualizar inmediatamente el diente con un array vacío.
+      const { value: formValues } = await Swal.fire({
+        title: `Asignar procedimientos a ${ToothNames[id]}`,
+        html: `
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+            <select id="swal-procedure" class="swal2-input" style="width: 80%; padding: 10px; margin: 10px;" multiple>
+              <option value="" disabled>Seleccione uno o más procedimientos...</option>
+              ${optionsHtml}
+            </select>
+            <div style="display: flex; gap: 1rem;">
+              <button id="clear-selection" style="background-color: transparent; border: 1px solid #ccc; border-radius: 4px; padding: 5px 10px; cursor: pointer;">
+                Limpiar selección
+              </button>
+              <button id="remove-all" style="background-color: transparent; border: 1px solid #ccc; border-radius: 4px; padding: 5px 10px; cursor: pointer;">
+                Quitar todos
+              </button>
+            </div>
+            <input id="swal-note" class="swal2-input" placeholder="Agregar nota (opcional)" />
+          </div>
+        `,
+        focusConfirm: false,
+        didOpen: () => {
+          const selectElement = document.getElementById('swal-procedure') as HTMLSelectElement;
+          const clearButton = document.getElementById('clear-selection');
+          const removeAllButton = document.getElementById('remove-all');
+          if (clearButton && selectElement) {
+            clearButton.addEventListener('click', () => {
+              for (let i = 0; i < selectElement.options.length; i++) {
+                selectElement.options[i].selected = false;
+              }
+            });
+          }
+          if (removeAllButton && selectElement) {
+            removeAllButton.addEventListener('click', () => {
+              // Deselecciona todas las opciones
+              for (let i = 0; i < selectElement.options.length; i++) {
+                selectElement.options[i].selected = false;
+              }
+              // Llama a la función de actualización con un array vacío
+              this.assignProcedureToTooth(id, []);
+              // Cierra el modal inmediatamente
+              Swal.close();
+            });
+          }
+        },
+        preConfirm: () => {
+          const selectElement = document.getElementById('swal-procedure') as HTMLSelectElement;
+          const selectedOptions = Array.from(selectElement.selectedOptions).map(option => Number(option.value));
+          const note = (document.getElementById('swal-note') as HTMLInputElement).value;
+          return { procedureIds: selectedOptions, note };
+        }
+      });
+    
+      // Si se confirma con el botón "OK" (y no se pulsó "Quitar todos")
+      if (formValues) {
+        if (formValues.procedureIds.length === 0) {
+          Swal.fire("Servicios limpiados", "", "success");
+        } else {
+          Swal.fire(`Procedimientos asignados: ${formValues.procedureIds.join(', ')}${formValues.note ? ' - Nota: ' + formValues.note : ''}`);
+        }
+        this.assignProcedureToTooth(id, formValues.procedureIds, formValues.note);
+      }
+    } catch (error) {
+      console.error("Error al obtener procedimientos:", error);
+      Swal.fire("Error", "No se pudieron cargar los procedimientos", "error");
     }
   }
+  
+  assignProcedureToTooth(toothId: number, procedureIds: number[], note?: string): void {
+    console.log(`Procedimientos ${procedureIds} asignados al diente ${toothId} con nota: ${note}`);
+  
+    // Verificamos que se tenga un odontogramId (pasado por input)
+    if (!this.odontogramId) {
+      console.error('No se encontró el odontograma para el paciente.');
+      Swal.fire("Error", "No se encontró el odontograma del paciente", "error");
+      return;
+    }
+  
+    // Construir el payload con odontogramId y serviceIds
+    const payload = {
+      odontogramId: this.odontogramId,
+      serviceIds: procedureIds // Si el array está vacío, se limpiarán los servicios asignados
+    };
+  
+    // Llama al método updateToothServiceIds de baseGridService con la URL correcta
+    this.baseGridService.updateToothServiceIds(apiRoutes.tooth.main2, toothId, payload).subscribe({
+      next: (updatedTooth: any) => {
+        Swal.fire("El diente ha sido actualizado", "", "success");
+        this.refreshService.triggerRefresh();
+      },
+      error: (error) => {
+        console.error("Error al actualizar el diente:", error);
+        Swal.fire("Error al actualizar el diente", "", "error");
+      }
+    });
+  }
+  
+
+  
   
   // Ejemplo de método para usar las opciones seleccionadas
   usarOpcionesSeleccionadas(opcion1: string, opcion2: string) {
@@ -198,7 +292,24 @@ export class ToothSVGComponent implements OnInit, AfterViewInit {
     // Lógica adicional para manejar las opciones seleccionadas...
   }
   
-  
+  clearAllSelectedTeethForm(){
+    Object.keys(this.selectedTeeth).forEach(toothId => {
+      if (this.selectedTeeth[toothId]) {
+        const toothElement = document.querySelector(`path#${toothId}`);
+        if (toothElement) {
+          this.renderer.removeStyle(toothElement, 'fill');
+        }
+        this.selectedTeeth[toothId] = false;
+      }
+    });
+
+    this.toothList = [];
+    this.arrayTooth.emit(this.toothList);
+
+    this.listeners.forEach(unlisten => unlisten());
+    this.listeners = []; 
+
+  }
   
 
   clearAllSelectedTeeth() {

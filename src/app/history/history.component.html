@@ -1,85 +1,93 @@
-<div class="main-container">
-    <div class="top-buttons">
-        <div class="search-class">
-            <mat-form-field appearance="outline" class="search-input-container">
-                <input type="text" (keyup)="applyFilter($event)" matInput placeholder="Filtra por procedimiento o diente..."
-                    class="search-input">
-            </mat-form-field>
-            <button mat-raised-button color="primary" class="button-search">
-                Buscar <mat-icon>search</mat-icon>
-              </button>
-        </div>
-        <div class="select-odontogram">
-            <mat-form-field appearance="outline" class="custom-select">
-              <mat-label>Filtro Avanzado</mat-label>
-              <mat-select [(value)]="selectedFilter" (selectionChange)="activeFilter(selectedFilter)">
-                <mat-option *ngFor="let option of filterOptions" [value]="option.value">
-                  {{ option.viewValue }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <button mat-raised-button color="warn" class="button-search" (click)="clearOdontogram()">
-              Limpiar <mat-icon>clear</mat-icon>
-            </button>
-          </div>
-          
-
+<div class="appointments-main-container">
+  <div class="breadcrumb-container">
+    <nav aria-label="breadcrumb">
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a routerLink="/general">Gestión de Pacientes</a>
+        </li>
+        <li class="breadcrumb-item" aria-current="page">/ Pacientes</li>
+        <li class="breadcrumb-item " aria-current="page">/ Histórico</li>
+      </ul>
+    </nav>
+  </div>
+  <!-- Sección de Filtros y Botones -->
+  <div class="filters-container">
+    <div class="filters">
+      <!-- Filtro Avanzado -->
+      <div class="custom-input">
+        <!-- <label for="filter-select" class="custom-label">Filtro Avanzado</label> -->
+        <select id="filter-select" [(ngModel)]="selectedFilter" (change)="activeFilter(selectedFilter)"
+          class="custom-select">
+          <option value="" disabled selected>Seleccione un filtro...</option>
+          <option *ngFor="let option of filterOptions" [value]="option.value">
+            {{ option.viewValue }}
+          </option>
+        </select>
+      </div>
+      <!-- Botones de Acción -->
+      <!-- <button class="action-button primary">Buscar</button> -->
+      <button class="action-button secondary" (click)="clearOdontogram()">Limpiar</button>
     </div>
-    <div class="main-appointment">
-        <div class="appointments-container">
-            <div class="appointments">
-              <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
-
-                <ng-container matColumnDef="toothName">
-                    <th mat-header-cell *matHeaderCellDef>Diente</th>
-                    <td mat-cell *matCellDef="let element"> {{ getToothName(element.toothPosition) }} </td>
-                </ng-container>
-
-                <ng-container matColumnDef="toothPosition">
-                    <th mat-header-cell *matHeaderCellDef>Posición</th>
-                    <td mat-cell *matCellDef="let element"> {{ element.toothPosition }} </td>
-                </ng-container>
-
-                <ng-container matColumnDef="serviceIds">
-                    <th mat-header-cell *matHeaderCellDef>Procedimientos</th>
-                    <td mat-cell *matCellDef="let element"> {{getAppointmentService(element.serviceIds)}} </td>
-                </ng-container>
-
-                <ng-container matColumnDef="status">
-                    <th mat-header-cell *matHeaderCellDef>Estado</th>
-                    <td mat-cell *matCellDef="let element" class="status-cell">
-                        <mat-form-field appearance="outline" class="status-select">
-                            <mat-select [(ngModel)]="element.status" placeholder="Selecciona estado">
-                                <mat-option *ngFor="let options of statusOptions" [value]="options.value" (click)="updateTooth(element.id, element.toothPosition, options.value)">
-                                {{options.label}}
-                            </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </td>
-                </ng-container>
-                
+  </div>
 
 
+  <!-- Contenedor Principal -->
+  <div class="main-content">
+    <!-- Tabla de Citas -->
+    <div class="appointments-table">
+      <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table tabla-citas">
+        <!-- Diente -->
+        <ng-container matColumnDef="toothName">
+          <th mat-header-cell *matHeaderCellDef>Diente</th>
+          <td mat-cell *matCellDef="let element">{{ getToothName(element.toothPosition) }}</td>
+        </ng-container>
 
+        <!-- Posición -->
+        <ng-container matColumnDef="toothPosition">
+          <th mat-header-cell *matHeaderCellDef>Posición</th>
+          <td mat-cell *matCellDef="let element">{{ element.toothPosition }}</td>
+        </ng-container>
 
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-            </table>
+        <!-- Procedimientos -->
+        <ng-container matColumnDef="serviceIds">
+          <th mat-header-cell *matHeaderCellDef>Procedimientos</th>
+          <td mat-cell *matCellDef="let element">{{ getAppointmentService(element.serviceIds) }}</td>
+        </ng-container>
 
-            <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons
-                aria-label="Select page of periodic elements">
-            </mat-paginator>
+        <!-- Estado -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let element" class="status-cell">
+            <div class="custom-input status-select">
+              <select [(ngModel)]="element.status"
+                      (ngModelChange)="updateToothStatusInFrontend(element.id, element.odontogramId, element.toothPosition, $event)">
+                <option *ngFor="let option of statusOptions" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
             </div>
-  
-        </div>
-
-        <div class="odont">
-            <app-tooth-svg #ToothSVGComponent [patient]="patientId" [componentTitle]="'Odontograma'" [appointment]="statusMode"
-             [changeStatus]="changingStatus"   (arrayTooth)="applyFilter($event)" [statusMap]="" [actualToothArray]="dataSource.data"></app-tooth-svg>
-        </div>
+          </td>
+        </ng-container>
+        
+        
 
 
+
+        <!-- Filas y Encabezados -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="fila-cita"></tr>
+      </table>
+
+      <!-- Paginador -->
+      <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Select page of periodic elements">
+      </mat-paginator>
     </div>
 
-
+    <!-- Odontograma -->
+    <div class="odontograma-container">
+      <app-tooth-svg #ToothSVGComponent [patient]="patientId" [componentTitle]="'Odontograma'"
+        [appointment]="statusMode" [changeStatus]="changingStatus" (arrayTooth)="applyFilter($event)"
+        [actualToothArray]="dataSource.data"></app-tooth-svg>
+    </div>
+  </div>
 </div>

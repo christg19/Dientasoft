@@ -41,3 +41,9 @@ export enum ToothNames {
   "Segundo Molar Inferior Derecho" = 31,
   "Tercer Molar Inferior Derecho" = 32
 }
+
+export enum StatusNames {
+  "Pendiente" = 0,
+  "Completada" = 1,
+  "Cancelada" = 2,
+}

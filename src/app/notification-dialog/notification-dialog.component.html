@@ -1,0 +1,22 @@
+<h1 mat-dialog-title class="notification-title">📢 Notificaciones</h1>
+<div mat-dialog-content>
+  <div class="notifications-container" *ngIf="data.notifications && data.notifications.length > 0; else noNotifications">
+    <div *ngFor="let notification of data.notifications" class="notification-item" [ngClass]="{'notification-completed': notification.type === 'completed', 'notification-pending': notification.type === 'upcoming'}">
+      <div class="notification-content">
+        <p *ngIf="notification.type === 'upcoming'">
+          <strong>⏰ Cita Pendiente:</strong> Tienes una cita con <strong>{{ notification.patientName }}</strong> este <strong>{{getDay(notification.date)}}</strong> a las {{formatTime(notification.date)}}!
+        </p>
+        <p *ngIf="notification.type === 'completed'">
+          <strong>✔️ Cita Completada:</strong> La cita con <strong>{{ notification.patientName }}</strong> fue completada!
+        </p>
+        <span class="notification-seen" *ngIf="notification.seen">👁️ Visto</span>
+      </div>
+    </div>
+  </div>
+  <ng-template #noNotifications>
+    <p class="no-notifications">No tienes notificaciones en este momento.</p>
+  </ng-template>
+</div>
+<div mat-dialog-actions class="notification-actions">
+  <button mat-button mat-dialog-close class="close-button">Cerrar</button>
+</div>

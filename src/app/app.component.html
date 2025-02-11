@@ -1,42 +1,51 @@
-<div class="layout">
-  <div class="menu">
-    <!-- Grupo: General -->
-    <div class="group-title">General</div>
-    <div class="options" *ngFor="let option of groupedMenu.general" (click)="redirect(option.title)">
-      <mat-icon>{{ option.icon }}</mat-icon>
-      <p class="option-title">{{ option.title }}</p>
+<div class="app-wrapper">
+  <div class="notification-bar" [@slideNotification]="notificationState">
+    <div class="notification-content">
+      <mat-icon class="notification-icon">notifications</mat-icon>
+      <span class="notification-text">
+        Tienes
+        <strong>
+          {{ unseenNotificationsCount }} nueva{{ unseenNotificationsCount === 1 ? '' : 's' }} notificación{{ unseenNotificationsCount === 1 ? '.' : 'es.' }}
+        </strong>
+        <a (click)="toggleNotification()">Ver más</a>
+      </span>
     </div>
-  
-    <!-- Grupo: Gestión de Pacientes -->
-    <div class="group-title">Gestión de Pacientes</div>
-    <div class="options" *ngFor="let option of groupedMenu.patients" (click)="redirect(option.title)">
-      <mat-icon>{{ option.icon }}</mat-icon>
-      <p class="option-title">{{ option.title }}</p>
-    </div>
-  
-    <!-- Grupo: Gestión Administrativa -->
-    <div class="group-title">Gestión Administrativa</div>
-    <div class="options" *ngFor="let option of groupedMenu.admin" (click)="redirect(option.title)">
-      <mat-icon>{{ option.icon }}</mat-icon>
-      <p class="option-title">{{ option.title }}</p>
-    </div>
-  
-    <!-- Grupo: Finanzas -->
-    <div class="group-title">Finanzas</div>
-    <div class="options" *ngFor="let option of groupedMenu.finance" (click)="redirect(option.title)">
-      <mat-icon>{{ option.icon }}</mat-icon>
-      <p class="option-title">{{ option.title }}</p>
-    </div>
-  
-    <!-- Grupo: Configuración -->
-    <!-- <div class="group-title">Configuración</div>
-    <div class="options" *ngFor="let option of groupedMenu.settings" (click)="redirect(option.title)">
-      <mat-icon>{{ option.icon }}</mat-icon>
-      <p class="option-title">{{ option.title }}</p>
-    </div> -->
   </div>
   
-  <div class="container">
-    <router-outlet></router-outlet>
+
+  <div class="app-content">
+    <div class="layout">
+      <div class="menu">
+        <div class="group-title">General</div>
+        <div class="options" *ngFor="let option of groupedMenu.general" (click)="redirect(option.title)">
+          <mat-icon>{{ option.icon }}</mat-icon>
+          <p class="option-title">{{ option.title }}</p>
+        </div>
+
+        <div class="group-title">Gestión de Pacientes</div>
+        <div class="options" *ngFor="let option of groupedMenu.patients" (click)="redirect(option.title)">
+          <mat-icon>{{ option.icon }}</mat-icon>
+          <p class="option-title">{{ option.title }}</p>
+        </div>
+
+        <div class="group-title">Gestión Administrativa</div>
+        <div class="options" *ngFor="let option of groupedMenu.admin" (click)="redirect(option.title)">
+          <mat-icon>{{ option.icon }}</mat-icon>
+          <p class="option-title">{{ option.title }}</p>
+        </div>
+
+        <div class="group-title">Finanzas</div>
+        <div class="options" *ngFor="let option of groupedMenu.finance" (click)="redirect(option.title)">
+          <mat-icon>{{ option.icon }}</mat-icon>
+          <p class="option-title">{{ option.title }}</p>
+        </div>
+      </div>
+      <div class="container">
+        <div [@routeAnimations]="prepareRoute(routerOutlet)">
+          <router-outlet #routerOutlet="outlet"></router-outlet>
+        </div>
+
+      </div>
+    </div>
   </div>
 </div>

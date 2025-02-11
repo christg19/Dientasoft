@@ -35,6 +35,13 @@ export class InventoryComponent implements OnInit, AfterViewInit {
   @ViewChild('modalContent') modalContent!: TemplateRef<any>;
 
   public buttonsNames: string[] = ['Instrumentos', 'Quimicos', 'Desechables'];
+
+  public buttonNameTranslations: { [key: string]: string } = {
+    INSTRUMENTAL: 'Instrumentos',
+    CHEMICAL: 'Químicos',
+    DISPOSABLE: 'Desechables',
+  };
+  
   public productList: any[] = [];
   public tableOptions: TableOption[] = [
     {
@@ -221,7 +228,7 @@ export class InventoryComponent implements OnInit, AfterViewInit {
 
     }
 
-    this.dialogRef = this.dialog.open(templateRef, { width: '400px', height: '500px' });
+    this.dialogRef = this.dialog.open(templateRef, { width: '600px', height: '600px' });
 
     setTimeout(() => {
       this.cdr.detectChanges();

@@ -1,5 +1,11 @@
-import { Dues } from "./dues.interface";
-import { Service } from "./services.interface";
+
+
+export enum AppointmentStatus {
+  Pendiente = 0,
+  Completada = 1,
+  Cancelada = 2,
+}
+
 
 export interface Appointment {
     id:number;
@@ -9,5 +15,5 @@ export interface Appointment {
     patientId: number;
     totalCost?: number;
     patientName: string;
-   
+    status?: AppointmentStatus;
 }

@@ -1,7 +1,7 @@
 .container {
     display: flex;
     flex-direction: column;
-  
+    user-select: none;
   }
   
   .search-input-container {
@@ -15,19 +15,14 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
-  
-    margin-top: 2rem;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 1.1rem;
     margin-bottom: 1rem;
   }
   
   .table-appointment {
     background-color: #FFFFFF;
-    width: 75dvw;
-    height: 10dvh;
-    margin-left: 2.5rem;
-    border-radius: 4px;
-    box-shadow: none;
   }
   
   th,
@@ -53,10 +48,6 @@
     font-size: 30px;
   }
   
-  .angular-table {
-    height: 10dvh;
-  }
-  
   .mat-dialog-container {
     display: flex;
     flex-direction: column;
@@ -64,19 +55,9 @@
     justify-content: center;
     border-radius: 5px; 
     width: 100%;
-    z-index: 1000 !important;
   }
   
-  .modal-top {
-    display: flex;
-    flex-direction: column;
-    align-items: end;
-    justify-content: center;
-    background-color: #ff9c9c;
-    height: 5dvh;
-    width: 100%;
-  }
-  
+
   .close-icon{
     margin-right: 1rem;
     color: #FFFFFF;
@@ -106,7 +87,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content:center;
+    justify-content:space-between;
     gap: 1rem;
     margin-top: 2rem;
     margin-bottom: 1rem;
@@ -114,9 +95,6 @@
   
   .table-appointment {
     background-color: #FFFFFF;
-    width: 75dvw;
-  
-    margin-left: 2.5rem;
   }
   
   th,
@@ -127,11 +105,9 @@
     box-shadow: none;
   }
   
-  .angular-table {
+  // .angular-table {
   
-    box-shadow: none;
-    height: 10dvh;
-  }
+  // }
   
   mat-paginator {
     display: flex;
@@ -150,15 +126,7 @@
     width: 100%;
   }
   
-  .modal-top{
-  display: flex;
-  flex-direction: column;
-  align-items: end;
-  justify-content: center;
-  background-color:#ff9c9c;
-  height: 5dvh;
-  width: 100%;
-  }
+
   
   .close-icon{
     margin-right: 1rem;
@@ -173,15 +141,6 @@
 
   .serviceButton{
     margin-left: 0.9rem;
-  }
-  
-  .content-modal{
-    margin-top: 3rem;
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
   }
 
 
@@ -204,10 +163,10 @@
     max-width: 80px;
   }
 
-  .patient-select {
-    width: 235px;
-    margin-left: 0.3rem;
+  label[for="patient-select"] {
+    padding-right: 6rem;
   }
+  
   
   .patient {
     display: flex;
@@ -215,6 +174,161 @@
     align-items: center;
     margin-left: 3rem;
     gap: 1rem;
+  }
+
+  .breadcrumb-container {
+    padding: 0.5rem 1rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    font-family: "Mulish", sans-serif;
+    width: 100%;
+  }
+  
+  .breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .breadcrumb-item {
+    font-size: 16px;
+    color: #4a4a4a;
+    font-weight: 500;
+  }
+  
+  .breadcrumb-item a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .breadcrumb-item a:hover {
+    color: #0056b3;
+  }
+  
+  .breadcrumb-item.active {
+    color: #4a4a4a;
+    font-weight: bold;
+  }
+
+  
+.btn-primary{
+  background-color: #2563EB !important;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0.1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #1E40AF !important;
+}
+  /* Contenedor del modal */
+  .modal-container {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    max-width: 500px;
+    margin: 1rem auto;
+    font-family: 'Mulish', sans-serif;
+  }
+  
+  /* Título del formulario */
+  .form-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #4a4a4a;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  /* Filas del formulario */
+  .form-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Estilos de los inputs y select */
+  .custom-input {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .custom-input label {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .custom-input input,
+  .custom-input select {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 14px;
+    color: #374151;
+    background-color: #f9fafb;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .custom-input input:focus,
+  .custom-input select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+    outline: none;
+  }
+  
+  /* Botones de acción */
+  .button-row {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  .action-button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Mulish', sans-serif;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .action-button.primary {
+    background-color: #2563eb;
+    color: #ffffff;
+  }
+  
+  .action-button.primary:hover {
+    background-color: #1d4ed8;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .close-icon {
+    cursor: pointer;
+    float: right;
+    font-size: 24px;
+    color: #6b7280;
+  }
+  
+  /* Opcional: Estilos para el modal (opcional, según el layout de tu app) */
+  .modal-top {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
   }
   
   @media (max-width: 600px) {

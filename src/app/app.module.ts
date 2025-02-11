@@ -6,16 +6,14 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { InventoryComponent } from './inventory/inventory.component';
 import { ModalContent1Component } from './shared/components/modal-content1/modal-content1.component';
 import { LoadingComponent } from './shared/components/loading/loading.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { LoadingComponentComponent } from './loading-component/loading-component.component';
-import { StatCardComponent } from './stat-card/stat-card.component';
-import { BaseGridComponentComponent } from './base-grid-component/base-grid-component.component';
-import { BaseGridComponentModule } from './base-grid-component/base-grid-component.module';
 import { NgChartsModule } from 'ng2-charts';
-import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
+import { NotificationDialogComponent } from './notification-dialog/notification-dialog.component';
+import {MatMenuModule} from '@angular/material/menu';
 
 
 
@@ -27,7 +25,8 @@ import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
     LoadingComponent,
     LoadingComponent,
     LoadingComponentComponent,
-
+    NotificationDialogComponent,
+    NotificationDialogComponent
 
   ],
   imports: [
@@ -39,8 +38,9 @@ import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
     MatDialogModule,
     MatProgressSpinnerModule,
     NgChartsModule,
+    MatMenuModule
   ],
-  providers: [],
+  providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

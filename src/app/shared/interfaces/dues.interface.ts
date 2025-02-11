@@ -1,10 +1,11 @@
 import { Service } from "./services.interface";
 
 export interface Dues {
-    id?:number;
+    createdAt: string | number | Date;
+    id?: number;
 
-    name?:string;
-    
+    name?: string;
+
     patientId: number;
 
     serviceId: number | string;
@@ -13,15 +14,18 @@ export interface Dues {
 
     totalCost: number;
 
-    itemType:'due';
-    
-    
+    originalTotalCost?: number;
+    originalDueQuantity?: number
+
+    itemType: 'due';
+
+
 }
 
 
 export type SelectableObject = {
     itemType: 'service' | 'due';
 
-  };
+};
 
-  export type ServiceOrDue = Service | Dues;
+export type ServiceOrDue = Service | Dues;

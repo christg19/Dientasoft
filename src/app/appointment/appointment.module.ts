@@ -14,7 +14,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { CreateAppointmentComponent } from './create-appointment/create-appointment.component';
 import { ToothSVGComponent } from '../shared/components/tooth-svg/tooth-svg.component';
@@ -32,6 +32,7 @@ import { SharedGridModule } from '../shared/modules/grid-componente.shared.modul
     MatFormFieldModule,
     MatInputModule, 
     MatNativeDateModule,
+    MatSnackBarModule,
     ReactiveFormsModule,
     NgxMaterialTimepickerModule,
     MatIconModule,

@@ -1,34 +1,37 @@
 <form [formGroup]="patientForm" (ngSubmit)="submitForm()" class="form">
-    <div class="main-container">
-        <div class="create-appointment">
-            <div class="container">
-                <div class="title">
-                    <p>Registra un paciente</p>
-                </div>
-                <mat-form-field class="example-full-width">
-                    <mat-label>Nombre</mat-label>
-                    <input matInput formControlName="name">
-                  </mat-form-field>
-
-                  <mat-form-field class="example-full-width">
-                    <mat-label>Edad</mat-label>
-                    <input matInput formControlName="age" type="number">
-                  </mat-form-field>
-
-                  <mat-form-field class="example-full-width">
-                    <mat-label>Dirección</mat-label>
-                    <input matInput formControlName="address">
-                  </mat-form-field>
-
-                  <mat-form-field class="example-full-width">
-                    <mat-label>Teléfono</mat-label>
-                    <input matInput formControlName="tel">
-                  </mat-form-field>
-
-                <div class="create">
-                    <button mat-raised-button color="primary" class="create-button" type="submit">Registrar</button>
-                </div>
-            </div>
-        </div>
+  <div class="modal-container">
+    <h3 class="form-title">Registrar Paciente</h3>
+    
+    <div class="form-row">
+      <div class="custom-input">
+        <label for="name">Nombre</label>
+        <input id="name" type="text" formControlName="name" placeholder="Ingresa el nombre" />
+      </div>
     </div>
+    
+    <div class="form-row">
+      <div class="custom-input">
+        <label for="age">Edad</label>
+        <input id="age" type="number" formControlName="age" placeholder="Ingresa la edad" />
+      </div>
+    </div>
+    
+    <div class="form-row">
+      <div class="custom-input">
+        <label for="address">Dirección</label>
+        <input id="address" type="text" formControlName="address" placeholder="Ingresa la dirección" />
+      </div>
+    </div>
+    
+    <div class="form-row">
+      <div class="custom-input">
+        <label for="tel">Teléfono</label>
+        <input id="tel" type="text" formControlName="tel" placeholder="Ingresa el teléfono" />
+      </div>
+    </div>
+    
+    <div class="button-row">
+      <button type="submit" class="action-button primary">Registrar paciente</button>
+    </div>
+  </div>
 </form>

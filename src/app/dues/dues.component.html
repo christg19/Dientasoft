@@ -1,81 +1,88 @@
 <div class="container">
+  <div class="breadcrumb-container">
+    <nav aria-label="breadcrumb">
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a routerLink="/general">General</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">/ Citas</li>
+        </ul>
+    </nav>
+</div>
   <div class="top-buttons">
+    <button mat-flat-button color="accent" (click)="openModal(modalContent)" class="btn-primary">Agregar cuota a un servicio</button>
     <mat-form-field appearance="outline" class="search-input-container">
       <input type="text" (keyup)="applyFilter($event)" matInput placeholder="Busca una cuota..." class="search-input">
     </mat-form-field>
-    <button mat-flat-button color="accent" (click)="openModal(modalContent)">Agregar cuota a un servicio</button>
+  
 
   </div>
   <div class="table-appointment">
     <!-- <div class="spinner-container">
       <mat-spinner class="spinner"></mat-spinner>
     </div> -->
-    <div style="overflow-x: auto;">
       <app-base-grid-component [getData]="duesRoute" [columnDefinitions]="columnDefs"></app-base-grid-component>
-    </div>
 
   </div>
 </div>
-
 <ng-template #modalContent>
   <form [formGroup]="dueForm" (ngSubmit)="submitForm()" class="form">
-    <div class="mat-dialog-container">
+    <div class="modal-container">
+      <h3 class="form-title">Registrar Cuota</h3>
 
-      <div class="modal-top">
-        <mat-icon class="close-icon" (click)="closeModal()">close</mat-icon>
-      </div>
       <div class="content-modal">
+        <!-- Fila de Paciente -->
+        <div class="form-row services">
+          <div class="custom-input">
+            <label for="service-select">Selecciona un paciente</label>
+            <select id="service-select" formControlName="patientId">
+              <option value="" disabled selected>Seleccione...</option>
+              <option *ngFor="let option of patientList" [value]="option.id">
+                {{ option.name }}
+              </option>
+            </select>
+          </div>
+          <!-- <button type="button" class="action-button mini" (click)="redirect(redirectToServices)">+</button> -->
+        </div>
 
-        <div class="patient">
-          <mat-form-field appearance="fill" class="patient-select">
-            <mat-label>Selecciona un paciente</mat-label>
-            <mat-select formControlName="patientId">
-              <mat-option *ngFor="let option of patientList" [value]="option.id">{{ option.name
-                }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <button mat-mini-fab color="primary" aria-label="Add" [value]="redirectToClient"
-            (click)="redirect(redirectToClient)">
-            <mat-icon>add</mat-icon>
+        <!-- Fila de Servicios -->
+        <div class="form-row services">
+          <div class="custom-input">
+            <label for="service-select">Selecciona servicios</label>
+            <select id="service-select" formControlName="serviceId" (change)="calculatePendingCost(dueForm.get('serviceId')?.value)">
+              <option value="" disabled selected>Seleccione...</option>
+              <option *ngFor="let service of serviceList" [value]="service.id">
+                {{ service.name }}
+              </option>
+            </select>
+          </div>
+          <!-- <button type="button" class="action-button mini" (click)="redirect(redirectToServices)">+</button> -->
+        </div>
+
+        <!-- Fila de Cuotas -->
+        <div class="form-row dues">
+          <div class="custom-input">
+            <label for="due-quantity">Cuotas</label>
+            <input id="due-quantity" type="number" formControlName="dueQuantity" placeholder="Ingresa la cantidad">
+          </div>
+        </div>
+
+        <!-- Fila de Costo Total -->
+        <div class="form-row cost">
+          <div class="custom-input">
+            <label for="total-cost">Costo total</label>
+            <input id="total-cost" type="number" formControlName="totalCost" placeholder="Ingresa el costo total">
+          </div>
+        </div>
+
+        <!-- Botón de acción -->
+        <div class="button-row">
+          <button type="submit" class="action-button primary create-button">
+            Registrar Cuota
           </button>
         </div>
-
-        <div class="services">
-          <mat-form-field appearance="fill" class="services-select">
-            <mat-label>Selecciona servicios</mat-label>
-            <mat-select formControlName="serviceId" [compareWith]="compareFn" (selectionChange)="calculatePendingCost(dueForm.get('serviceId')?.value)">
-              <mat-option *ngFor="let service of serviceList" [value]="service.id">{{service.name}}</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <button mat-mini-fab class="serviceButton" color="primary" aria-label="Add" [value]="redirectToServices"
-            (click)="redirect(redirectToServices)">
-            <mat-icon>add</mat-icon>
-          </button>
-        </div>
-        <div class="dues">
-          <mat-form-field class="example-form-field">
-            <mat-label>Cuotas</mat-label>
-            <input matInput formControlName="dueQuantity" type="number">
-          </mat-form-field>
-        </div>
-
-        <div class="cost">
-          <mat-form-field class="example-form-field">
-            <mat-label>Costo total</mat-label>
-            <input matInput formControlName="totalCost" type="number">
-          </mat-form-field>
-        </div>
-
-
-
-
-        <div class="create">
-          <button mat-raised-button color="primary" class="create-button" type="submit">Registrar Cuota</button>
-        </div>
-
       </div>
-
     </div>
   </form>
 </ng-template>
+

@@ -51,6 +51,15 @@ export class BaseGridService {
         )
     }
 
+    updateDataComplete(url: string, payload: any): Observable<any> {
+        return this.http.put(url, payload);
+      }
+      
+      updateToothServiceIds(route:string, id: number, payload: any): Observable<any> {
+        const url = `${route}/${id}/serviceIds`;
+        return this.http.put(url, payload);
+      }
+
     createData<T>(endpoint:string, data: T): Observable<T>{
         
         return this.http.post<T>(`${this.baseUrl}${endpoint}`, data).pipe(
@@ -90,6 +99,17 @@ export class BaseGridService {
                 return throwError(error);
             })
         )
+    }
+
+    getDataByIds<T>(endpoint: string, ids: number[]): Observable<T[]> {
+        return this.http.post<T[]>(`${this.baseUrl}${endpoint}/byIds`, { ids }).pipe(
+            map((response) => response),
+            catchError((error) => {
+                console.error('Error al obtener datos por IDs:', error);
+                this.dialogService.showErrorMessage('Error al obtener los datos por IDs.');
+                return throwError(error);
+            })
+        );
     }
 }
 

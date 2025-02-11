@@ -1,5 +1,5 @@
 <div class="container">
-  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table">
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 angular-table tabla-citas">
     <ng-container *ngFor="let column of columnDefinitions">
       <ng-container [matColumnDef]="column.key">
         <th mat-header-cell *matHeaderCellDef>
@@ -7,59 +7,90 @@
         </th>
         <td mat-cell *matCellDef="let element">
           <ng-container [ngSwitch]="true">
+
+            <!-- Caso: Icono -->
             <ng-container *ngSwitchCase="!!column.icon">
               <mat-icon (click)="getRouteToRedirect(column.icon ?? '', element.id)" class="icon">
                 {{ column.icon }}
               </mat-icon>
             </ng-container>
 
+            <!-- Caso: Función (por ejemplo, para traer nombres) -->
             <ng-container *ngSwitchCase="!!column.function && editingRowId !== element.id">
               <span>
                 {{ getFunction(column, element[column.key]) | async }}
               </span>
             </ng-container>
 
+            <!-- Caso: Fecha -->
             <ng-container *ngSwitchCase="!!column.date && editingRowId !== element.id">
               <span>
-                {{formatDate(element[column.key])}}
+                {{ formatDate(element[column.key]) }}
               </span>
             </ng-container>
 
+            <!-- Caso: Enum en modo visual (no edición) -->
             <ng-container *ngSwitchCase="!!column.enum && editingRowId !== element.id">
               <span>
                 {{ getEnum(column.enum ?? '', element[column.key]) | async }}
               </span>
             </ng-container>
 
+            <!-- Caso por defecto -->
             <ng-container *ngSwitchDefault>
-
+              <!-- Muestra el valor cuando NO se está editando o la columna no es editable -->
               <span *ngIf="editingRowId !== element.id || column.editable === false">
-                {{ element[column.key] || 'N/A' }}
+                {{ element[column.key] ?? 'N/A' }}
               </span>
 
+              <!-- Modo edición -->
               <ng-container *ngIf="editingRowId === element.id && column.editable !== false">
-                <ng-container *ngIf="column.dataType === 'array'; else inputField">
-                  <input matInput [(ngModel)]="element[column.key]"
-                    placeholder="Editar {{ column.label || column.key }}"
-                    (ngModelChange)="handleArrayInput(column, element)" style="resize: none; width: 100%;" />
+                <!-- Si se define un enum, se muestra un selector con las opciones del enum -->
+                <ng-container *ngIf="column.enum; else nonEnumEdit">
+                  <div class="custom-select-container">
+                    <select
+                      [(ngModel)]="element[column.key]"
+                      (change)="onSelectChange(column, element)"
+                      class="custom-select"
+                    >
+                      <option *ngFor="let option of getEnumOptions(column.enum)" [ngValue]="option.value">
+                        {{ option.label }}
+                      </option>
+                    </select>
+                  </div>
                 </ng-container>
-
-                <ng-template #inputField>
-                  <input
-                    *ngIf="editingRowId === element.id && (column.editable === true || column.editable === undefined)"
-                    matInput [type]="column.dataType === 'array' ? 'text' : getInputType(column)"
-                    [(ngModel)]="element[column.key]" (ngModelChange)="handleArrayInput(column, element)"
-                    placeholder="Editar {{ column.label || column.key }}" />
-
+                <!-- Si no es enum, se verifica si hay un endpoint para select; de lo contrario, se muestra un input -->
+                <ng-template #nonEnumEdit>
+                  <ng-container *ngIf="column.selectEndpoint; else inputField">
+                    <div class="custom-select-container">
+                      <select
+                        [(ngModel)]="element[column.key]"
+                        (change)="onSelectChange(column, element)"
+                        class="custom-select"
+                      >
+                        <option *ngFor="let option of selectOptions[column.key]" [value]="option.id">
+                          {{ option.name }}
+                        </option>
+                      </select>
+                    </div>
+                  </ng-container>
+                  <ng-template #inputField>
+                    <input
+                      matInput
+                      [type]="getInputType(column)"
+                      [(ngModel)]="element[column.key]"
+                      placeholder="Editar {{ column.label || column.key }}"
+                    />
+                  </ng-template>
                 </ng-template>
               </ng-container>
             </ng-container>
           </ng-container>
         </td>
-
       </ng-container>
     </ng-container>
 
+    <!-- Columna de acciones -->
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
       <td mat-cell *matCellDef="let row">
@@ -78,8 +109,9 @@
       </td>
     </ng-container>
 
+    <!-- Filas de cabecera y datos -->
     <tr mat-header-row *matHeaderRowDef="displayedColumnsWithActions"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumnsWithActions;"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumnsWithActions;" class="fila-cita"></tr>
   </table>
 
   <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>

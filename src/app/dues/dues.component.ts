@@ -25,7 +25,7 @@ export class DuesComponent {
   public columnDefs: ColumnDefinition[] = [
     { key: 'patientId', label: 'Paciente', dataType: 'string', function: 'patient' },
     { key: 'name', label: 'Servicio', dataType: 'string' },
-    { key: 'dueQuantity', label: 'Cantidad de Cuotas', dataType: 'number' },
+    {key: 'totalCost', label: 'Dinero Restante', dataType: 'number'}
 
   ];
 
@@ -175,6 +175,7 @@ export class DuesComponent {
       });
 
       this.dueList = await Promise.all(duePromises);
+      console.log(this.dueList)
     });
   }
 
@@ -208,7 +209,7 @@ export class DuesComponent {
 
       this.dueForm.reset();
 
-    this.dialogRef = this.dialog.open(templateRef, { width: '400px', height: '500px' });
+    this.dialogRef = this.dialog.open(templateRef, { width: '600px', height: '650px' });
 
   }
 

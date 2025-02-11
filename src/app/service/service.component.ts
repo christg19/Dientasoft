@@ -90,7 +90,7 @@ export class ServiceComponent {
       console.log('Creando nuevo servicio');
     } 
 
-    this.dialogRef = this.dialog.open(templateRef, { width: '400px', height: '500px' });
+    this.dialogRef = this.dialog.open(templateRef, { width: '800px', height: '650px' });
 
     setTimeout(() => {
       this.cdr.detectChanges();
